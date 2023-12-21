@@ -17,11 +17,11 @@ public class AuthenticationTests : TestBase
         var mockAuthenticationService = new Mock<IAuthenticationService>();
         mockAuthenticationService.Setup(
             authenticationService => authenticationService.RequestTokenAsync(new BasicAuthentication(Username, Password))
-        ).ReturnsAsync(new TokenResponse(true, $"Authenticated as \"{Username}\" successfully.", Token));
+        ).ReturnsAsync(new TokenResponse(true, $"Authenticated as \"{Username}\".", Token));
 
         mockAuthenticationService.Setup(
             authenticationService => authenticationService.RequestSessionAsync(Token)
-        ).ReturnsAsync(new SessionResponse(true, $"Logged in as \"{Username}\" successfully.", SessionUid));
+        ).ReturnsAsync(new SessionResponse(true, $"Logged in as \"{Username}\".", SessionUid));
 
         container.RegisterInstance(mockAuthenticationService.Object);
     }
@@ -39,6 +39,8 @@ public class AuthenticationTests : TestBase
             Assert.That(tokenResponse.Success, Is.True);
             Assert.That(tokenResponse.Token, Is.Not.Null);
         });
+
+        Console.WriteLine(tokenResponse.Message);
     }
 
     [Test]
@@ -55,5 +57,7 @@ public class AuthenticationTests : TestBase
             Assert.That(sessionResponse.Success, Is.True);
             Assert.That(sessionResponse.Uid, Is.Not.EqualTo(0));
         });
+
+        Console.WriteLine(sessionResponse.Message);
     }
 }

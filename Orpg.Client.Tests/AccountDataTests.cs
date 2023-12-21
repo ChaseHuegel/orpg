@@ -5,11 +5,21 @@ using Orpg.Shared.Models;
 
 namespace Orpg.Client.Tests;
 
-public class AccountCharacterTests : TestBase
+public class AccountDataTests : TestBase
 {
     private const string Token = "1234";
-    private static readonly CharacterSnippet[] CharacterList = new CharacterSnippet[] {
-        new(uid: 0, name: "Adventurer", description: "Level 1 Unit Tester", location: "Testland", activity: "Swimming with the fishes.")
+    private static readonly Character[] CharacterList = new Character[] {
+        new(
+            uid: 0,
+            name: "Adventurer",
+            level: 1,
+            archetypeId: 0,
+            raceId: 0,
+            location: "{locTestland}",
+            activity: "{actCamping}",
+            appearance: new Appearance(),
+            visuals: new Visuals()
+        )
     };
 
     protected override void Setup(Container container)
@@ -33,7 +43,9 @@ public class AccountCharacterTests : TestBase
         {
             Assert.That(characterListResponse.Success, Is.True);
             Assert.That(characterListResponse.Characters, Is.Not.Empty);
-            Assert.That(characterListResponse.Characters[0].Name, Is.EqualTo(CharacterList[0].Name));
+            Assert.That(characterListResponse.Characters[0].Uid, Is.EqualTo(CharacterList[0].Uid));
         });
+
+        Console.WriteLine(characterListResponse.Message);
     }
 }

@@ -14,7 +14,7 @@ public class AccountManagementTests : TestBase
     {
         var mockAccountService = new Mock<IAccountService>();
         mockAccountService.Setup(
-            accountService => accountService.RegisterAsync(new BasicAuthentication(Username, Password))
+            accountService => accountService.RequestRegistrationAsync(new BasicAuthentication(Username, Password))
         ).ReturnsAsync(new RegistrationResponse(true, $"Registered \"{Username}\"."));
 
         container.RegisterInstance(mockAccountService.Object);
@@ -25,8 +25,10 @@ public class AccountManagementTests : TestBase
     {
         var accountService = Container.Resolve<IAccountService>();
 
-        RegistrationResponse registrationResponse = await accountService.RegisterAsync(new BasicAuthentication(Username, Password));
+        RegistrationResponse registrationResponse = await accountService.RequestRegistrationAsync(new BasicAuthentication(Username, Password));
 
         Assert.That(registrationResponse.Success, Is.True);
+
+        Console.WriteLine(registrationResponse.Message);
     }
 }

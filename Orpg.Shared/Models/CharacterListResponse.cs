@@ -4,9 +4,9 @@ public struct CharacterListResponse
 {
     public bool Success;
     public string Message;
-    public CharacterSnippet[] Characters;
+    public Character[] Characters;
 
-    public CharacterListResponse(bool success, string message, CharacterSnippet[] characters)
+    public CharacterListResponse(bool success, string message, Character[] characters)
     {
         Success = success;
         Message = message;
