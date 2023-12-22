@@ -26,7 +26,11 @@ public class AccountDataTests : TestBase
 
         mockAccountService.Setup(
             accountService => accountService.RequestCharacterListAsync(Token)
-        ).ReturnsAsync(new CharacterListResponse(true, "Retrieved Character list.", CharacterList));
+        ).ReturnsAsync(new CharacterListResponse(true, "Retrieved character list.", CharacterList));
+
+        mockAccountService.Setup(
+            accountService => accountService.RequestCharacterDeletion(Token, CharacterList[0].Uid)
+        ).ReturnsAsync(new CharacterDeletionResponse(true, $"Deleted character \"{CharacterList[0].Name}\"."));
 
         container.RegisterInstance(mockAccountService.Object);
     }
@@ -46,5 +50,20 @@ public class AccountDataTests : TestBase
         });
 
         Console.WriteLine(characterListResponse.Message);
+    }
+
+    [Test]
+    public async Task DeleteCharacter()
+    {
+        var accountService = Container.Resolve<IAccountService>();
+
+        CharacterDeletionResponse characterDeletionResponse = await accountService.RequestCharacterDeletion(Token, CharacterList[0].Uid);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(characterDeletionResponse.Success, Is.True);
+        });
+
+        Console.WriteLine(characterDeletionResponse.Message);
     }
 }
