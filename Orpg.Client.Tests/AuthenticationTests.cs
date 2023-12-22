@@ -20,14 +20,18 @@ public class AuthenticationTests : TestBase
         ).ReturnsAsync(new TokenResponse(true, $"Authenticated as \"{Username}\".", Token));
 
         mockAuthenticationService.Setup(
-            authenticationService => authenticationService.RequestSessionAsync(Token)
-        ).ReturnsAsync(new SessionResponse(true, $"Logged in as \"{Username}\".", SessionUid));
+            authenticationService => authenticationService.RequestLoginAsync(Token)
+        ).ReturnsAsync(new LoginResponse(true, $"Logged in as \"{Username}\"."));
+
+        mockAuthenticationService.Setup(
+            authenticationService => authenticationService.RequestLogoutAsync(Token)
+        ).ReturnsAsync(new LogoutResponse(true, $"Logged out as \"{Username}\"."));
 
         container.RegisterInstance(mockAuthenticationService.Object);
     }
 
     [Test]
-    public async Task GetAuthenticationToken()
+    public async Task Authenticate()
     {
         var authenticationService = Container.Resolve<IAuthenticationService>();
 
@@ -44,20 +48,34 @@ public class AuthenticationTests : TestBase
     }
 
     [Test]
-    public async Task GetSession()
+    public async Task Login()
     {
         var authenticationService = Container.Resolve<IAuthenticationService>();
 
         var credentials = new BasicAuthentication(Username, Password);
         TokenResponse tokenResponse = await authenticationService.RequestTokenAsync(credentials);
-        SessionResponse sessionResponse = await authenticationService.RequestSessionAsync(tokenResponse.Token);
+        LoginResponse loginResponse = await authenticationService.RequestLoginAsync(tokenResponse.Token);
 
         Assert.Multiple(() =>
         {
-            Assert.That(sessionResponse.Success, Is.True);
-            Assert.That(sessionResponse.Uid, Is.Not.EqualTo(0));
+            Assert.That(loginResponse.Success, Is.True);
         });
 
-        Console.WriteLine(sessionResponse.Message);
+        Console.WriteLine(loginResponse.Message);
+    }
+
+    [Test]
+    public async Task Logout()
+    {
+        var authenticationService = Container.Resolve<IAuthenticationService>();
+
+        LogoutResponse logoutResponse = await authenticationService.RequestLogoutAsync(Token);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(logoutResponse.Success, Is.True);
+        });
+
+        Console.WriteLine(logoutResponse.Message);
     }
 }

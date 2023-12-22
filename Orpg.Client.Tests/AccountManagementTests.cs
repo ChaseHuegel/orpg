@@ -21,7 +21,7 @@ public class AccountManagementTests : TestBase
     }
 
     [Test]
-    public async Task RegisterAccount()
+    public async Task Register()
     {
         var accountService = Container.Resolve<IAccountService>();
 

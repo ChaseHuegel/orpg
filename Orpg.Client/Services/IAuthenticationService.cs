@@ -7,5 +7,7 @@ public interface IAuthenticationService
 {
     Task<TokenResponse> RequestTokenAsync(BasicAuthentication credentials);
 
-    Task<SessionResponse> RequestSessionAsync(string token);
+    Task<LoginResponse> RequestLoginAsync(string token);
+
+    Task<LogoutResponse> RequestLogoutAsync(string token);
 }
