@@ -5,7 +5,7 @@ namespace Orpg.Client.Services;
 
 public interface IAccountService
 {
-    Task<RegistrationResponse> RequestRegistrationAsync(BasicAuthentication credentials);
+    Task<RegistrationResponse> RequestRegistrationAsync(BasicAuthentication credentials, string email);
 
     Task<CharacterListResponse> RequestCharacterListAsync(string token);
 

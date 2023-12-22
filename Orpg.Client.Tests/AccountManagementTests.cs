@@ -8,16 +8,16 @@ namespace Orpg.Client.Tests;
 
 public class AccountManagementTests : TestBase
 {
-    private const string Username = "default";
-    private const string Password = "password";
+    private static readonly BasicAuthentication Credentials = new("default", "password");
+    private const string Email = "test@test.com";
 
     protected override void Setup(Container container)
     {
         var mockAccountService = new Mock<IAccountService>();
 
         mockAccountService.Setup(
-            accountService => accountService.RequestRegistrationAsync(new BasicAuthentication(Username, Password))
-        ).ReturnsAsync(new RegistrationResponse(true, $"Registered \"{Username}\"."));
+            accountService => accountService.RequestRegistrationAsync(Credentials, Email)
+        ).ReturnsAsync(new RegistrationResponse(true, $"Registered \"{Credentials.Username}\"."));
 
         container.RegisterInstance(mockAccountService.Object);
     }
@@ -27,7 +27,7 @@ public class AccountManagementTests : TestBase
     {
         var accountService = Container.Resolve<IAccountService>();
 
-        RegistrationResponse registrationResponse = await accountService.RequestRegistrationAsync(new BasicAuthentication(Username, Password));
+        RegistrationResponse registrationResponse = await accountService.RequestRegistrationAsync(Credentials, Email);
 
         Assert.That(registrationResponse.Success, Is.True);
 
