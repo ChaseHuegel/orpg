@@ -5,7 +5,7 @@ namespace Orpg.Client.Services;
 
 public interface IClusterService
 {
-    Task<ClusterJoinResponse> RequestJoinAsync(ClusterServer world, string token);
+    Task<ClusterJoinResponse> RequestJoinAsync(ClusterServer world, string sessionToken);
 
     Task<ClusterListResponse> RequestServerListAsync();
 }

@@ -7,9 +7,9 @@ public interface IAccountService
 {
     Task<RegistrationResponse> RequestRegistrationAsync(BasicAuthentication credentials, string email);
 
-    Task<CharacterListResponse> RequestCharacterListAsync(string token);
+    Task<CharacterListResponse> RequestCharacterListAsync(string authenticationToken);
 
-    Task<CharacterDeletionResponse> RequestCharacterDeletion(string token, int uid);
+    Task<CharacterDeletionResponse> RequestCharacterDeletion(string authenticationToken, int uid);
 
-    Task<CharacterCreationResponse> RequestCharacterCreation(string token, string name, byte archetypeId, byte raceId);
+    Task<CharacterCreationResponse> RequestCharacterCreation(string authenticationToken, string name, byte archetypeId, byte raceId);
 }

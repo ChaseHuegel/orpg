@@ -9,7 +9,7 @@ namespace Orpg.Client.Tests;
 
 public class ClusterServiceTests : TestBase
 {
-    private const string Token = "1234";
+    private const string SessionToken = "5678";
 
     private static readonly ClusterServer Cluster = new(
         uid: 1,
@@ -27,7 +27,7 @@ public class ClusterServiceTests : TestBase
         var mockClusterService = new Mock<IClusterService>();
 
         mockClusterService.Setup(
-            clusterService => clusterService.RequestJoinAsync(Cluster, Token)
+            clusterService => clusterService.RequestJoinAsync(Cluster, SessionToken)
         ).ReturnsAsync(new ClusterJoinResponse(true, $"Joined cluster \"{Cluster.Name}\"."));
 
         mockClusterService.Setup(
@@ -59,7 +59,7 @@ public class ClusterServiceTests : TestBase
     {
         var clusterService = Container.Resolve<IClusterService>();
 
-        ClusterJoinResponse clusterJoinResponse = await clusterService.RequestJoinAsync(Cluster, Token);
+        ClusterJoinResponse clusterJoinResponse = await clusterService.RequestJoinAsync(Cluster, SessionToken);
 
         Assert.Multiple(() =>
         {
