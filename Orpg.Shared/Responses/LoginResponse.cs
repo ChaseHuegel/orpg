@@ -1,11 +1,11 @@
-﻿namespace Orpg.Shared.Models;
+namespace Orpg.Shared.Responses;
 
-public readonly struct ChatLeaveResponse
+public readonly struct LoginResponse
 {
     public readonly bool Success;
     public readonly string Message;
 
-    public ChatLeaveResponse(bool success, string message)
+    public LoginResponse(bool success, string message)
     {
         Success = success;
         Message = message;

@@ -1,6 +1,6 @@
 ﻿using Orpg.Shared.Models;
 
-namespace Orpg.Client.Tests;
+namespace Orpg.Shared.Responses;
 
 public readonly struct CharacterCreationResponse
 {

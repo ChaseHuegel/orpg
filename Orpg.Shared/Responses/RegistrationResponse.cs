@@ -1,4 +1,4 @@
-namespace Orpg.Shared.Models;
+namespace Orpg.Shared.Responses;
 
 public struct RegistrationResponse
 {

@@ -2,6 +2,7 @@ using DryIoc;
 using Moq;
 using Orpg.Client.Services;
 using Orpg.Shared.Models;
+using Orpg.Shared.Responses;
 
 namespace Orpg.Client.Tests;
 

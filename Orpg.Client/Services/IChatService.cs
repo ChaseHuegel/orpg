@@ -1,4 +1,4 @@
-﻿using Orpg.Shared.Models;
+﻿using Orpg.Shared.Responses;
 
 namespace Orpg.Client.Services;
 

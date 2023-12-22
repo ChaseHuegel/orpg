@@ -1,11 +1,11 @@
-namespace Orpg.Shared.Models;
+namespace Orpg.Shared.Responses;
 
-public readonly struct LogoutResponse
+public readonly struct ClusterJoinResponse
 {
     public readonly bool Success;
     public readonly string Message;
 
-    public LogoutResponse(bool success, string message)
+    public ClusterJoinResponse(bool success, string message)
     {
         Success = success;
         Message = message;

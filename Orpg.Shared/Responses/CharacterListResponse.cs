@@ -1,4 +1,6 @@
-namespace Orpg.Shared.Models;
+using Orpg.Shared.Models;
+
+namespace Orpg.Shared.Responses;
 
 public struct CharacterListResponse
 {
