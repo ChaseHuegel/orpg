@@ -1,6 +1,6 @@
 ﻿namespace Orpg.Shared.Models;
 
-public readonly struct Visuals
+public readonly struct CharacterVisuals
 {
     public int HeadId { get; }
     public int BackId { get; }

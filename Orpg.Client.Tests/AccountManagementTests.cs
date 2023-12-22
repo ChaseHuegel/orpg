@@ -13,6 +13,7 @@ public class AccountManagementTests : TestBase
     protected override void Setup(Container container)
     {
         var mockAccountService = new Mock<IAccountService>();
+
         mockAccountService.Setup(
             accountService => accountService.RequestRegistrationAsync(new BasicAuthentication(Username, Password))
         ).ReturnsAsync(new RegistrationResponse(true, $"Registered \"{Username}\"."));

@@ -1,13 +1,13 @@
-namespace Orpg.Client.Tests;
+namespace Orpg.Shared.Models;
 
 public readonly struct BasicAuthentication
 {
-    private readonly string _username;
-    private readonly string _password;
+    public readonly string Username;
+    public readonly string Password;
 
     public BasicAuthentication(string username, string password)
     {
-        _username = username;
-        _password = password;
+        Username = username;
+        Password = password;
     }
 }

@@ -1,5 +1,6 @@
 using DryIoc;
 using Moq;
+using Orpg.Client.Services;
 using Orpg.Shared.Models;
 using System.Net;
 
@@ -10,22 +11,10 @@ public class ClusterServiceTests : TestBase
     private const string Token = "1234";
 
     private static readonly ClusterServer Cluster = new(
-        uid: 0,
+        uid: 1,
         name: "Test",
         status: "{statusEmpty}",
         endPoint: new IPEndPoint(IPAddress.Loopback, 1234)
-    );
-
-    private static readonly Character Character = new(
-        uid: 0,
-        name: "Adventurer",
-        level: 1,
-        archetypeId: 0,
-        raceId: 0,
-        location: "{locTestland}",
-        activity: "{actCamping}",
-        appearance: new Appearance(),
-        visuals: new Visuals()
     );
 
     private static readonly ClusterServer[] ClusterList = new ClusterServer[] {
@@ -34,16 +23,17 @@ public class ClusterServiceTests : TestBase
 
     protected override void Setup(Container container)
     {
-        var mockWorldService = new Mock<IClusterService>();
-        mockWorldService.Setup(
-            clusterService => clusterService.RequestJoinAsync(Cluster, Token, Character.Uid)
+        var mockClusterService = new Mock<IClusterService>();
+
+        mockClusterService.Setup(
+            clusterService => clusterService.RequestJoinAsync(Cluster, Token)
         ).ReturnsAsync(new ClusterJoinResponse(true, $"Joined cluster \"{Cluster.Name}\"."));
 
-        mockWorldService.Setup(
+        mockClusterService.Setup(
             clusterService => clusterService.RequestServerListAsync()
-        ).ReturnsAsync(new ClusterListResponse(true, "Retrieved world list.", ClusterList));
+        ).ReturnsAsync(new ClusterListResponse(true, "Retrieved server list.", ClusterList));
 
-        container.RegisterInstance(mockWorldService.Object);
+        container.RegisterInstance(mockClusterService.Object);
     }
 
     [Test]
@@ -68,7 +58,7 @@ public class ClusterServiceTests : TestBase
     {
         var clusterService = Container.Resolve<IClusterService>();
 
-        ClusterJoinResponse clusterJoinResponse = await clusterService.RequestJoinAsync(Cluster, Token, Character.Uid);
+        ClusterJoinResponse clusterJoinResponse = await clusterService.RequestJoinAsync(Cluster, Token);
 
         Assert.Multiple(() =>
         {

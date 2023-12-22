@@ -9,10 +9,8 @@ public readonly struct Character
     public byte RaceId { get; }
     public string Location { get; }
     public string Activity { get; }
-    public Appearance Appearance { get; }
-    public Visuals Visuals { get; }
 
-    public Character(int uid, string name, byte level, byte archetypeId, byte raceId, string location, string activity, Appearance appearance, Visuals visuals)
+    public Character(int uid, string name, byte level, byte archetypeId, byte raceId, string location, string activity)
     {
         Uid = uid;
         Name = name;
@@ -21,7 +19,5 @@ public readonly struct Character
         RaceId = raceId;
         Location = location;
         Activity = activity;
-        Appearance = appearance;
-        Visuals = visuals;
     }
 }

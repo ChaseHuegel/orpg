@@ -15,6 +15,7 @@ public class AuthenticationTests : TestBase
     protected override void Setup(Container container)
     {
         var mockAuthenticationService = new Mock<IAuthenticationService>();
+
         mockAuthenticationService.Setup(
             authenticationService => authenticationService.RequestTokenAsync(new BasicAuthentication(Username, Password))
         ).ReturnsAsync(new TokenResponse(true, $"Authenticated as \"{Username}\".", Token));

@@ -1,6 +1,4 @@
-﻿using Orpg.Shared.Models;
-
-namespace Orpg.Client.Tests;
+﻿namespace Orpg.Shared.Models;
 
 public readonly struct ClusterListResponse
 {

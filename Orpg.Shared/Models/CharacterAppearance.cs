@@ -1,6 +1,6 @@
 ﻿namespace Orpg.Shared.Models;
 
-public readonly struct Appearance
+public readonly struct CharacterAppearance
 {
     public byte HairId { get; }
     public byte FaceId { get; }
