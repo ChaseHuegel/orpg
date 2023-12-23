@@ -10,12 +10,18 @@ public class ChatServiceTests : TestBase
 {
     private static readonly int ParticipantUid = 1;
 
-    private readonly ChatChannel[] Channels = new ChatChannel[] {
+    private static readonly ChatChannel[] Channels = new ChatChannel[] {
         new(
             uid: 0,
             name: "{chatGeneral}"
         )
     };
+
+    private static readonly Chat ChatToSend = new(
+        channelUid: Channels[0].Uid,
+        senderUid: 1,
+        message: "A test chat message."
+    );
 
     protected override void Setup(Container container)
     {
@@ -28,6 +34,12 @@ public class ChatServiceTests : TestBase
         mockChatService.Setup(
             chatService => chatService.RequestLeaveAsync(ParticipantUid)
         ).ReturnsAsync(new ChatLeaveResponse(true, $"Left chat as \"{ParticipantUid}\"."));
+
+        mockChatService.SetupAdd(chatService => chatService.Received += It.IsAny<EventHandler<ChatEventArgs>>());
+        mockChatService.SetupRemove(chatService => chatService.Received -= It.IsAny<EventHandler<ChatEventArgs>>());
+        mockChatService.Setup(
+            chatService => chatService.StartListening()
+        ).Raises(chatService => chatService.Received += null, this, new ChatEventArgs(ChatToSend));
 
         container.RegisterInstance(mockChatService.Object);
     }
@@ -61,5 +73,32 @@ public class ChatServiceTests : TestBase
         });
 
         Console.WriteLine(chatLeaveResponse.Message);
+    }
+
+    [Test]
+    public async Task ReceiveChat()
+    {
+        var chatService = Container.Resolve<IChatService>();
+
+        var tcs = new TaskCompletionSource<Chat>();
+
+        chatService.Received += onChatReceived;
+        chatService.StartListening();
+
+        void onChatReceived(object? sender, ChatEventArgs e)
+        {
+            tcs.SetResult(e.Chat);
+        }
+
+        Chat chat = await tcs.Task;
+        chatService.Received -= onChatReceived;
+        chatService.StopListening();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(chat, Is.EqualTo(ChatToSend));
+        });
+
+        Console.WriteLine(chat.ToString());
     }
 }
