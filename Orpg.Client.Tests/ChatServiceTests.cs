@@ -3,6 +3,7 @@ using Moq;
 using Orpg.Client.Services;
 using Orpg.Shared.Models;
 using Orpg.Shared.Responses;
+using Orpg.Shared.Types;
 
 namespace Orpg.Client.Tests;
 
@@ -40,6 +41,10 @@ public class ChatServiceTests : TestBase
         mockChatService.Setup(
             chatService => chatService.StartListening()
         ).Raises(chatService => chatService.Received += null, this, new ChatEventArgs(ChatToSend));
+
+        mockChatService.Setup(
+            chatService => chatService.SendAsync(ChatToSend)
+        ).ReturnsAsync(new Result(true, $"Sent chat: \"{ChatToSend}\""));
 
         container.RegisterInstance(mockChatService.Object);
     }
@@ -100,5 +105,23 @@ public class ChatServiceTests : TestBase
         });
 
         Console.WriteLine(chat.ToString());
+    }
+
+    [Test]
+    public async Task SendChat()
+    {
+        var chatService = Container.Resolve<IChatService>();
+
+        var tcs = new TaskCompletionSource<Chat>();
+
+        Chat chat = ChatToSend;
+        Result sendResult = await chatService.SendAsync(chat);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(sendResult.Success, Is.EqualTo(true));
+        });
+
+        Console.WriteLine(sendResult.Message);
     }
 }
