@@ -12,9 +12,10 @@ public class ClusterServiceTests : TestBase
     private const string SessionToken = "5678";
 
     private static readonly ClusterServer Cluster = new(
-        uid: 1,
+        identity: "unit-test",
         name: "Test",
         status: "{statusEmpty}",
+        userCount: 0,
         endPoint: new IPEndPoint(IPAddress.Loopback, 1234)
     );
 
@@ -48,7 +49,7 @@ public class ClusterServiceTests : TestBase
         {
             Assert.That(clusterListResponse.Success, Is.True);
             Assert.That(clusterListResponse.Servers, Is.Not.Empty);
-            Assert.That(clusterListResponse.Servers[0].Uid, Is.EqualTo(ClusterList[0].Uid));
+            Assert.That(clusterListResponse.Servers[0].Identity, Is.EqualTo(ClusterList[0].Identity));
         });
 
         Console.WriteLine(clusterListResponse.Message);
