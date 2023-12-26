@@ -1,6 +1,6 @@
 ﻿using Orpg.Shared.Models;
 
-namespace Orpg.Client.Services;
+namespace Orpg.Shared.Events;
 
 public readonly struct ChatEventArgs
 {

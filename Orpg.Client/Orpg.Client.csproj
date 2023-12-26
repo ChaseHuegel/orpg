@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Orpg.Shared\Orpg.Shared.csproj" />
+    <PackageReference Include="DryIoc" Version="5.4.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DryIoc" Version="5.4.3" />
+    <ProjectReference Include="..\Orpg.Shared\Orpg.Shared.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -1,6 +1,7 @@
 using DryIoc;
 using Moq;
 using Orpg.Client.Services;
+using Orpg.Shared.Events;
 using Orpg.Shared.Models;
 using Orpg.Shared.Responses;
 using Orpg.Shared.Types;
