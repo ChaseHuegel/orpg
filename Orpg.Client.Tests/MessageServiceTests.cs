@@ -20,6 +20,7 @@ internal partial class MessageServiceTests: TestBase
     {
         //  TODO Need to be able to identify a desired IDataService and IParser for the producers and consumers, or is the expectation to use a separate container per format?
         container.Register<IDataService, SimpleDataService>(Reuse.Singleton);
+        container.RegisterMapping<SimpleDataService, IDataService>();
         container.Register<IParser, CsvParser>();
         container.Register<IDataProducer, ASCIIDataProducer>(Reuse.Singleton, setup: DryIoc.Setup.With(trackDisposableTransient: true));
         container.Register<ISerializer<string>, ASCIISerializer>();
@@ -30,7 +31,7 @@ internal partial class MessageServiceTests: TestBase
     [Test]
     public async Task Receive()
     {
-        var simpleDataService = (SimpleDataService)Container.Resolve<IDataService>();
+        var simpleDataService = Container.Resolve<SimpleDataService>();
         var messageConsumer = Container.Resolve<IMessageConsumer<string>>();
 
         var tcs = new TaskCompletionSource<string>();
