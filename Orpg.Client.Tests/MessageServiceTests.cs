@@ -1,54 +1,59 @@
 ﻿using DryIoc;
-using Moq;
 using Orpg.Shared.Services;
 using System.Text;
 
 namespace Orpg.Client.Tests;
 
-internal class MessageServiceTests: TestBase
+internal partial class MessageServiceTests: TestBase
 {
-    private const int MessageType = 1;
+    internal class SimpleDataService : IDataService
+    {
+        public event EventHandler<DataEventArgs>? Received;
 
-    private readonly Mock<IRawMessageHandler> MockMessageHandler = new();
+        public void Post(byte[] bytes)
+        {
+            Received?.Invoke(this, new DataEventArgs(bytes));
+        }
+    }
 
     protected override void Setup(Container container)
     {
-        MockMessageHandler.SetupGet(messageHandler => messageHandler.MessageType)
-            .Returns(MessageType);
-
-        var mockMessageService = new Mock<IRawMessageService>();
-
-        mockMessageService.Setup(messageService => messageService.Post(MessageType, It.IsAny<byte[]>()))
-            .Callback<int, byte[]>((type, data) => MockMessageHandler.Object.Handle(data));
-
-        container.RegisterInstance(MockMessageHandler.Object);
-        container.RegisterInstance(mockMessageService.Object);
+        var textMessagingContainer = container.CreateChild();
+        container.Register<IDataService, SimpleDataService>(Reuse.Singleton);
+        container.Register<IParser, CsvParser>();
+        container.Register<IDataProducer, ASCIIDataProducer>(Reuse.Singleton, setup: DryIoc.Setup.With(trackDisposableTransient: true));
+        container.Register<ISerializer<string>, ASCIISerializer>();
+        container.Register<IMessageProducer<string>, ASCIIMessageProducer>(Reuse.Singleton, setup: DryIoc.Setup.With(trackDisposableTransient: true));
+        container.Register<IMessageConsumer<string>, MessageConsumer<string>>(Reuse.Singleton, setup: DryIoc.Setup.With(trackDisposableTransient: true));
     }
 
     [Test]
-    public async Task ReceiveMessage()
+    public async Task Receive()
     {
-        var messageService = Container.Resolve<IRawMessageService>();
-        var tcs = new TaskCompletionSource<byte[]>();
+        var simpleDataService = (SimpleDataService)Container.Resolve<IDataService>();
+        var messageConsumer = Container.Resolve<IMessageConsumer<string>>();
 
-        MockMessageHandler.Setup(messageHandler => messageHandler.Handle(It.IsAny<byte[]>()))
-            .Callback(HandleMessage);
+        var tcs = new TaskCompletionSource<string>();
+        int messageCount = 0;
 
-        void HandleMessage(byte[] data)
+        messageConsumer.NewMessage += onNewMessage;
+
+        void onNewMessage(object? sender, string e)
         {
-            tcs.SetResult(data);
+            Console.WriteLine("Message: " + e);
+
+            messageCount++;
+            if (messageCount == 2)
+            {
+                tcs.SetResult(e);
+            }
         }
 
-        var dataToPost = Encoding.UTF8.GetBytes("Test message.");
-        messageService.Post(1, dataToPost);
+        simpleDataService.Post(Encoding.ASCII.GetBytes("Hello World!,Hello again!"));
 
-        byte[] data = await tcs.Task;
+        string textMessage = await tcs.Task;
+        messageConsumer.NewMessage -= onNewMessage;
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(data, Is.EqualTo(dataToPost));
-        });
-
-        Console.WriteLine(Encoding.UTF8.GetString(data));
+        Assert.That(textMessage, Is.EqualTo("Hello again!"));
     }
 }
