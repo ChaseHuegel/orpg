@@ -18,7 +18,7 @@ internal partial class MessageServiceTests: TestBase
 
     protected override void Setup(Container container)
     {
-        var textMessagingContainer = container.CreateChild();
+        //  TODO Need to be able to identify a desired IDataService and IParser for the producers and consumers, or is the expectation to use a separate container per format?
         container.Register<IDataService, SimpleDataService>(Reuse.Singleton);
         container.Register<IParser, CsvParser>();
         container.Register<IDataProducer, ASCIIDataProducer>(Reuse.Singleton, setup: DryIoc.Setup.With(trackDisposableTransient: true));
