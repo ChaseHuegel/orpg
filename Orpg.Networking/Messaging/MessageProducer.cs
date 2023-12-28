@@ -1,5 +1,6 @@
 ﻿using Orpg.Networking.Events;
 using Orpg.Networking.LowLevel;
+using Orpg.Shared.Serialization;
 
 namespace Orpg.Networking.Messaging;
 

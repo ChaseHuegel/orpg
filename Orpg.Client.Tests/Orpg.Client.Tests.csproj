@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Orpg.Client\Orpg.Client.csproj" />
+    <ProjectReference Include="..\Orpg.Networking\Orpg.Networking.csproj" />
   </ItemGroup>
 
 </Project>

@@ -3,29 +3,36 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orpg.Client.Console", "Orpg.Client.Console\Orpg.Client.Console.csproj", "{64FFBC9D-311B-4E51-8335-A2F35E969CBC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orpg.Client.Console", "Orpg.Client.Console\Orpg.Client.Console.csproj", "{64FFBC9D-311B-4E51-8335-A2F35E969CBC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orpg.Shared", "Orpg.Shared\Orpg.Shared.csproj", "{2995C1A8-6026-4EBB-86FA-5B9F17948886}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orpg.Shared", "Orpg.Shared\Orpg.Shared.csproj", "{2995C1A8-6026-4EBB-86FA-5B9F17948886}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orpg.Client.Tests", "Orpg.Client.Tests\Orpg.Client.Tests.csproj", "{EA567DB4-2E43-40FB-8FDD-F5CE3A1CA8AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orpg.Client.Tests", "Orpg.Client.Tests\Orpg.Client.Tests.csproj", "{EA567DB4-2E43-40FB-8FDD-F5CE3A1CA8AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orpg.Client", "Orpg.Client\Orpg.Client.csproj", "{0C18D79A-4B67-4299-BF3F-17AA826AA928}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orpg.Client", "Orpg.Client\Orpg.Client.csproj", "{0C18D79A-4B67-4299-BF3F-17AA826AA928}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E44DBDBE-2A2C-40DD-979E-18CC0D3A59D1} = {E44DBDBE-2A2C-40DD-979E-18CC0D3A59D1}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orpg.Service.Chat", "Orpg.Service.Chat\Orpg.Service.Chat.csproj", "{6ADC1419-DD06-4B16-B568-78B524D580B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orpg.Service.Chat", "Orpg.Service.Chat\Orpg.Service.Chat.csproj", "{6ADC1419-DD06-4B16-B568-78B524D580B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orpg.Service.World", "Orpg.Service.World\Orpg.Service.World.csproj", "{F3AA579D-2097-47E5-A9C5-E4AB4DA6654A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orpg.Service.World", "Orpg.Service.World\Orpg.Service.World.csproj", "{F3AA579D-2097-47E5-A9C5-E4AB4DA6654A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orpg.Service.World.Console", "Orpg.Service.World.Console\Orpg.Service.World.Console.csproj", "{71B041C4-2D58-4668-BED3-9C6011BC3663}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orpg.Service.World.Console", "Orpg.Service.World.Console\Orpg.Service.World.Console.csproj", "{71B041C4-2D58-4668-BED3-9C6011BC3663}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orpg.Service.Chat.Console", "Orpg.Service.Chat.Console\Orpg.Service.Chat.Console.csproj", "{A48C2765-572F-48E5-A5EF-17E87714C395}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orpg.Service.Chat.Console", "Orpg.Service.Chat.Console\Orpg.Service.Chat.Console.csproj", "{A48C2765-572F-48E5-A5EF-17E87714C395}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orpg.Networking", "Orpg.Networking\Orpg.Networking.csproj", "{E44DBDBE-2A2C-40DD-979E-18CC0D3A59D1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2995C1A8-6026-4EBB-86FA-5B9F17948886} = {2995C1A8-6026-4EBB-86FA-5B9F17948886}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Needlefish.Compiler.Tests", "Needlefish.Compiler.Tests\Needlefish.Compiler.Tests.csproj", "{42559A66-59B8-4163-A7B4-4E70ACD7021A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{64FFBC9D-311B-4E51-8335-A2F35E969CBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -60,5 +67,19 @@ Global
 		{A48C2765-572F-48E5-A5EF-17E87714C395}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A48C2765-572F-48E5-A5EF-17E87714C395}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A48C2765-572F-48E5-A5EF-17E87714C395}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E44DBDBE-2A2C-40DD-979E-18CC0D3A59D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E44DBDBE-2A2C-40DD-979E-18CC0D3A59D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E44DBDBE-2A2C-40DD-979E-18CC0D3A59D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E44DBDBE-2A2C-40DD-979E-18CC0D3A59D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42559A66-59B8-4163-A7B4-4E70ACD7021A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42559A66-59B8-4163-A7B4-4E70ACD7021A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42559A66-59B8-4163-A7B4-4E70ACD7021A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42559A66-59B8-4163-A7B4-4E70ACD7021A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7E1787F6-F7F1-41BA-8D89-C8D7F74DB67F}
 	EndGlobalSection
 EndGlobal

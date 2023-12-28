@@ -34,7 +34,7 @@ internal partial class MessageServiceTests: TestBase
     public async Task Receive()
     {
         var simpleDataService = Container.Resolve<SimpleDataService>();
-        var messageConsumer = Container.Resolve<IMessageConsumer<string>>();
+        var messageConsumer = Container.Resolve<IMessageConsumer<string>>(serviceKey: "text");
 
         var tcs = new TaskCompletionSource<string>();
         int messageCount = 0;
