@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Orpg.Shared.Services;
+namespace Orpg.Shared.Serialization;
 
 public class ASCIISerializer : ISerializer<string>
 {

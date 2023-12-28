@@ -1,4 +1,4 @@
-﻿namespace Orpg.Shared.Services;
+﻿namespace Orpg.Networking.Events;
 
 public readonly struct DataEventArgs
 {

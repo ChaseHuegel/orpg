@@ -1,4 +1,7 @@
-﻿namespace Orpg.Shared.Services;
+﻿using Orpg.Networking.Events;
+using Orpg.Networking.LowLevel;
+
+namespace Orpg.Networking.Messaging;
 
 public class MessageProducer<T> : IMessageProducer<T>, IDisposable
 {

@@ -1,4 +1,4 @@
-﻿namespace Orpg.Shared.Services;
+﻿namespace Orpg.Networking.Messaging;
 
 public interface IMessageConsumer<T>
 {

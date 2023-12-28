@@ -1,4 +1,6 @@
-﻿namespace Orpg.Shared.Services;
+﻿using Orpg.Networking.Events;
+
+namespace Orpg.Networking.LowLevel;
 
 public class DataProducer : IDataProducer, IDisposable
 {

@@ -1,4 +1,4 @@
-﻿namespace Orpg.Shared.Services;
+﻿namespace Orpg.Shared.Serialization;
 
 public class CsvParser : IParser
 {

@@ -1,4 +1,4 @@
-﻿namespace Orpg.Shared.Services;
+﻿namespace Orpg.Networking.Messaging;
 
 public class MessageConsumer<T> : IMessageConsumer<T>, IDisposable
 {
@@ -37,7 +37,7 @@ public class MessageConsumer<T> : IMessageConsumer<T>, IDisposable
                 IMessageProducer<T> messageProducer = _messageProducers[i];
                 messageProducer.NewMessage -= OnNewMessage;
             }
-            
+
             _messageProducers = null;
         }
 

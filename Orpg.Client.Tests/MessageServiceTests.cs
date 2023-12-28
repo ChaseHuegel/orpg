@@ -1,5 +1,8 @@
 ﻿using DryIoc;
-using Orpg.Shared.Services;
+using Orpg.Networking.Events;
+using Orpg.Networking.LowLevel;
+using Orpg.Networking.Messaging;
+using Orpg.Shared.Serialization;
 using System.Text;
 
 namespace Orpg.Client.Tests;
