@@ -389,6 +389,10 @@ internal class NsdParser
             TryCollectEnumDefinition();
         }
 
+        //  TODO post-process message definitions (assigning unset values...)
+        //  TODO post-process enum definitions (assigning unset values...)
+        //  TODO validate message definitions
+        //  TODO validate enum definitions
         ValidateVersion();
 
         return new Nsd(_version, _defines.ToArray(), _typeDefinitions.ToArray());
