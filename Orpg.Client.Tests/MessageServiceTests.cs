@@ -18,14 +18,13 @@ internal partial class MessageServiceTests: TestBase
 
     protected override void Setup(Container container)
     {
-        //  TODO Need to be able to identify a desired IDataService and IParser for the producers and consumers, or is the expectation to use a separate container per format?
-        container.Register<IDataService, SimpleDataService>(Reuse.Singleton);
+        container.Register<IDataService, SimpleDataService>(Reuse.Singleton, serviceKey: "text");
         container.RegisterMapping<SimpleDataService, IDataService>();
-        container.Register<IParser, CsvParser>();
-        container.Register<IDataProducer, ASCIIDataProducer>(Reuse.Singleton, setup: DryIoc.Setup.With(trackDisposableTransient: true));
-        container.Register<ISerializer<string>, ASCIISerializer>();
-        container.Register<IMessageProducer<string>, ASCIIMessageProducer>(Reuse.Singleton, setup: DryIoc.Setup.With(trackDisposableTransient: true));
-        container.Register<IMessageConsumer<string>, MessageConsumer<string>>(Reuse.Singleton, setup: DryIoc.Setup.With(trackDisposableTransient: true));
+        container.Register<IParser, CsvParser>(serviceKey: "text");
+        container.Register<IDataProducer, DataProducer>(serviceKey: "text", setup: DryIoc.Setup.With(trackDisposableTransient: true), made: Parameters.Of.Type<IParser>(serviceKey: "text").Type<IDataService[]>(serviceKey: "text"));
+        container.Register<ISerializer<string>, ASCIISerializer>(serviceKey: "text");
+        container.Register<IMessageProducer<string>, MessageProducer<string>>(Reuse.Singleton, serviceKey: "text", setup: DryIoc.Setup.With(trackDisposableTransient: true), made: Parameters.Of.Type<ISerializer<string>>(serviceKey: "text"));
+        container.Register<IMessageConsumer<string>, MessageConsumer<string>>(Reuse.Singleton, serviceKey: "text", setup: DryIoc.Setup.With(trackDisposableTransient: true));
     }
 
     [Test]

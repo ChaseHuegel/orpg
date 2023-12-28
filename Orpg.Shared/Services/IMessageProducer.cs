@@ -3,6 +3,4 @@
 public interface IMessageProducer<T>
 {
     event EventHandler<T>? NewMessage;
-
-    string Format { get; }
 }

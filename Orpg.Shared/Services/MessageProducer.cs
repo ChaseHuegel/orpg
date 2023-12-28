@@ -1,6 +1,6 @@
 ﻿namespace Orpg.Shared.Services;
 
-public abstract class MessageProducer<T> : IMessageProducer<T>, IDisposable
+public class MessageProducer<T> : IMessageProducer<T>, IDisposable
 {
     private readonly ISerializer<T> _serializer;
     private IDataProducer[]? _dataProducers;
@@ -8,19 +8,14 @@ public abstract class MessageProducer<T> : IMessageProducer<T>, IDisposable
 
     public event EventHandler<T>? NewMessage;
 
-    public abstract string Format { get; }
-
     public MessageProducer(ISerializer<T> serializer, IDataProducer[] dataProducers)
     {
         List<IDataProducer> matchingDataProducers = new();
         for (int i = 0; i < dataProducers.Length; i++)
         {
             IDataProducer dataProducer = dataProducers[i];
-            if (dataProducer.Format.Equals(Format, StringComparison.InvariantCultureIgnoreCase))
-            {
-                matchingDataProducers.Add(dataProducer);
-                dataProducer.Received += OnDataReceived;
-            }
+            matchingDataProducers.Add(dataProducer);
+            dataProducer.Received += OnDataReceived;
         }
 
         _serializer = serializer;
@@ -47,9 +42,10 @@ public abstract class MessageProducer<T> : IMessageProducer<T>, IDisposable
                 IDataProducer dataProducer = _dataProducers[i];
                 dataProducer.Received -= OnDataReceived;
             }
+
+            _dataProducers = null;
         }
 
-        _dataProducers = null;
         _disposed = true;
     }
 

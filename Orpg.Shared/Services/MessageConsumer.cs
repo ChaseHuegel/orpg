@@ -37,9 +37,10 @@ public class MessageConsumer<T> : IMessageConsumer<T>, IDisposable
                 IMessageProducer<T> messageProducer = _messageProducers[i];
                 messageProducer.NewMessage -= OnNewMessage;
             }
+            
+            _messageProducers = null;
         }
 
-        _messageProducers = null;
         _disposed = true;
     }
 

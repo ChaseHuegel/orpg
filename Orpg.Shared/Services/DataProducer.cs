@@ -1,21 +1,23 @@
 ﻿namespace Orpg.Shared.Services;
 
-public abstract class DataProducer : IDataProducer, IDisposable
+public class DataProducer : IDataProducer, IDisposable
 {
-    private readonly IDataService _dataService;
+    private IDataService[]? _dataServices;
     private readonly IParser _parser;
     private bool _disposed;
 
     public event EventHandler<DataEventArgs>? Received;
 
-    public abstract string Format { get; }
-
-    public DataProducer(IDataService dataService, IParser parser)
+    public DataProducer(IDataService[] dataServices, IParser parser)
     {
-        _dataService = dataService;
+        _dataServices = dataServices;
         _parser = parser;
 
-        _dataService.Received += OnDataReceived;
+        for (int i = 0; i < dataServices.Length; i++)
+        {
+            IDataService dataService = dataServices[i];
+            dataService.Received += OnDataReceived;
+        }
     }
 
     private void OnDataReceived(object? sender, DataEventArgs e)
@@ -36,9 +38,15 @@ public abstract class DataProducer : IDataProducer, IDisposable
             return;
         }
 
-        if (disposing)
+        if (disposing && _dataServices != null)
         {
-            _dataService.Received -= OnDataReceived;
+            for (int i = 0; i < _dataServices.Length; i++)
+            {
+                IDataService dataService = _dataServices[i];
+                dataService.Received -= OnDataReceived;
+            }
+
+            _dataServices = null;
         }
 
         _disposed = true;
