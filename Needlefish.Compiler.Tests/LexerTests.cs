@@ -1,14 +1,16 @@
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
 using System;
 using System.Collections.Generic;
 
 namespace Needlefish.Compiler.Tests;
 
-public partial class LexerTests
+public class LexerTests
 {
-    private const string ValidNsd = """
+    internal const string ValidNsdNoWhitespace = """#version 1.0;#include "header.nsd";#namespace Lexer.Tests;message TestMessage{string?Content;int StatusCode=5;float FloAT;double Double;long Long;ulong uLong;uint Uint=15;ulong Ulong;short Short;ushort UShort;bool Bool;byte Byte;byte[] Bytes=20;string[]? OptionalStrings=21;TestEnum EnumValue=22;}enum TestEnum{Val1;Val2=10;Val3;Val4;}message Submessage{int? OptionalInt;}""";
+
+    internal const string ValidNsd = """
         #version 1.0;
+        #namespace Lexer.Tests;
         #include "header.nsd";
 
         message TestMessage
@@ -23,11 +25,12 @@ public partial class LexerTests
             ulong Ulong;
             short Short;
             ushort UShort;
-            bool bool;
+            bool Bool;
             byte Byte;
             byte[] Bytes = 20;
             string[]? OptionalStrings = 21;
             TestEnum EnumValue = 22;
+            Submessage Submessage;
         }
 
         enum TestEnum {
@@ -44,7 +47,7 @@ public partial class LexerTests
 
     private const string UnknownTokenNsd = "a + b = c;";
 
-    private List<TokenDefinition<TokenType>> TokenDefinitions = new()
+    private static readonly List<TokenDefinition<TokenType>> TokenDefinitions = new()
     {
             new(TokenType.Whitespace, @"\G[\s\t\n\r\f]+"),
             new(TokenType.Define, @"\G#"),
@@ -69,15 +72,33 @@ public partial class LexerTests
             new(TokenType.Short, @"\Gshort"),
             new(TokenType.UShort, @"\Gushort"),
             new(TokenType.StringValue, @"\G""[^""]*"""),
-            new(TokenType.Identifier, @"\G[a-zA-Z]+"),
+            new(TokenType.Identifier, @"\G[a-zA-Z]*([.][a-zA-Z]|[a-zA-Z0-9_])+"),
     };
 
-    private Lexer<TokenType> LexerFactory => new(TokenDefinitions);
+    internal static Lexer<TokenType> LexerFactory => new(TokenDefinitions);
 
     [Test]
     public void Lex()
     {
         List<Token<TokenType>> tokens = LexerFactory.Lex(ValidNsd);
+
+        foreach (var token in tokens)
+        {
+            if (string.IsNullOrWhiteSpace(token.Value))
+            {
+                Console.WriteLine($"{token.Type}");
+            }
+            else
+            {
+                Console.WriteLine($"{token.Type}: {token.Value}");
+            }
+        }
+    }
+
+    [Test]
+    public void LexNoWhitespace()
+    {
+        List<Token<TokenType>> tokens = LexerFactory.Lex(ValidNsdNoWhitespace);
 
         foreach (var token in tokens)
         {

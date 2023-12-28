@@ -10,4 +10,9 @@ internal readonly struct Token<T>
         Type = type;
         Value = value;
     }
+
+    public Token<T> Clone()
+    {
+        return new Token<T>(Type, Value);
+    }
 }
