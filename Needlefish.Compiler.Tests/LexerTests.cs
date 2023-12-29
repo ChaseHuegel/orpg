@@ -27,8 +27,8 @@ public class LexerTests
             ushort UShort;
             bool Bool;
             byte Byte;
-            byte[] Bytes = 20;
-            string[]? OptionalStrings = 21;
+            byte[] Bytes = 21;
+            string[]? OptionalStrings = 25;
             TestEnum EnumValue = 22;
             Submessage Submessage;
         }

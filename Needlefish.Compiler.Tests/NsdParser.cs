@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
@@ -293,7 +293,7 @@ internal class NsdParser
             }
             else
             {
-                throw new FormatException(string.Format("Field ID must be an integer ranging {0} to {1} ({2}).", ushort.MinValue, ushort.MaxValue, identifier.Value));
+                throw new FormatException(string.Format("Field ({2}) must be an integer ranging {0} to {1}.", ushort.MinValue, ushort.MaxValue, identifier.Value));
             }
         }
 
@@ -361,11 +361,126 @@ internal class NsdParser
 
     private void ValidateVersion()
     {
-        Define versionDefinition = _defines.FirstOrDefault(x => x.Key == "version");
+        Define versionDefinition = _defines.FirstOrDefault(define => define.Key == "version");
         if (!float.TryParse(versionDefinition.Value, out _version) || _version == default)
         {
             throw new FormatException("Version must be defined.");
         }
+    }
+
+    private static void ValidateNoValueDuplicates(TypeDefinition definition)
+    {
+        FieldDefinition[] duplicates = definition.FieldDefinitions.GroupBy(f => f.Value).Where(g => g.Count() > 1).SelectMany(g => g).ToArray();
+
+        if (duplicates.Length > 0)
+        {
+            var exceptions = new List<Exception>();
+            for (int duplicateIndex = 0; duplicateIndex < duplicates.Length; duplicateIndex++)
+            {
+                FieldDefinition duplicate = duplicates[duplicateIndex];
+                var ex = new FormatException(string.Format("Duplicate field value. Type: ({0}), Field: ({1}), Value: ({2}).", definition.Name, duplicate.Name, duplicate.Value));
+                exceptions.Add(ex);
+            }
+
+            throw new AggregateException(exceptions);
+        }
+    }
+
+    private static void ValidateNoFieldDuplicates(TypeDefinition definition)
+    {
+        FieldDefinition[] duplicates = definition.FieldDefinitions.GroupBy(f => f.Name).Where(g => g.Count() > 1).SelectMany(g => g).ToArray();
+
+        if (duplicates.Length > 0)
+        {
+            var exceptions = new List<Exception>();
+            for (int i = 0; i < duplicates.Length; i++)
+            {
+                FieldDefinition duplicate = duplicates[i];
+                var ex = new FormatException(string.Format("Duplicate field definition. Type: ({0}), Field: ({1}).", definition.Name, duplicate.Name));
+                exceptions.Add(ex);
+            }
+
+            throw new AggregateException(exceptions);
+        }
+    }
+
+    private static void ValidateEnumFieldDefinitions(TypeDefinition definition)
+    {
+        for (int i = 0; i < definition.FieldDefinitions.Length; i++)
+        {
+            FieldDefinition field = definition.FieldDefinitions[i];
+            if (field.Type != null)
+            {
+                throw new FormatException(string.Format("Enums may not contain typed fields. Enum: ({0}), Value: ({1}).", definition.Name, field.Name));
+            }
+
+            if (field.IsOptional)
+            {
+                throw new FormatException(string.Format("Enums fields may not be optional. Enum: ({0}), Value: ({1}).", definition.Name, field.Name));
+            }
+
+            if (field.IsArray)
+            {
+                throw new FormatException(string.Format("Enums fields may not be arrays. Enum: ({0}), Value: ({1}).", definition.Name, field.Name));
+            }
+        }
+    }
+
+    private void ValidateEnumDefinitions()
+    {
+        foreach (TypeDefinition definition in _typeDefinitions.Where(def => def.Keyword == "enum"))
+        {
+            ValidateNoFieldDuplicates(definition);
+            ValidateNoValueDuplicates(definition);
+            ValidateEnumFieldDefinitions(definition);
+        }
+    }
+
+    private void ValidateMessageDefinitions()
+    {
+        foreach (TypeDefinition definition in _typeDefinitions.Where(def => def.Keyword == "message"))
+        {
+            ValidateNoValueDuplicates(definition);
+            ValidateNoFieldDuplicates(definition);
+        }
+    }
+
+    private void ProcessTypeDefinitions()
+    {
+        for (int typeIndex = 0; typeIndex < _typeDefinitions.Count; typeIndex++)
+        {
+            TypeDefinition definition = _typeDefinitions[typeIndex];
+
+            int currentValue = -1;
+            for (int fieldIndex = 0; fieldIndex < definition.FieldDefinitions.Length; fieldIndex++)
+            {
+                FieldDefinition fieldDefinition = definition.FieldDefinitions[fieldIndex];
+                if (fieldDefinition.Value.HasValue)
+                {
+                    currentValue = fieldDefinition.Value.Value;
+                }
+                else
+                {
+                    currentValue++;
+                }
+
+                definition.FieldDefinitions[fieldIndex] = new FieldDefinition(
+                    fieldDefinition.Type,
+                    fieldDefinition.Name,
+                    currentValue,
+                    fieldDefinition.IsOptional,
+                    fieldDefinition.IsArray
+                );
+            }
+        }
+    }
+
+    private void Validate()
+    {
+        ProcessTypeDefinitions();
+        ValidateMessageDefinitions();
+        ValidateEnumDefinitions();
+        ValidateVersion();
     }
 
     public Nsd Parse(List<Token<TokenType>> tokens)
@@ -389,11 +504,7 @@ internal class NsdParser
             TryCollectEnumDefinition();
         }
 
-        //  TODO post-process message definitions (assigning unset values...)
-        //  TODO post-process enum definitions (assigning unset values...)
-        //  TODO validate message definitions
-        //  TODO validate enum definitions
-        ValidateVersion();
+        Validate();
 
         return new Nsd(_version, _defines.ToArray(), _typeDefinitions.ToArray());
     }
