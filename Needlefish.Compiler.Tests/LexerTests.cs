@@ -49,7 +49,7 @@ public class LexerTests
 
     private static readonly List<TokenDefinition<TokenType>> TokenDefinitions = new()
     {
-            new(TokenType.Whitespace, @"\G[\s\t\n\r\f]+"),
+            new(TokenType.Whitespace, @"\G[\s\t\n\r\f\0]+"),
             new(TokenType.Define, @"\G#"),
             new(TokenType.Number, @"\G[+-]?\d*\.?\d+"),
             new(TokenType.Terminate, @"\G;"),
