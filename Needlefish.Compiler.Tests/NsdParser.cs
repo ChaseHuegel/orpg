@@ -1,3 +1,4 @@
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -215,7 +216,7 @@ internal class NsdParser
     }
 
     /// <summary>
-    ///     Syntax: message identifier{} OR message identifier{fields...}
+    ///     Syntax: Message identifier{} OR Message identifier{fields...}
     /// </summary>
     private bool TryCollectMessageDefinition()
     {
@@ -359,89 +360,12 @@ internal class NsdParser
         }
     }
 
-    private void ValidateVersion()
+    private void CollectVersion()
     {
         Define versionDefinition = _defines.FirstOrDefault(define => define.Key == "version");
         if (!float.TryParse(versionDefinition.Value, out _version) || _version == default)
         {
-            throw new FormatException("Version must be defined.");
-        }
-    }
-
-    private static void ValidateNoValueDuplicates(TypeDefinition definition)
-    {
-        FieldDefinition[] duplicates = definition.FieldDefinitions.GroupBy(f => f.Value).Where(g => g.Count() > 1).SelectMany(g => g).ToArray();
-
-        if (duplicates.Length > 0)
-        {
-            var exceptions = new List<Exception>();
-            for (int duplicateIndex = 0; duplicateIndex < duplicates.Length; duplicateIndex++)
-            {
-                FieldDefinition duplicate = duplicates[duplicateIndex];
-                var ex = new FormatException(string.Format("Duplicate field value. Type: ({0}), Field: ({1}), Value: ({2}).", definition.Name, duplicate.Name, duplicate.Value));
-                exceptions.Add(ex);
-            }
-
-            throw new AggregateException(exceptions);
-        }
-    }
-
-    private static void ValidateNoFieldDuplicates(TypeDefinition definition)
-    {
-        FieldDefinition[] duplicates = definition.FieldDefinitions.GroupBy(f => f.Name).Where(g => g.Count() > 1).SelectMany(g => g).ToArray();
-
-        if (duplicates.Length > 0)
-        {
-            var exceptions = new List<Exception>();
-            for (int i = 0; i < duplicates.Length; i++)
-            {
-                FieldDefinition duplicate = duplicates[i];
-                var ex = new FormatException(string.Format("Duplicate field definition. Type: ({0}), Field: ({1}).", definition.Name, duplicate.Name));
-                exceptions.Add(ex);
-            }
-
-            throw new AggregateException(exceptions);
-        }
-    }
-
-    private static void ValidateEnumFieldDefinitions(TypeDefinition definition)
-    {
-        for (int i = 0; i < definition.FieldDefinitions.Length; i++)
-        {
-            FieldDefinition field = definition.FieldDefinitions[i];
-            if (field.Type != null)
-            {
-                throw new FormatException(string.Format("Enums may not contain typed fields. Enum: ({0}), Value: ({1}).", definition.Name, field.Name));
-            }
-
-            if (field.IsOptional)
-            {
-                throw new FormatException(string.Format("Enums fields may not be optional. Enum: ({0}), Value: ({1}).", definition.Name, field.Name));
-            }
-
-            if (field.IsArray)
-            {
-                throw new FormatException(string.Format("Enums fields may not be arrays. Enum: ({0}), Value: ({1}).", definition.Name, field.Name));
-            }
-        }
-    }
-
-    private void ValidateEnumDefinitions()
-    {
-        foreach (TypeDefinition definition in _typeDefinitions.Where(def => def.Keyword == "enum"))
-        {
-            ValidateNoFieldDuplicates(definition);
-            ValidateNoValueDuplicates(definition);
-            ValidateEnumFieldDefinitions(definition);
-        }
-    }
-
-    private void ValidateMessageDefinitions()
-    {
-        foreach (TypeDefinition definition in _typeDefinitions.Where(def => def.Keyword == "message"))
-        {
-            ValidateNoValueDuplicates(definition);
-            ValidateNoFieldDuplicates(definition);
+            throw new FormatException("Missing version definition.");
         }
     }
 
@@ -477,10 +401,19 @@ internal class NsdParser
 
     private void Validate()
     {
-        ProcessTypeDefinitions();
-        ValidateMessageDefinitions();
-        ValidateEnumDefinitions();
-        ValidateVersion();
+        var linter = new NsdLinter();
+        LintIssue[] issues = linter.Lint(_defines, _typeDefinitions);
+
+        if (issues.Length > 0)
+        {
+            List<Exception> exceptions = new List<Exception>();
+            foreach (LintIssue issue in issues.Where(x => x.Level == IssueLevel.Error))
+            {
+                exceptions.Add(new FormatException(issue.Message));
+            }
+
+            throw new AggregateException("There were one or more nsd syntax errors.", exceptions);
+        }
     }
 
     public Nsd Parse(List<Token<TokenType>> tokens)
@@ -503,6 +436,10 @@ internal class NsdParser
             TryDiscardToken(TokenType.Whitespace);
             TryCollectEnumDefinition();
         }
+
+        CollectVersion();
+
+        ProcessTypeDefinitions();
 
         Validate();
 
