@@ -6,7 +6,7 @@ namespace Needlefish.Compiler.Tests;
 
 public class LexerTests
 {
-    internal const string ValidNsdNoWhitespace = """#version 1.0;#include "header.nsd";#namespace Lexer.Tests;message TestMessage{string?Content;int StatusCode=5;float FloAT;double Double;long Long;ulong uLong;uint Uint=15;ulong Ulong;short Short;ushort UShort;bool Bool;byte Byte;byte[] Bytes=20;string[]? OptionalStrings=21;TestEnum EnumValue=22;}enum TestEnum{Val1;Val2=10;Val3;Val4;}message Submessage{int? OptionalInt;}""";
+    internal const string ValidNsdNoWhitespace = """#version 1.0;#include "header.nsd";#namespace Lexer.Tests;message TestMessage{string? Content;int StatusCode=5;float FloAT;double Double;long Long;ulong uLong;uint Uint=15;ulong Ulong;short Short;ushort UShort;bool Bool;byte Byte;byte[] Bytes=21;string[]? OptionalStrings=25;TestEnum EnumValue=22;}enum TestEnum{Val1;Val2=10;Val3;Val4;}message Submessage{int? OptionalInt;}""";
 
     internal const string ValidNsd = """
         #version 1.0;
