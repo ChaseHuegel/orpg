@@ -6,16 +6,16 @@ namespace Needlefish.Compiler.Tests;
 
 internal class NsdLinter
 {
-    private static void ValidateVersion(in List<LintIssue> issues, List<Define> _defines)
+    private static void ValidateVersion(List<LintIssue> issues, List<Define> _defines)
     {
         Define versionDefinition = _defines.FirstOrDefault(define => define.Key == "version");
         if (!float.TryParse(versionDefinition.Value, out _))
         {
-            issues.Add(new LintIssue("Version must be defined."));
+            issues.Add(new LintIssue("Missing version definition."));
         }
     }
 
-    private static void ValidateNoValueDuplicates(in List<LintIssue> issues, TypeDefinition definition)
+    private static void ValidateNoValueDuplicates(List<LintIssue> issues, TypeDefinition definition)
     {
         FieldDefinition[] duplicates = definition.FieldDefinitions.GroupBy(f => f.Value).Where(g => g.Count() > 1).SelectMany(g => g).ToArray();
 
@@ -30,7 +30,7 @@ internal class NsdLinter
         }
     }
 
-    private static void ValidateNoFieldDuplicates(in List<LintIssue> issues, TypeDefinition definition)
+    private static void ValidateNoFieldDuplicates(List<LintIssue> issues, TypeDefinition definition)
     {
         FieldDefinition[] duplicates = definition.FieldDefinitions.GroupBy(f => f.Name).Where(g => g.Count() > 1).SelectMany(g => g).ToArray();
 
@@ -45,7 +45,7 @@ internal class NsdLinter
         }
     }
 
-    private static void ValidateEnumFieldDefinitions(in List<LintIssue> issues, TypeDefinition definition)
+    private static void ValidateEnumFieldDefinitions(List<LintIssue> issues, TypeDefinition definition)
     {
         for (int i = 0; i < definition.FieldDefinitions.Length; i++)
         {
@@ -67,7 +67,7 @@ internal class NsdLinter
         }
     }
 
-    private static void ValidateEnumDefinitions(in List<LintIssue> issues, List<TypeDefinition> typeDefinitions)
+    private static void ValidateEnumDefinitions(List<LintIssue> issues, List<TypeDefinition> typeDefinitions)
     {
         foreach (TypeDefinition definition in typeDefinitions.Where(def => def.Keyword == "enum"))
         {
@@ -77,22 +77,22 @@ internal class NsdLinter
         }
     }
 
-    private static void ValidateMessageDefinitions(in List<LintIssue> issues, List<TypeDefinition> typeDefinitions)
+    private static void ValidateMessageDefinitions(List<LintIssue> issues, List<TypeDefinition> typeDefinitions)
     {
-        foreach (TypeDefinition definition in typeDefinitions.Where(def => def.Keyword == "Message"))
+        foreach (TypeDefinition definition in typeDefinitions.Where(def => def.Keyword == "message"))
         {
             ValidateNoValueDuplicates(issues, definition);
             ValidateNoFieldDuplicates(issues, definition);
         }
     }
 
-    public LintIssue[] Lint(List<Define> _defines, List<TypeDefinition> _typeDefinitions)
+    public static LintIssue[] Lint(List<Define> _defines, List<TypeDefinition> _typeDefinitions)
     {
         var issues = new List<LintIssue>();
 
-        ValidateVersion(in issues, _defines);
-        ValidateMessageDefinitions(in issues, _typeDefinitions);
-        ValidateEnumDefinitions(in issues, _typeDefinitions);
+        ValidateVersion(issues, _defines);
+        ValidateMessageDefinitions(issues, _typeDefinitions);
+        ValidateEnumDefinitions(issues, _typeDefinitions);
 
         return issues.ToArray();
     }

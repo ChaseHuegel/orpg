@@ -2,6 +2,7 @@
 
 internal enum TokenType
 {
+    Undefined = -1,
     Define,
     Number,
     Terminate,
