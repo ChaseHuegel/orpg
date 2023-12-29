@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Needlefish.Compiler.Tests;
+namespace Needlefish.Compiler.Tests.Lexing;
 
 internal class Lexer<T>
 {

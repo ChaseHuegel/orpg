@@ -1,12 +1,12 @@
 ﻿using System.Text.RegularExpressions;
 using RegexMatch = System.Text.RegularExpressions.Match;
 
-namespace Needlefish.Compiler.Tests;
+namespace Needlefish.Compiler.Tests.Lexing;
 
 internal class TokenDefinition<T>
 {
     private readonly Regex _regex;
-    
+
     public readonly T Type;
 
     public TokenDefinition(T type, string regexPattern)

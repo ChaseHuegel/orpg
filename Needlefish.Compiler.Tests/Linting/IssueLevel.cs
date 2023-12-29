@@ -1,4 +1,4 @@
-﻿namespace Needlefish.Compiler.Tests;
+﻿namespace Needlefish.Compiler.Tests.Linting;
 
 internal enum IssueLevel
 {

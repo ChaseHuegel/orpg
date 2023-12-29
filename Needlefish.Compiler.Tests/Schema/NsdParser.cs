@@ -1,11 +1,10 @@
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Newtonsoft.Json.Linq;
+using Needlefish.Compiler.Tests.Lexing;
+using Needlefish.Compiler.Tests.Linting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
 
-namespace Needlefish.Compiler.Tests;
+namespace Needlefish.Compiler.Tests.Schema;
 
 internal partial class NsdParser
 {
@@ -402,12 +401,12 @@ internal partial class NsdParser
 
     private void Validate()
     {
-        LintIssue[] issues = NsdLinter.Lint(_defines, _typeDefinitions);
+        Issue[] issues = NsdLinter.Lint(_defines, _typeDefinitions);
 
         if (issues.Length > 0)
         {
             List<Exception> exceptions = new List<Exception>();
-            foreach (LintIssue issue in issues.Where(x => x.Level == IssueLevel.Error))
+            foreach (Issue issue in issues.Where(x => x.Level == IssueLevel.Error))
             {
                 exceptions.Add(new NsdException(issue.Message));
             }

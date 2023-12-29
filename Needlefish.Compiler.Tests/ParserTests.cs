@@ -1,6 +1,7 @@
+using Needlefish.Compiler.Tests.Lexing;
+using Needlefish.Compiler.Tests.Schema;
 using NUnit.Framework;
 using System.Collections.Generic;
-using static Needlefish.Compiler.Tests.NsdParser;
 
 namespace Needlefish.Compiler.Tests;
 
