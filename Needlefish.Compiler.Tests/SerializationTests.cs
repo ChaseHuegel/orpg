@@ -18,7 +18,7 @@ internal class SerializationTests
         message.Deserialize(data);
         Assert.Multiple(() =>
         {
-            Assert.That(data.Length, Is.EqualTo(18));
+            Assert.That(data, Has.Length.EqualTo(18));
             Assert.That(message.Int, Is.EqualTo(325));
         });
     }
@@ -36,7 +36,7 @@ internal class SerializationTests
         message.Deserialize(data);
         Assert.Multiple(() =>
         {
-            Assert.That(data.Length, Is.EqualTo(22));
+            Assert.That(data, Has.Length.EqualTo(22));
             Assert.That(message.OptionalInt, Is.EqualTo(68));
         });
     }
@@ -56,7 +56,7 @@ internal class SerializationTests
         message.Deserialize(data);
         Assert.Multiple(() =>
         {
-            Assert.That(data.Length, Is.EqualTo(34));
+            Assert.That(data, Has.Length.EqualTo(34));
             Assert.That(message.IntArray, Is.EqualTo(expectedIntArray));
         });
     }
@@ -76,7 +76,7 @@ internal class SerializationTests
         message.Deserialize(data);
         Assert.Multiple(() =>
         {
-            Assert.That(data.Length, Is.EqualTo(38));
+            Assert.That(data, Has.Length.EqualTo(38));
             Assert.That(message.OptionalIntArray, Is.EqualTo(expectedOptionalIntArray));
         });
     }
@@ -100,7 +100,7 @@ internal class SerializationTests
         message.Deserialize(data);
         Assert.Multiple(() =>
         {
-            Assert.That(data.Length, Is.EqualTo(58));
+            Assert.That(data, Has.Length.EqualTo(58));
             Assert.That(message.Int, Is.EqualTo(325));
             Assert.That(message.OptionalInt, Is.EqualTo(68));
             Assert.That(message.IntArray, Is.EqualTo(expectedIntArray));
@@ -126,7 +126,7 @@ internal class SerializationTests
         message.Deserialize(data);
         Assert.Multiple(() =>
         {
-            Assert.That(data.Length, Is.EqualTo(34));
+            Assert.That(data, Has.Length.EqualTo(34));
             Assert.That(message.Int, Is.EqualTo(325));
             Assert.That(message.OptionalInt, Is.EqualTo(null));
             Assert.That(message.IntArray, Is.EqualTo(expectedIntArray));
