@@ -68,7 +68,7 @@ namespace Lexer.Tests
 
         private int CalculateLength()
         {
-            const int minLength = 18;
+            const int minLength = 16;
             int length = minLength;
 
             if (OptionalInt.HasValue)
@@ -83,7 +83,7 @@ namespace Lexer.Tests
 
             if (OptionalIntArray != null)
             {
-                length += 4 + (OptionalIntArray.Length * 4);
+                length += 2 + (OptionalIntArray.Length * 4);
             }
 
             return length;
@@ -111,7 +111,7 @@ namespace Lexer.Tests
 
             if (field != null && field.Length > 0)
             {
-                NeedlefishFormatter.WriteInt(buffer, ref offset, field.Length);
+                NeedlefishFormatter.WriteUShort(buffer, ref offset, (ushort)field.Length);
 
                 for (int i = 0; i < field.Length; i++)
                 {
@@ -120,7 +120,7 @@ namespace Lexer.Tests
             }
             else
             {
-                NeedlefishFormatter.WriteInt(buffer, ref offset, 0);
+                NeedlefishFormatter.WriteUShort(buffer, ref offset, 0);
             }
         }
 
@@ -131,7 +131,7 @@ namespace Lexer.Tests
             if (field != null && field.Length > 0)
             {
                 NeedlefishFormatter.WriteBool(buffer, ref offset, true);
-                NeedlefishFormatter.WriteInt(buffer, ref offset, field.Length);
+                NeedlefishFormatter.WriteUShort(buffer, ref offset, (ushort)field.Length);
 
                 for (int i = 0; i < field.Length; i++)
                 {
@@ -164,7 +164,7 @@ namespace Lexer.Tests
 
         private static void DecodeIntArray(byte[] buffer, ref int offset, ref int[] field)
         {
-            int length = NeedlefishFormatter.ReadInt(buffer, ref offset);
+            ushort length = NeedlefishFormatter.ReadUShort(buffer, ref offset);
             int[] array = new int[length];
             
             for (int i = 0; i < array.Length; i++)
