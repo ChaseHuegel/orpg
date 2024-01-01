@@ -35,9 +35,15 @@ namespace Lexer.Tests
             int offset = 0;
 
             EncodeInt(buffer, ref offset, Int_ID, ref Int);
-            EncodeOptionalInt(buffer, ref offset, OptionalInt_ID, ref OptionalInt);
+            if (OptionalInt != null)
+            {
+                EncodeOptionalInt(buffer, ref offset, OptionalInt_ID, ref OptionalInt);
+            }
             EncodeIntArray(buffer, ref offset, IntArray_ID, ref IntArray);
-            EncodeOptionalIntArray(buffer, ref offset, OptionalIntArray_ID, ref OptionalIntArray);
+            if (OptionalIntArray != null)
+            {
+                EncodeOptionalIntArray(buffer, ref offset, OptionalIntArray_ID, ref OptionalIntArray);
+            }
 
             return buffer;
         }
@@ -68,22 +74,34 @@ namespace Lexer.Tests
 
         private int CalculateLength()
         {
-            const int minLength = 16;
+            const int boolLen = 1;
+            const int shortLen = 2;
+            const int intLen = 4;
+
+            const int fieldHeaderLen = shortLen;
+            const int optionalHeaderLen = boolLen;
+            const int optionalFieldLen = fieldHeaderLen + optionalHeaderLen;
+            const int arrayHeaderLen = shortLen;
+
+            const int Int_MinLen = fieldHeaderLen + intLen;
+            const int IntArray_MinLen = fieldHeaderLen + arrayHeaderLen;
+            
+            const int minLength = Int_MinLen + IntArray_MinLen;
             int length = minLength;
 
             if (OptionalInt.HasValue)
             {
-                length += 4;
+                length += optionalFieldLen + intLen;
             }
 
             if (IntArray != null)
             {
-                length += IntArray.Length * 4;
+                length += IntArray.Length * intLen;
             }
 
             if (OptionalIntArray != null)
             {
-                length += 2 + (OptionalIntArray.Length * 4);
+                length += optionalFieldLen + arrayHeaderLen + (OptionalIntArray.Length * intLen);
             }
 
             return length;

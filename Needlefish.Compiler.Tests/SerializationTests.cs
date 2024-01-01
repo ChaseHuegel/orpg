@@ -18,7 +18,7 @@ internal class SerializationTests
         message.Deserialize(data);
         Assert.Multiple(() =>
         {
-            Assert.That(data, Has.Length.EqualTo(16));
+            Assert.That(data, Has.Length.EqualTo(10));
             Assert.That(message.Int, Is.EqualTo(325));
         });
     }
@@ -36,7 +36,7 @@ internal class SerializationTests
         message.Deserialize(data);
         Assert.Multiple(() =>
         {
-            Assert.That(data, Has.Length.EqualTo(20));
+            Assert.That(data, Has.Length.EqualTo(17));
             Assert.That(message.OptionalInt, Is.EqualTo(68));
         });
     }
@@ -56,7 +56,7 @@ internal class SerializationTests
         message.Deserialize(data);
         Assert.Multiple(() =>
         {
-            Assert.That(data, Has.Length.EqualTo(32));
+            Assert.That(data, Has.Length.EqualTo(26));
             Assert.That(message.IntArray, Is.EqualTo(expectedIntArray));
         });
     }
@@ -76,7 +76,7 @@ internal class SerializationTests
         message.Deserialize(data);
         Assert.Multiple(() =>
         {
-            Assert.That(data, Has.Length.EqualTo(34));
+            Assert.That(data, Has.Length.EqualTo(31));
             Assert.That(message.OptionalIntArray, Is.EqualTo(expectedOptionalIntArray));
         });
     }
@@ -126,7 +126,7 @@ internal class SerializationTests
         message.Deserialize(data);
         Assert.Multiple(() =>
         {
-            Assert.That(data, Has.Length.EqualTo(32));
+            Assert.That(data, Has.Length.EqualTo(26));
             Assert.That(message.Int, Is.EqualTo(325));
             Assert.That(message.OptionalInt, Is.EqualTo(null));
             Assert.That(message.IntArray, Is.EqualTo(expectedIntArray));
