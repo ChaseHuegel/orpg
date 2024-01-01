@@ -31,7 +31,7 @@ public class LexerTests
             bool Bool;
             byte Byte;
             byte[] Bytes = 21;
-            string[]? OptionalStrings = 25;
+            string?[] OptionalStrings = 25;
             TestEnum EnumValue = 22;
             Submessage Submessage;
         }

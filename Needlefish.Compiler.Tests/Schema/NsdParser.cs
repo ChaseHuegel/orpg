@@ -268,6 +268,7 @@ internal partial class NsdParser
         Token<TokenType> type = ReadFieldType();
 
         bool hasWhitespace = false;
+
         hasWhitespace |= TryDiscardToken(TokenType.Whitespace);
         bool isArray = TryReadToken(TokenType.Array, out _);
 

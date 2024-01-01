@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Needlefish.Compiler.Tests.Linting;
+using Needlefish.Compiler.Tests.Schema;
 
-namespace Needlefish.Compiler.Tests.Schema;
+namespace Needlefish.Compiler.Tests.Linting;
 
 internal class NsdLinter
 {
