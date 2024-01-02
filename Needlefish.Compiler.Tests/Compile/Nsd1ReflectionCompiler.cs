@@ -1,7 +1,9 @@
 ﻿using Needlefish.Compiler.Tests.Schema;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 
 namespace Needlefish.Compiler.Tests.Compile;
 
@@ -45,8 +47,9 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
 
         builder.Append(Nsd1Compiler.Indent);
         builder.AppendLine("int length = minLength;");
+        builder.AppendLine();
 
-        //  TODO calculate final length
+        AppendLengthCalculation(typeDefinition, builder);
 
         builder.Append(Nsd1Compiler.Indent);
         builder.AppendLine("return length;");
@@ -85,6 +88,79 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
         builder.AppendLine(";");
     }
 
+    private void AppendLengthCalculation(TypeDefinition typeDefinition, StringBuilder builder)
+    {
+        //  Dynamic length is calculated from optionals, arrays, and nullables (currently only strings).
+        foreach (FieldDefinition fieldDefinition in typeDefinition.FieldDefinitions.Where(f => f.IsOptional || f.IsArray || f.Type == "string"))
+        {
+            string fieldTypeMinLenStr = GetFieldTypeMinLenValue(fieldDefinition);
+            
+            builder.Append(Nsd1Compiler.Indent);
+            builder.AppendLine($"if ({fieldDefinition.Name} != null)");
+
+            builder.Append(Nsd1Compiler.Indent);
+            builder.AppendLine("{");
+            
+            builder.Append(Nsd1Compiler.Indent);
+            builder.Append(Nsd1Compiler.Indent);
+
+            builder.Append("length += ");
+
+            if (fieldDefinition.IsOptional)
+            {
+                builder.Append("optionalFieldLen + ");
+
+                if (fieldDefinition.IsArray || fieldDefinition.Type == "string")
+                {
+                    builder.Append("arrayHeaderLen + ");
+                }
+            }
+
+            //  TODO need to support types
+            if (fieldDefinition.Type == "string")
+            {
+                if (fieldDefinition.IsArray)
+                {
+                    builder.Append('0');
+                }
+                else
+                {
+                    builder.Append($"{fieldDefinition.Name}.Length");
+                }
+            }
+            else
+            {
+                builder.Append($"({fieldDefinition.Name}.Length * {GetFieldTypeMinLenValue(fieldDefinition)})");
+            }
+
+            builder.AppendLine(";");
+
+            if (fieldDefinition.Type == "string" && fieldDefinition.IsArray) 
+            {
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine($"for (int i = 0; i < {fieldDefinition.Name}.Length; i++)");
+
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine("{");
+
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine($"length += {GetFieldTypeMinLenValue(fieldDefinition)} + {fieldDefinition.Name}[i].Length;");
+
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine("}");
+            }
+
+            builder.Append(Nsd1Compiler.Indent);
+            builder.AppendLine("}");
+            builder.AppendLine();
+        }
+    }
+
     private static IEnumerable<FieldDefinition> GetMinLenEligableFields(TypeDefinition typeDefinition)
     {
         //  Only non-optional fields can be applied to minLength.
@@ -106,6 +182,11 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
             return "arrayHeaderLen";
         }
 
+        return GetFieldTypeMinLenValue(fieldDefinition);
+    }
+
+    private string GetFieldTypeMinLenValue(FieldDefinition fieldDefinition)
+    {
         switch (fieldDefinition.Type)
         {
             case "byte":
@@ -131,6 +212,9 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
 
             case "double":
                 return "doubleLen";
+
+            case "string":
+                return "arrayHeaderLen";
 
                 //default:
                 //    throw new NotSupportedException(string.Format("Unknown field type \"{0}\".", fieldDefinition.Type));

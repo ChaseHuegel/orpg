@@ -19,6 +19,7 @@ public class LexerTests
         message TestMessage
         {
             string? Content;
+            string Body;
             int StatusCode = 5;
             float FloAT;
             double Double;
