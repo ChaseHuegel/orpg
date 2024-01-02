@@ -7,7 +7,7 @@ namespace Needlefish.Compiler.Tests;
 
 public class ParserTests
 {
-    private static Nsd ParseNsdContent(string content)
+    public static Nsd ParseNsdContent(string content)
     {
         Lexer<TokenType> lexer = LexerTests.LexerFactory;
         List<Token<TokenType>> tokens = lexer.Lex(content);

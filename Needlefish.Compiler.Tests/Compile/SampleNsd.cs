@@ -1,6 +1,4 @@
 ﻿using Needlefish.Compiler.Tests;
-using System;
-using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Lexer.Tests
@@ -21,12 +19,8 @@ namespace Lexer.Tests
         private const ushort OptionalIntArray_ID = 3;
 
         public int Int;
-        
         public int? OptionalInt;
-        
-        [NotNull]
         public int[] IntArray;
-        
         public int[]? OptionalIntArray;
 
         public byte[] Serialize()
