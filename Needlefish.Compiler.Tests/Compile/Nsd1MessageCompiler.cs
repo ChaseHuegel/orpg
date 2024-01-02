@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Needlefish.Compiler.Tests.Compile;
 
-internal class NsdMessageCompiler : INsdTypeCompiler
+internal class Nsd1MessageCompiler : INsdTypeCompiler
 {
     private const string Keyword = "message";
 
@@ -36,16 +36,16 @@ internal class NsdMessageCompiler : INsdTypeCompiler
 
         foreach (FieldDefinition fieldDefinition in typeDefinition.FieldDefinitions)
         {
-            builder.Append(NsdCompiler.Indent);
+            builder.Append(Nsd1Compiler.Indent);
             AppendFieldReflection(builder, fieldDefinition);
             builder.AppendLine();
         }
 
-        builder.AppendLine(NsdCompiler.Indent);
+        builder.AppendLine(Nsd1Compiler.Indent);
 
         foreach (FieldDefinition fieldDefinition in typeDefinition.FieldDefinitions)
         {
-            builder.Append(NsdCompiler.Indent);
+            builder.Append(Nsd1Compiler.Indent);
             AppendField(builder, fieldDefinition);
             builder.AppendLine();
         }

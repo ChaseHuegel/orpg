@@ -4,24 +4,28 @@ using System.Text;
 
 namespace Needlefish.Compiler.Tests.Compile;
 
-internal class NsdCompiler
+internal class Nsd1Compiler : INsdCompiler
 {
     internal const string Indent = "    ";
 
     private static readonly string[] RequiredUsings = new[]
     {
-        "using Needlefish.Compiler.Tests;",
-        "using System.Diagnostics.CodeAnalysis;"
+        "using Needlefish.Compiler.Tests;"
     };
 
     private readonly INsdTypeCompiler[] TypeCompilers = new INsdTypeCompiler[] {
-        new NsdMessageCompiler(),
-        new NsdEnumCompiler(),
+        new Nsd1MessageCompiler(),
+        new Nsd1EnumCompiler()
     };
+
+    public float Version => 1;
 
     public string Compile(Nsd nsd)
     {
         StringBuilder builder = new();
+
+        builder.AppendLine($"// Code generated using nsd version {Version}");
+        builder.AppendLine();
 
         foreach (string usingStr in RequiredUsings)
         {

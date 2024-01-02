@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Needlefish.Compiler.Tests.Compile;
 
-internal class NsdEnumCompiler : INsdTypeCompiler
+internal class Nsd1EnumCompiler : INsdTypeCompiler
 {
     private const string Keyword = "enum";
 
@@ -36,7 +36,7 @@ internal class NsdEnumCompiler : INsdTypeCompiler
 
         foreach (FieldDefinition fieldDefinition in typeDefinition.FieldDefinitions)
         {
-            builder.Append(NsdCompiler.Indent);
+            builder.Append(Nsd1Compiler.Indent);
             AppendValue(builder, fieldDefinition);
             builder.AppendLine();
         }
