@@ -14,8 +14,9 @@ internal class NsdCompiler
         "using System.Diagnostics.CodeAnalysis;"
     };
 
-    private readonly INsdTypeCompiler[] TypeCompilers = new[] {
-        new NsdMessageCompiler()
+    private readonly INsdTypeCompiler[] TypeCompilers = new INsdTypeCompiler[] {
+        new NsdMessageCompiler(),
+        new NsdEnumCompiler(),
     };
 
     public string Compile(Nsd nsd)
@@ -37,7 +38,7 @@ internal class NsdCompiler
             builder.AppendLine("{");
         }
 
-        foreach (TypeDefinition typeDefinition in nsd.TypeDefinitions)
+        foreach (TypeDefinition typeDefinition in nsd.TypeDefinitions.OrderBy(d => d.Keyword))
         {
             foreach (INsdTypeCompiler? typeCompiler in TypeCompilers.Where(c => c.CanCompile(typeDefinition)))
             {

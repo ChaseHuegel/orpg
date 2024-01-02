@@ -1,5 +1,4 @@
 ﻿using Needlefish.Compiler.Tests;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Lexer.Tests
 {
