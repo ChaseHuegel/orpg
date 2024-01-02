@@ -20,7 +20,7 @@ internal class Nsd1FieldsCompiler : INsdTypeCompiler
 
             if (fieldDefinition.IsArray)
             {
-                fullyQualifiedTypeStr = "[]";
+                fullyQualifiedTypeStr += "[]";
             }
 
             if (fieldDefinition.IsOptional)
