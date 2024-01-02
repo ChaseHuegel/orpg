@@ -3,36 +3,28 @@ using System.Text;
 
 namespace Needlefish.Compiler.Tests.Compile;
 
-internal class Nsd1SerializerCompiler : INsdSerializerCompiler
+internal class Nsd1DeserializeCompiler : INsdTypeCompiler
 {
+    public bool CanCompile(TypeDefinition typeDefinition)
+    {
+        return typeDefinition.Keyword == Nsd1MessageCompiler.Keyword;
+    }
+
     public StringBuilder Compile(TypeDefinition typeDefinition)
     {
         StringBuilder builder = new();
         
-        var serializeMethodBuilder = BuildSerializeMethod(typeDefinition);
-        var deserializeMethodBuilder = BuildDeserializeMethod(typeDefinition);
+        var deserializeHelperBuilder = BuildDeserializeHelper(typeDefinition);
+        var deserializeBuilder = BuildDeserialize(typeDefinition);
 
-        builder.Append(serializeMethodBuilder);
+        builder.Append(deserializeHelperBuilder);
         builder.AppendLine();
-        builder.Append(deserializeMethodBuilder);
+        builder.Append(deserializeBuilder);
 
         return builder;
     }
 
-    private StringBuilder BuildSerializeMethod(TypeDefinition typeDefinition)
-    {
-        StringBuilder builder = new();
-
-        builder.AppendLine("public byte[] Serialize()");
-        builder.AppendLine("{");
-
-        builder.AppendLine($"{Nsd1Compiler.Indent}throw new System.NotImplementException();");
-
-        builder.AppendLine("}");
-        return builder;
-    }
-
-    private StringBuilder BuildDeserializeMethod(TypeDefinition typeDefinition)
+    private static StringBuilder BuildDeserializeHelper(TypeDefinition typeDefinition)
     {
         StringBuilder builder = new();
 
@@ -43,14 +35,18 @@ internal class Nsd1SerializerCompiler : INsdSerializerCompiler
         builder.AppendLine($"{Nsd1Compiler.Indent}return value;");
         builder.AppendLine("}");
 
-        builder.AppendLine();
+        return builder;
+    }
+
+    private static StringBuilder BuildDeserialize(TypeDefinition typeDefinition)
+    {
+        StringBuilder builder = new();
 
         builder.AppendLine("public void Deserialize(byte[] buffer)");
         builder.AppendLine("{");
-
         builder.AppendLine($"{Nsd1Compiler.Indent}throw new System.NotImplementException();");
-
         builder.AppendLine("}");
+
         return builder;
     }
 }

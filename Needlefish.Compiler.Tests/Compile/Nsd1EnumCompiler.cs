@@ -6,7 +6,7 @@ namespace Needlefish.Compiler.Tests.Compile;
 
 internal class Nsd1EnumCompiler : INsdTypeCompiler
 {
-    private const string Keyword = "enum";
+    internal const string Keyword = "enum";
 
     public bool CanCompile(TypeDefinition typeDefinition)
     {
@@ -37,16 +37,10 @@ internal class Nsd1EnumCompiler : INsdTypeCompiler
         foreach (FieldDefinition fieldDefinition in typeDefinition.FieldDefinitions)
         {
             builder.Append(Nsd1Compiler.Indent);
-            AppendValue(builder, fieldDefinition);
-            builder.AppendLine();
+            builder.AppendLine($"{fieldDefinition.Name} = {fieldDefinition.Value},");
         }
 
         builder.AppendLine("}");
         return builder;
-    }
-
-    private static void AppendValue(StringBuilder builder, FieldDefinition fieldDefinition)
-    {
-        builder.Append($"{fieldDefinition.Name} = {fieldDefinition.Value},");
     }
 }
