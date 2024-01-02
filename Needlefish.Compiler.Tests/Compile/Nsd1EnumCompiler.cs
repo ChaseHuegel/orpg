@@ -47,6 +47,6 @@ internal class Nsd1EnumCompiler : INsdTypeCompiler
 
     private static void AppendValue(StringBuilder builder, FieldDefinition fieldDefinition)
     {
-        builder.Append($"{fieldDefinition.Name} = {fieldDefinition.Value};");
+        builder.Append($"{fieldDefinition.Name} = {fieldDefinition.Value},");
     }
 }
