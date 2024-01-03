@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Needlefish.Compiler.Tests.Compile;
 
-internal class Nsd1ReflectionCompiler : INsdTypeCompiler
+internal class Nsd1GetSizeCompiler : INsdTypeCompiler
 {
     private const string ConstDefs = """
         const int byteLen = 1;

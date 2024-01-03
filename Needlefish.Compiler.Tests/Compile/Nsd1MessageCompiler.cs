@@ -12,7 +12,7 @@ internal class Nsd1MessageCompiler : INsdTypeCompiler
     private readonly INsdTypeCompiler[] Subcompilers = new INsdTypeCompiler[] {
         new Nsd1FieldIdentifiersCompiler(),
         new Nsd1FieldsCompiler(),
-        new Nsd1ReflectionCompiler(),
+        new Nsd1GetSizeCompiler(),
         new Nsd1SerializeCompiler(),
         new Nsd1DeserializeCompiler(),
     };
