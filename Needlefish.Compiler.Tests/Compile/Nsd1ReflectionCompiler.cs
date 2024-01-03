@@ -91,27 +91,8 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
         //  Dynamic length is calculated from optionals, arrays, and nullables (currently only strings).
         foreach (FieldDefinition fieldDefinition in typeDefinition.FieldDefinitions.Where(f => f.IsOptional || f.IsArray || f.TypeName == "string" || f.Type == FieldType.Object))
         {
-            if (fieldDefinition.Type == FieldType.Object && !fieldDefinition.IsOptional)
+            if (fieldDefinition.Type == FieldType.Object && !fieldDefinition.IsOptional && !fieldDefinition.IsArray)
             {
-                if (fieldDefinition.IsArray)
-                {
-                    builder.Append(Nsd1Compiler.Indent);
-                    builder.AppendLine($"for (int i = 0; i < {fieldDefinition.Name}.Length; i++)");
-
-                    builder.Append(Nsd1Compiler.Indent);
-                    builder.AppendLine("{");
-
-                    builder.Append(Nsd1Compiler.Indent);
-                    builder.Append(Nsd1Compiler.Indent);
-                    builder.AppendLine($"length += {fieldDefinition.Name}[i].GetSize();");
-
-                    builder.Append(Nsd1Compiler.Indent);
-                    builder.AppendLine("}");
-                    builder.AppendLine();
-                    continue;
-                }
-
-                //  TODO handle arrays
                 builder.Append(Nsd1Compiler.Indent);
                 builder.AppendLine($"length += {fieldDefinition.Name}.GetSize();");
 
@@ -125,11 +106,36 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
             builder.Append(Nsd1Compiler.Indent);
             builder.AppendLine("{");
 
+            if (fieldDefinition.Type == FieldType.Object && !fieldDefinition.IsOptional && fieldDefinition.IsArray)
+            {
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine($"for (int i = 0; i < {fieldDefinition.Name}.Length; i++)");
+
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine("{");
+
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine($"length += {fieldDefinition.Name}[i].GetSize();");
+
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine("}");
+
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine("}");
+                builder.AppendLine();
+                continue;
+            }
+
             if (fieldDefinition.Type == FieldType.Object && !fieldDefinition.IsArray)
             {
                 builder.Append(Nsd1Compiler.Indent);
                 builder.Append(Nsd1Compiler.Indent);
-                builder.AppendLine($"length += {fieldDefinition.Name}.GetSize();");
+                builder.AppendLine($"length += {fieldDefinition.Name}.Value.GetSize();");
 
                 builder.Append(Nsd1Compiler.Indent);
                 builder.AppendLine("}");
