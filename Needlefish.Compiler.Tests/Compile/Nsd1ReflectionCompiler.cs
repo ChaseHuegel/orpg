@@ -89,19 +89,56 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
     private void AppendLengthCalculation(TypeDefinition typeDefinition, StringBuilder builder)
     {
         //  Dynamic length is calculated from optionals, arrays, and nullables (currently only strings).
-        foreach (FieldDefinition fieldDefinition in typeDefinition.FieldDefinitions.Where(f => f.IsOptional || f.IsArray || f.TypeName == "string"))
+        foreach (FieldDefinition fieldDefinition in typeDefinition.FieldDefinitions.Where(f => f.IsOptional || f.IsArray || f.TypeName == "string" || f.Type == FieldType.Object))
         {
-            string fieldTypeMinLenStr = GetFieldTypeMinLenValue(fieldDefinition);
-            
+            if (fieldDefinition.Type == FieldType.Object && !fieldDefinition.IsOptional)
+            {
+                if (fieldDefinition.IsArray)
+                {
+                    builder.Append(Nsd1Compiler.Indent);
+                    builder.AppendLine($"for (int i = 0; i < {fieldDefinition.Name}.Length; i++)");
+
+                    builder.Append(Nsd1Compiler.Indent);
+                    builder.AppendLine("{");
+
+                    builder.Append(Nsd1Compiler.Indent);
+                    builder.Append(Nsd1Compiler.Indent);
+                    builder.AppendLine($"length += {fieldDefinition.Name}[i].GetSize();");
+
+                    builder.Append(Nsd1Compiler.Indent);
+                    builder.AppendLine("}");
+                    builder.AppendLine();
+                    continue;
+                }
+
+                //  TODO handle arrays
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine($"length += {fieldDefinition.Name}.GetSize();");
+
+                builder.AppendLine();
+                continue;
+            }
+
             builder.Append(Nsd1Compiler.Indent);
             builder.AppendLine($"if ({fieldDefinition.Name} != null)");
 
             builder.Append(Nsd1Compiler.Indent);
             builder.AppendLine("{");
-            
-            builder.Append(Nsd1Compiler.Indent);
-            builder.Append(Nsd1Compiler.Indent);
 
+            if (fieldDefinition.Type == FieldType.Object && !fieldDefinition.IsArray)
+            {
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine($"length += {fieldDefinition.Name}.GetSize();");
+
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine("}");
+                builder.AppendLine();
+                continue;
+            }
+
+            builder.Append(Nsd1Compiler.Indent);
+            builder.Append(Nsd1Compiler.Indent);
             builder.Append("length += ");
 
             if (fieldDefinition.IsOptional)
@@ -114,7 +151,6 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
                 }
             }
 
-            //  TODO need to support types
             if (fieldDefinition.TypeName == "string")
             {
                 if (fieldDefinition.IsArray)
@@ -136,6 +172,26 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
             }
 
             builder.AppendLine(";");
+
+            if (fieldDefinition.Type == FieldType.Object && fieldDefinition.IsArray)
+            {
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine($"for (int i = 0; i < {fieldDefinition.Name}.Length; i++)");
+
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine("{");
+
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine($"length += {fieldDefinition.Name}[i].GetSize();");
+
+                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.Indent);
+                builder.AppendLine("}");
+            }
 
             if (fieldDefinition.TypeName == "string" && fieldDefinition.IsArray) 
             {
@@ -177,8 +233,6 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
 
     private string GetFieldMinLenValue(FieldDefinition fieldDefinition)
     {
-        //  TODO need to be able to determine MinLen for enums and messages
-
         if (fieldDefinition.IsArray)
         {
             return "arrayHeaderLen";
@@ -189,6 +243,11 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
 
     private string GetFieldTypeMinLenValue(FieldDefinition fieldDefinition)
     {
+        if (fieldDefinition.Type == FieldType.Enum)
+        {
+            return "shortLen";
+        }
+
         switch (fieldDefinition.TypeName)
         {
             case "byte":
