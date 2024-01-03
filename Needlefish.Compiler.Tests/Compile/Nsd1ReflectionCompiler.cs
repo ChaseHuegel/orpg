@@ -84,7 +84,7 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
 
         string minLengthValue = string.Join("\n" + Nsd1Compiler.Indent + Nsd1Compiler.Indent + "+ ", minLenConsts);
 
-        builder.Append(minLengthValue);
+        builder.Append(string.IsNullOrEmpty(minLengthValue) ? 0 : minLengthValue);
         builder.AppendLine(";");
     }
 
@@ -128,9 +128,13 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
                     builder.Append($"{fieldDefinition.Name}.Length");
                 }
             }
-            else
+            else if (fieldDefinition.IsArray)
             {
                 builder.Append($"({fieldDefinition.Name}.Length * {GetFieldTypeMinLenValue(fieldDefinition)})");
+            }
+            else
+            {
+                builder.Append(GetFieldTypeMinLenValue(fieldDefinition));
             }
 
             builder.AppendLine(";");

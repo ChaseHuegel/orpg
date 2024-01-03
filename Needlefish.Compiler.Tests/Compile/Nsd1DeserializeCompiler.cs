@@ -14,8 +14,8 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
     {
         StringBuilder builder = new();
         
-        var deserializeHelperBuilder = BuildDeserializeHelper(typeDefinition);
-        var deserializeBuilder = BuildDeserialize(typeDefinition);
+        var deserializeHelperBuilder = BuildDeserialize(typeDefinition);
+        var deserializeBuilder = BuildUnpack(typeDefinition);
 
         builder.Append(deserializeHelperBuilder);
         builder.AppendLine();
@@ -24,27 +24,27 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
         return builder;
     }
 
-    private static StringBuilder BuildDeserializeHelper(TypeDefinition typeDefinition)
+    private static StringBuilder BuildDeserialize(TypeDefinition typeDefinition)
     {
         StringBuilder builder = new();
 
         builder.AppendLine($"public static {typeDefinition.Name} Deserialize(byte[] buffer)");
         builder.AppendLine("{");
         builder.AppendLine($"{Nsd1Compiler.Indent}{typeDefinition.Name} value = new {typeDefinition.Name}();");
-        builder.AppendLine($"{Nsd1Compiler.Indent}value.Deserialize(buffer);");
+        builder.AppendLine($"{Nsd1Compiler.Indent}value.Unpack(buffer);");
         builder.AppendLine($"{Nsd1Compiler.Indent}return value;");
         builder.AppendLine("}");
 
         return builder;
     }
 
-    private static StringBuilder BuildDeserialize(TypeDefinition typeDefinition)
+    private static StringBuilder BuildUnpack(TypeDefinition typeDefinition)
     {
         StringBuilder builder = new();
 
-        builder.AppendLine("public void Deserialize(byte[] buffer)");
+        builder.AppendLine("public void Unpack(byte[] buffer)");
         builder.AppendLine("{");
-        builder.AppendLine($"{Nsd1Compiler.Indent}throw new System.NotImplementException();");
+        builder.AppendLine($"{Nsd1Compiler.Indent}throw new System.NotImplementedException();");
         builder.AppendLine("}");
 
         return builder;

@@ -16,7 +16,7 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
 
         builder.AppendLine("public byte[] Serialize()");
         builder.AppendLine("{");
-        builder.AppendLine($"{Nsd1Compiler.Indent}throw new System.NotImplementException();");
+        builder.AppendLine($"{Nsd1Compiler.Indent}throw new System.NotImplementedException();");
         builder.AppendLine("}");
 
         return builder;

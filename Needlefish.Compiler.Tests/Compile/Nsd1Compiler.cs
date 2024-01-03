@@ -10,7 +10,7 @@ internal class Nsd1Compiler : INsdCompiler
 
     private static readonly string[] RequiredUsings = new[]
     {
-        "using Needlefish.Compiler.Tests;"
+        "using System;"
     };
 
     private readonly INsdTypeCompiler[] TypeCompilers = new INsdTypeCompiler[] {
@@ -25,8 +25,7 @@ internal class Nsd1Compiler : INsdCompiler
         StringBuilder builder = new();
 
         builder.AppendLine($"// Code generated using nsd version {Version}");
-        builder.AppendLine();
-
+        
         foreach (string usingStr in RequiredUsings)
         {
             builder.AppendLine(usingStr);
