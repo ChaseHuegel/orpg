@@ -1,9 +1,7 @@
 ﻿using Needlefish.Compiler.Tests.Schema;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Xml.Linq;
 
 namespace Needlefish.Compiler.Tests.Compile;
 
@@ -91,7 +89,7 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
     private void AppendLengthCalculation(TypeDefinition typeDefinition, StringBuilder builder)
     {
         //  Dynamic length is calculated from optionals, arrays, and nullables (currently only strings).
-        foreach (FieldDefinition fieldDefinition in typeDefinition.FieldDefinitions.Where(f => f.IsOptional || f.IsArray || f.Type == "string"))
+        foreach (FieldDefinition fieldDefinition in typeDefinition.FieldDefinitions.Where(f => f.IsOptional || f.IsArray || f.TypeName == "string"))
         {
             string fieldTypeMinLenStr = GetFieldTypeMinLenValue(fieldDefinition);
             
@@ -110,14 +108,14 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
             {
                 builder.Append("optionalFieldLen + ");
 
-                if (fieldDefinition.IsArray || fieldDefinition.Type == "string")
+                if (fieldDefinition.IsArray || fieldDefinition.TypeName == "string")
                 {
                     builder.Append("arrayHeaderLen + ");
                 }
             }
 
             //  TODO need to support types
-            if (fieldDefinition.Type == "string")
+            if (fieldDefinition.TypeName == "string")
             {
                 if (fieldDefinition.IsArray)
                 {
@@ -139,7 +137,7 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
 
             builder.AppendLine(";");
 
-            if (fieldDefinition.Type == "string" && fieldDefinition.IsArray) 
+            if (fieldDefinition.TypeName == "string" && fieldDefinition.IsArray) 
             {
                 builder.Append(Nsd1Compiler.Indent);
                 builder.Append(Nsd1Compiler.Indent);
@@ -191,7 +189,7 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
 
     private string GetFieldTypeMinLenValue(FieldDefinition fieldDefinition)
     {
-        switch (fieldDefinition.Type)
+        switch (fieldDefinition.TypeName)
         {
             case "byte":
                 return "byteLen";
@@ -221,7 +219,7 @@ internal class Nsd1ReflectionCompiler : INsdTypeCompiler
                 return "arrayHeaderLen";
 
                 //default:
-                //    throw new NotSupportedException(string.Format("Unknown field type \"{0}\".", fieldDefinition.Type));
+                //    throw new NotSupportedException(string.Format("Unknown field type \"{0}\".", fieldDefinition.TypeName));
         }
 
         return "0";

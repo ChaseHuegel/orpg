@@ -1,5 +1,4 @@
-﻿using Lexer.Tests;
-using Needlefish.Compiler.Tests.Compile;
+﻿using Needlefish.Compiler.Tests.Compile;
 using Needlefish.Compiler.Tests.Schema;
 using NUnit.Framework;
 

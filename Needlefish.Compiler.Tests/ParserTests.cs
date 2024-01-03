@@ -63,7 +63,7 @@ public class ParserTests
         Assert.Throws<NsdException>(() => ParseNsdContent(content));
     }
 
-    [TestCase("Type", "#version 1; message test { val = 1; }")]
+    [TestCase("TypeName", "#version 1; message test { val = 1; }")]
     [TestCase("Identifier", "#version 1; message test { int = 1; }")]
     [TestCase("EqualToAssign", "#version 1; message test { int val 1; }")]
     [TestCase("ValueToAssign", "#version 1; message test { int val =; }")]

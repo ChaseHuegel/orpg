@@ -16,7 +16,7 @@ internal class Nsd1FieldsCompiler : INsdTypeCompiler
 
         foreach (FieldDefinition fieldDefinition in typeDefinition.FieldDefinitions)
         {
-            string fullyQualifiedTypeStr = $"{fieldDefinition.Type}";
+            string fullyQualifiedTypeStr = $"{fieldDefinition.TypeName}";
 
             if (fieldDefinition.IsArray)
             {

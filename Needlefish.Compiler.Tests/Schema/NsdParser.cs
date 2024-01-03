@@ -211,7 +211,7 @@ internal partial class NsdParser
 
         Terminate();
 
-        fieldDefinition = new FieldDefinition(null, identifier.Value, value, false, false);
+        fieldDefinition = new FieldDefinition(FieldType.None, null, identifier.Value, value, false, false);
         return true;
     }
 
@@ -260,12 +260,12 @@ internal partial class NsdParser
     }
 
     /// <summary>
-    ///     TypeSyntaxRequirements: type identifier=value; OR type[] identifier=value; OR type? identifier=value; OR type[]? identifier=value;
+    ///     TypeSyntaxRequirements: token identifier=value; OR token[] identifier=value; OR token? identifier=value; OR token[]? identifier=value;
     /// </summary>
     private bool TryReadFieldDefinition(out FieldDefinition fieldDefinition)
     {
         TryDiscardToken(TokenType.Whitespace);
-        Token<TokenType> type = ReadFieldType();
+        Token<TokenType> token = ReadFieldType();
 
         bool hasWhitespace = false;
 
@@ -301,7 +301,9 @@ internal partial class NsdParser
 
         Terminate();
 
-        fieldDefinition = new FieldDefinition(type.Value, identifier.Value, id, isOptional, isArray);
+        FieldType fieldType = token.Type == TokenType.Identifier ? FieldType.Unknown : FieldType.Primitive;
+        
+        fieldDefinition = new FieldDefinition(fieldType, token.Value, identifier.Value, id, isOptional, isArray);
         return true;
     }
 
@@ -317,7 +319,7 @@ internal partial class NsdParser
             }
         }
 
-        throw new NsdException(string.Format("Unknown field type \"{0}\".", _lookaheadFirst.Value));
+        throw new NsdException(string.Format("Unknown field token \"{0}\".", _lookaheadFirst.Value));
     }
 
     /// <summary>
@@ -379,6 +381,7 @@ internal partial class NsdParser
             int currentValue = -1;
             for (int fieldIndex = 0; fieldIndex < definition.FieldDefinitions.Length; fieldIndex++)
             {
+                //  Set field values, incrementing as we go.
                 FieldDefinition fieldDefinition = definition.FieldDefinitions[fieldIndex];
                 if (fieldDefinition.Value.HasValue)
                 {
@@ -389,8 +392,21 @@ internal partial class NsdParser
                     currentValue++;
                 }
 
+                //  Identify fields that have enum or object types.
+                TypeDefinition fieldTypeDefinition = _typeDefinitions.FirstOrDefault(x => x.Name == fieldDefinition.TypeName);
+                FieldType type = fieldDefinition.Type;
+                if (fieldTypeDefinition.Keyword == "enum")
+                {
+                    type = FieldType.Enum;
+                }
+                else if (!string.IsNullOrEmpty(fieldTypeDefinition.Keyword))
+                {
+                    type = FieldType.Object;
+                }
+
                 definition.FieldDefinitions[fieldIndex] = new FieldDefinition(
-                    fieldDefinition.Type,
+                    type,
+                    fieldDefinition.TypeName,
                     fieldDefinition.Name,
                     currentValue,
                     fieldDefinition.IsOptional,
