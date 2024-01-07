@@ -44,9 +44,45 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
 
         builder.AppendLine("public void Unpack(byte[] buffer)");
         builder.AppendLine("{");
-        builder.AppendLine($"{Nsd1Compiler.Indent}throw new System.NotImplementedException();");
+        builder.AppendLine($"{Nsd1Compiler.Indent}int offset = 0;");
+        builder.AppendLine($"{Nsd1Compiler.Indent}while (offset < buffer.Length)");
+        builder.AppendLine($"{Nsd1Compiler.Indent}{{");
+        builder.AppendLine($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}ushort id = NeedlefishFormatter.ReadUShort(buffer, ref offset);");
+        builder.AppendLine($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}switch (id)");
+        builder.AppendLine($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}{{");
+
+        foreach (FieldDefinition field in typeDefinition.FieldDefinitions)
+        {
+            builder.AppendLine($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}case {field.Name}_ID:");
+            builder.Append($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}");
+            AppendField(builder, field);
+            builder.AppendLine($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}break;");
+        }
+
+        builder.AppendLine($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}}}");
+        builder.AppendLine($"{Nsd1Compiler.Indent}}}");
         builder.AppendLine("}");
 
         return builder;
+    }
+
+    private static void AppendField(StringBuilder builder, FieldDefinition field)
+    {
+        if (!field.IsArray && !field.IsOptional)
+        {
+            builder.AppendLine($"decode_{field.TypeName}(buffer, ref offset, ref {field.Name});");
+        }
+        else if (!field.IsArray && field.IsOptional)
+        {
+            builder.AppendLine($"decode_optional_{field.TypeName}(buffer, ref offset, ref {field.Name});");
+        }
+        if (field.IsArray && !field.IsOptional)
+        {
+            builder.AppendLine($"decode_{field.TypeName}_array(buffer, ref offset, ref {field.Name});");
+        }
+        else if (field.IsArray && field.IsOptional)
+        {
+            builder.AppendLine($"decode_optional_{field.TypeName}_array(buffer, ref offset, ref {field.Name});");
+        }
     }
 }
