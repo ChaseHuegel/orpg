@@ -1,8 +1,6 @@
-﻿using System;
+﻿namespace Needlefish.Compiler.Tests;
 
-namespace Needlefish.Compiler.Tests;
-
-internal static class NeedlefishFormatter
+internal static partial class NeedlefishFormatter
 {
     public static void WriteBool(byte[] buffer, ref int offset, bool value)
     {

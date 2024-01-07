@@ -20,23 +20,33 @@ public class LexerTests
         {
             string? Content;
             string Body;
-            int StatusCode = 5;
             float FloAT;
             double Double;
             long Long;
             ulong uLong;
-            uint Uint = 15;
-            ulong Ulong;
+            ulong Ulong = 15;
             short Short;
             ushort UShort;
             bool Bool;
             byte Byte;
             byte[] Bytes = 21;
             string[]?  OptionalStrings = 30;
-            TestEnum EnumValue = 22;
-            TestEnum? OptionalEnumValue;
-            TestEnum[] EnumValues;
-            TestEnum[]? OptionalEnumValues;
+
+            int Int;
+            int? OptionalInt;
+            int[] Ints;
+            int[]? OptionalInts;
+
+            uint UInt;
+            uint? OptionalUInt;
+            uint[] UInts;
+            uint[]? OptionalUInts;
+
+            TestEnum Enum = 22;
+            TestEnum? OptionalEnum;
+            TestEnum[] Enums;
+            TestEnum[]? OptionalEnums;
+
             Submessage Submessage;
             Submessage? OptionalSubmessage;
             Submessage[] Submessages;
