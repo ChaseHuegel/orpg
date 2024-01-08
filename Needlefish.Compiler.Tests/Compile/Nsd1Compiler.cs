@@ -10,7 +10,8 @@ internal class Nsd1Compiler : INsdCompiler
 
     private static readonly string[] RequiredUsings = new[]
     {
-        "using System;"
+        "using System;",
+        "using Needlefish;"
     };
 
     private readonly INsdTypeCompiler[] TypeCompilers = new INsdTypeCompiler[] {

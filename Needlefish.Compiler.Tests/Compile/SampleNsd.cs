@@ -1,4 +1,5 @@
 ﻿using Needlefish.Compiler.Tests;
+using System;
 
 namespace Lexer.Tests
 {
@@ -27,15 +28,29 @@ namespace Lexer.Tests
             byte[] buffer = new byte[CalculateLength()];
             int offset = 0;
 
-            EncodeInt(buffer, ref offset, Int_ID, ref Int);
+            //  Int
+            NeedlefishFormatter.WriteHeader(buffer, ref offset, Int_ID);
+            NeedlefishFormatter.Write(buffer, ref offset, Int);
+
+            //  OptionalInt
+            NeedlefishFormatter.WriteHeader(buffer, ref offset, OptionalInt_ID, isOptional: true, hasValue: OptionalInt != null);
             if (OptionalInt != null)
             {
-                EncodeOptionalInt(buffer, ref offset, OptionalInt_ID, ref OptionalInt);
+                NeedlefishFormatter.Write(buffer, ref offset, OptionalInt.Value);
             }
-            EncodeIntArray(buffer, ref offset, IntArray_ID, ref IntArray);
-            if (OptionalIntArray != null)
+
+            //  IntArray
+            NeedlefishFormatter.WriteHeader(buffer, ref offset, IntArray_ID, isOptional: false, hasValue: IntArray != null, isArray: true, arrayLength: IntArray?.Length ?? 0);
+            for (int i = 0; i < IntArray?.Length; i++)
             {
-                EncodeOptionalIntArray(buffer, ref offset, OptionalIntArray_ID, ref OptionalIntArray);
+                NeedlefishFormatter.Write(buffer, ref offset, IntArray[i]);
+            }
+
+            //  OptionalIntArray
+            NeedlefishFormatter.WriteHeader(buffer, ref offset, OptionalIntArray_ID, isOptional: true, hasValue: OptionalIntArray != null, isArray: true, arrayLength: OptionalIntArray?.Length ?? 0);
+            for (int i = 0; i < OptionalIntArray?.Length; i++)
+            {
+                NeedlefishFormatter.Write(buffer, ref offset, OptionalIntArray[i]);
             }
 
             return buffer;
@@ -47,21 +62,21 @@ namespace Lexer.Tests
             while (offset < buffer.Length)
             {
                 ushort id = NeedlefishFormatter.ReadUShort(buffer, ref offset);
-                switch (id)
-                {
-                    case Int_ID:
-                        DecodeInt(buffer, ref offset, ref Int);
-                        break;
-                    case OptionalInt_ID:
-                        DecodeOptionalInt(buffer, ref offset, ref OptionalInt);
-                        break;
-                    case IntArray_ID:
-                        DecodeIntArray(buffer, ref offset, ref IntArray);
-                        break;
-                    case OptionalIntArray_ID:
-                        DecodeOptionalIntArray(buffer, ref offset, ref OptionalIntArray);
-                        break;
-                }
+                //switch (id)
+                //{
+                //    case Int_ID:
+                //        DecodeInt(buffer, ref offset, ref Int);
+                //        break;
+                //    case OptionalInt_ID:
+                //        DecodeOptionalInt(buffer, ref offset, ref OptionalInt);
+                //        break;
+                //    case IntArray_ID:
+                //        DecodeIntArray(buffer, ref offset, ref IntArray);
+                //        break;
+                //    case OptionalIntArray_ID:
+                //        DecodeOptionalIntArray(buffer, ref offset, ref OptionalIntArray);
+                //        break;
+                //}
             }
         }
 
@@ -98,106 +113,6 @@ namespace Lexer.Tests
             }
 
             return length;
-        }
-
-        private static void EncodeInt(byte[] buffer, ref int offset, ushort id, ref int field)
-        {
-            NeedlefishFormatter.WriteUShort(buffer, ref offset, id);
-            NeedlefishFormatter.WriteInt(buffer, ref offset, field);
-        }
-
-        private static void EncodeOptionalInt(byte[] buffer, ref int offset, ushort id, ref int? field)
-        {
-            NeedlefishFormatter.WriteUShort(buffer, ref offset, id);
-            NeedlefishFormatter.WriteBool(buffer, ref offset, field.HasValue);
-            if (field.HasValue)
-            {
-                NeedlefishFormatter.WriteInt(buffer, ref offset, field.Value);
-            }
-        }
-
-        private static void EncodeIntArray(byte[] buffer, ref int offset, ushort id, ref int[] field)
-        {
-            NeedlefishFormatter.WriteUShort(buffer, ref offset, id);
-
-            if (field != null && field.Length > 0)
-            {
-                NeedlefishFormatter.WriteUShort(buffer, ref offset, (ushort)field.Length);
-
-                for (int i = 0; i < field.Length; i++)
-                {
-                    NeedlefishFormatter.WriteInt(buffer, ref offset, field[i]);
-                }
-            }
-            else
-            {
-                NeedlefishFormatter.WriteUShort(buffer, ref offset, 0);
-            }
-        }
-
-        private static void EncodeOptionalIntArray(byte[] buffer, ref int offset, ushort id, ref int[]? field)
-        {
-            NeedlefishFormatter.WriteUShort(buffer, ref offset, id);
-
-            if (field != null && field.Length > 0)
-            {
-                NeedlefishFormatter.WriteBool(buffer, ref offset, true);
-                NeedlefishFormatter.WriteUShort(buffer, ref offset, (ushort)field.Length);
-
-                for (int i = 0; i < field.Length; i++)
-                {
-                    NeedlefishFormatter.WriteInt(buffer, ref offset, field[i]);
-                }
-            }
-            else
-            {
-                NeedlefishFormatter.WriteBool(buffer, ref offset, false);
-            }
-        }
-
-        private static void DecodeInt(byte[] buffer, ref int offset, ref int field)
-        {
-            field = NeedlefishFormatter.ReadInt(buffer, ref offset);
-        }
-
-        private static void DecodeOptionalInt(byte[] buffer, ref int offset, ref int? field)
-        {
-            bool hasValue = NeedlefishFormatter.ReadBool(buffer, ref offset);
-            if (hasValue)
-            {
-                field = NeedlefishFormatter.ReadInt(buffer, ref offset);
-            }
-            else
-            {
-                field = null;
-            }
-        }
-
-        private static void DecodeIntArray(byte[] buffer, ref int offset, ref int[] field)
-        {
-            ushort length = NeedlefishFormatter.ReadUShort(buffer, ref offset);
-            int[] array = new int[length];
-            
-            for (int i = 0; i < array.Length; i++)
-            {
-                int value = NeedlefishFormatter.ReadInt(buffer, ref offset);
-                array[i] = value;
-            }
-
-            field = array;
-        }
-
-        private static void DecodeOptionalIntArray(byte[] buffer, ref int offset, ref int[]? field)
-        {
-            bool hasValue = NeedlefishFormatter.ReadBool(buffer, ref offset);
-            if (hasValue)
-            {
-                DecodeIntArray(buffer, ref offset, ref field!);
-            }
-            else
-            {
-                field = null;
-            }
         }
     }
 }

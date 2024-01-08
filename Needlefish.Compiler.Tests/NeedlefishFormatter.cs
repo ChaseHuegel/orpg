@@ -1,8 +1,23 @@
-﻿namespace Needlefish.Compiler.Tests;
+﻿namespace Needlefish;
 
 internal static partial class NeedlefishFormatter
 {
-    public static void WriteBool(byte[] buffer, ref int offset, bool value)
+    public static void WriteHeader(byte[] buffer, ref int offset, ushort id, bool isOptional = false, bool hasValue = false, bool isArray = false, int arrayLength = 0)
+    {
+        Write(buffer, ref offset, id);
+
+        if (isOptional)
+        {
+            Write(buffer, ref offset, hasValue);
+        }
+
+        if (isArray && (hasValue || !isOptional))
+        {
+            Write(buffer, ref offset, arrayLength);
+        }
+    }
+
+    public static void Write(byte[] buffer, ref int offset, bool value)
     {
         unchecked
         {
@@ -21,7 +36,7 @@ internal static partial class NeedlefishFormatter
         }
     }
 
-    public static void WriteShort(byte[] buffer, ref int offset, short value)
+    public static void Write(byte[] buffer, ref int offset, short value)
     {
         unchecked
         {
@@ -41,7 +56,7 @@ internal static partial class NeedlefishFormatter
         }
     }
 
-    public static void WriteUShort(byte[] buffer, ref int offset, ushort value)
+    public static void Write(byte[] buffer, ref int offset, ushort value)
     {
         unchecked
         {
@@ -61,7 +76,7 @@ internal static partial class NeedlefishFormatter
         }
     }
 
-    public static void WriteInt(byte[] buffer, ref int offset, int value)
+    public static void Write(byte[] buffer, ref int offset, int value)
     {
         unchecked
         {
@@ -83,7 +98,7 @@ internal static partial class NeedlefishFormatter
         }
     }
 
-    public static void WriteUInt(byte[] buffer, ref int offset, uint value)
+    public static void Write(byte[] buffer, ref int offset, uint value)
     {
         unchecked
         {
