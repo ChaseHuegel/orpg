@@ -95,11 +95,11 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
                 break;
 
             case FieldType.Enum:
-                builder.Append($"NeedlefishFormatter.Write(buffer, ref offset, {field.Name}_ID, (int){fieldAccessor});");
+                builder.Append($"NeedlefishFormatter.Write(buffer, ref offset, (int){fieldAccessor});");
                 break;
 
             case FieldType.Primitive:
-                builder.Append($"NeedlefishFormatter.Write(buffer, ref offset, {field.Name}_ID, {fieldAccessor});");
+                builder.Append($"NeedlefishFormatter.Write(buffer, ref offset, {fieldAccessor});");
                 break;
         }
 
