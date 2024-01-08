@@ -1,5 +1,4 @@
-﻿using Needlefish.Compiler.Tests;
-using System;
+﻿using Needlefish;
 
 namespace Lexer.Tests
 {
