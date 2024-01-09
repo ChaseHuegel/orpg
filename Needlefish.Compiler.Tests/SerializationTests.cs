@@ -1,5 +1,6 @@
 ﻿using Lexer.Tests;
 using NUnit.Framework;
+using System;
 
 namespace Needlefish.Compiler.Tests;
 
@@ -15,7 +16,7 @@ internal class SerializationTests
 
         var data = message.Serialize();
 
-        message.Deserialize(data);
+        message.Unpack(data);
         Assert.Multiple(() =>
         {
             Assert.That(data, Has.Length.EqualTo(10));
@@ -33,7 +34,7 @@ internal class SerializationTests
 
         var data = message.Serialize();
 
-        message.Deserialize(data);
+        message.Unpack(data);
         Assert.Multiple(() =>
         {
             Assert.That(data, Has.Length.EqualTo(17));
@@ -42,95 +43,95 @@ internal class SerializationTests
     }
 
     [Test]
-    public void RoundTripIntArray()
+    public void RoundTripInts()
     {
-        var expectedIntArray = new int[] { 1, 2, 3, 4 };
+        var expectedInts = new int[] { 1, 2, 3, 4 };
 
         var message = new TestMessage
         {
-            IntArray = expectedIntArray
+            Ints = expectedInts
         };
 
         var data = message.Serialize();
 
-        message.Deserialize(data);
+        message.Unpack(data);
         Assert.Multiple(() =>
         {
             Assert.That(data, Has.Length.EqualTo(26));
-            Assert.That(message.IntArray, Is.EqualTo(expectedIntArray));
+            Assert.That(message.Ints, Is.EqualTo(expectedInts));
         });
     }
 
     [Test]
-    public void RoundTripOptionalIntArray()
+    public void RoundTripOptionalInts()
     {
-        var expectedOptionalIntArray = new int[] { 5, 6, 7, 8 };
+        var expectedOptionalInts = new int[] { 5, 6, 7, 8 };
 
         var message = new TestMessage
         {
-            OptionalIntArray = expectedOptionalIntArray
+            OptionalInts = expectedOptionalInts
         };
 
         var data = message.Serialize();
 
-        message.Deserialize(data);
+        message.Unpack(data);
         Assert.Multiple(() =>
         {
             Assert.That(data, Has.Length.EqualTo(31));
-            Assert.That(message.OptionalIntArray, Is.EqualTo(expectedOptionalIntArray));
+            Assert.That(message.OptionalInts, Is.EqualTo(expectedOptionalInts));
         });
     }
 
     [Test]
     public void RoundTripAll()
     {
-        var expectedIntArray = new int[] { 1, 2, 3, 4 };
-        var expectedOptionalIntArray = new int[] { 5, 6, 7, 8 };
+        var expectedInts = new int[] { 1, 2, 3, 4 };
+        var expectedOptionalInts = new int[] { 5, 6, 7, 8 };
 
         var message = new TestMessage
         {
             Int = 325,
             OptionalInt = 68,
-            IntArray = expectedIntArray,
-            OptionalIntArray = expectedOptionalIntArray
+            Ints = expectedInts,
+            OptionalInts = expectedOptionalInts
         };
 
         var data = message.Serialize();
 
-        message.Deserialize(data);
+        message.Unpack(data);
         Assert.Multiple(() =>
         {
             Assert.That(data, Has.Length.EqualTo(54));
             Assert.That(message.Int, Is.EqualTo(325));
             Assert.That(message.OptionalInt, Is.EqualTo(68));
-            Assert.That(message.IntArray, Is.EqualTo(expectedIntArray));
-            Assert.That(message.OptionalIntArray, Is.EqualTo(expectedOptionalIntArray));
+            Assert.That(message.Ints, Is.EqualTo(expectedInts));
+            Assert.That(message.OptionalInts, Is.EqualTo(expectedOptionalInts));
         });
     }
 
     [Test]
     public void RoundTripAllWithOptionals()
     {
-        var expectedIntArray = new int[] { 1, 2, 3, 4 };
+        var expectedInts = new int[] { 1, 2, 3, 4 };
 
         var message = new TestMessage
         {
             Int = 325,
             OptionalInt = null,
-            IntArray = expectedIntArray,
-            OptionalIntArray = null
+            Ints = expectedInts,
+            OptionalInts = null
         };
 
         var data = message.Serialize();
 
-        message.Deserialize(data);
+        message.Unpack(data);
         Assert.Multiple(() =>
         {
             Assert.That(data, Has.Length.EqualTo(26));
             Assert.That(message.Int, Is.EqualTo(325));
             Assert.That(message.OptionalInt, Is.EqualTo(null));
-            Assert.That(message.IntArray, Is.EqualTo(expectedIntArray));
-            Assert.That(message.OptionalIntArray, Is.EqualTo(null));
+            Assert.That(message.Ints, Is.EqualTo(expectedInts));
+            Assert.That(message.OptionalInts, Is.EqualTo(null));
         });
     }
 }

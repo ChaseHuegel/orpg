@@ -1,89 +1,30 @@
-﻿using Needlefish;
+﻿// Code generated using nsd version 1
+using System;
+using Needlefish;
 
 namespace Lexer.Tests
 {
-    public enum TestEnum
-    {
-        Val1 = 0,
-        Val2 = 10,
-        Val3 = 11,
-        Val4 = 12
-    }
-
     public struct TestMessage
     {
         private const ushort Int_ID = 0;
         private const ushort OptionalInt_ID = 1;
-        private const ushort IntArray_ID = 2;
-        private const ushort OptionalIntArray_ID = 3;
+        private const ushort Ints_ID = 2;
+        private const ushort OptionalInts_ID = 3;
 
         public int Int;
         public int? OptionalInt;
-        public int[] IntArray;
-        public int[]? OptionalIntArray;
+        public int[] Ints;
+        public int[]? OptionalInts;
 
-        public byte[] Serialize()
+        public int GetSize()
         {
-            byte[] buffer = new byte[CalculateLength()];
-            int offset = 0;
-
-            //  Int
-            NeedlefishFormatter.WriteHeader(buffer, ref offset, Int_ID);
-            NeedlefishFormatter.Write(buffer, ref offset, Int);
-
-            //  OptionalInt
-            NeedlefishFormatter.WriteHeader(buffer, ref offset, OptionalInt_ID, isOptional: true, hasValue: OptionalInt != null);
-            if (OptionalInt != null)
-            {
-                NeedlefishFormatter.Write(buffer, ref offset, OptionalInt.Value);
-            }
-
-            //  IntArray
-            NeedlefishFormatter.WriteHeader(buffer, ref offset, IntArray_ID, isOptional: false, hasValue: IntArray != null, isArray: true, arrayLength: IntArray?.Length ?? 0);
-            for (int i = 0; i < IntArray?.Length; i++)
-            {
-                NeedlefishFormatter.Write(buffer, ref offset, IntArray[i]);
-            }
-
-            //  OptionalIntArray
-            NeedlefishFormatter.WriteHeader(buffer, ref offset, OptionalIntArray_ID, isOptional: true, hasValue: OptionalIntArray != null, isArray: true, arrayLength: OptionalIntArray?.Length ?? 0);
-            for (int i = 0; i < OptionalIntArray?.Length; i++)
-            {
-                NeedlefishFormatter.Write(buffer, ref offset, OptionalIntArray[i]);
-            }
-
-            return buffer;
-        }
-
-        public void Deserialize(byte[] buffer)
-        {
-            int offset = 0;
-            while (offset < buffer.Length)
-            {
-                ushort id = NeedlefishFormatter.ReadUShort(buffer, ref offset);
-                //switch (id)
-                //{
-                //    case Int_ID:
-                //        DecodeInt(buffer, ref offset, ref Int);
-                //        break;
-                //    case OptionalInt_ID:
-                //        DecodeOptionalInt(buffer, ref offset, ref OptionalInt);
-                //        break;
-                //    case IntArray_ID:
-                //        DecodeIntArray(buffer, ref offset, ref IntArray);
-                //        break;
-                //    case OptionalIntArray_ID:
-                //        DecodeOptionalIntArray(buffer, ref offset, ref OptionalIntArray);
-                //        break;
-                //}
-            }
-        }
-
-        private int CalculateLength()
-        {
+            const int byteLen = 1;
             const int boolLen = 1;
             const int shortLen = 2;
             const int intLen = 4;
+            const int floatLen = 4;
+            const int longLen = 8;
+            const int doubleLen = 8;
 
             const int fieldHeaderLen = shortLen;
             const int optionalHeaderLen = boolLen;
@@ -91,27 +32,99 @@ namespace Lexer.Tests
             const int arrayHeaderLen = shortLen;
 
             const int Int_MinLen = fieldHeaderLen + intLen;
-            const int IntArray_MinLen = fieldHeaderLen + arrayHeaderLen;
-            
-            const int minLength = Int_MinLen + IntArray_MinLen;
+            const int Ints_MinLen = fieldHeaderLen + arrayHeaderLen;
+
+            const int minLength = Int_MinLen
+                + Ints_MinLen;
+
             int length = minLength;
 
-            if (OptionalInt.HasValue)
+            if (OptionalInt != null)
             {
                 length += optionalFieldLen + intLen;
             }
 
-            if (IntArray != null)
+            if (Ints != null)
             {
-                length += IntArray.Length * intLen;
+                length += (Ints.Length * intLen);
             }
 
-            if (OptionalIntArray != null)
+            if (OptionalInts != null)
             {
-                length += optionalFieldLen + arrayHeaderLen + (OptionalIntArray.Length * intLen);
+                length += optionalFieldLen + arrayHeaderLen + (OptionalInts.Length * intLen);
             }
 
             return length;
         }
+
+        public byte[] Serialize()
+        {
+            byte[] buffer = new byte[GetSize()];
+            SerializeInto(buffer);
+            return buffer;
+        }
+
+        public void SerializeInto(byte[] buffer)
+        {
+            int offset = 0;
+
+            // Int
+            NeedlefishFormatter.WriteHeader(buffer, ref offset, Int_ID, isOptional: false, hasValue: true, isArray: false, arrayLength: 0);
+            NeedlefishFormatter.Write(buffer, ref offset, Int);
+
+            // OptionalInt
+            if (OptionalInt != null)
+            {
+                NeedlefishFormatter.WriteHeader(buffer, ref offset, OptionalInt_ID, isOptional: true, hasValue: true, isArray: false, arrayLength: 0);
+                NeedlefishFormatter.Write(buffer, ref offset, OptionalInt.Value);
+            }
+
+            // Ints
+            NeedlefishFormatter.WriteHeader(buffer, ref offset, Ints_ID, isOptional: false, hasValue: true, isArray: true, arrayLength: (ushort)(Ints?.Length ?? 0));
+            for (int i = 0; i < Ints?.Length; i++)
+            {
+                NeedlefishFormatter.Write(buffer, ref offset, Ints[i]);
+            }
+
+            // OptionalInts
+            if (OptionalInts != null)
+            {
+                NeedlefishFormatter.WriteHeader(buffer, ref offset, OptionalInts_ID, isOptional: true, hasValue: true, isArray: true, arrayLength: (ushort)OptionalInts.Length);
+                for (int i = 0; i < OptionalInts?.Length; i++)
+                {
+                    NeedlefishFormatter.Write(buffer, ref offset, OptionalInts[i]);
+                }
+            }
+
+        }
+
+        public static TestMessage Deserialize(byte[] buffer)
+        {
+            TestMessage value = new TestMessage();
+            value.Unpack(buffer);
+            return value;
+        }
+
+        public void Unpack(byte[] buffer)
+        {
+            int offset = 0;
+            while (buffer.Length - offset < 2)
+            {
+                ushort id = NeedlefishFormatter.ReadUShort(buffer, ref offset);
+                switch (id)
+                {
+                    case Int_ID:
+                        break;
+                    case OptionalInt_ID:
+                        break;
+                    case Ints_ID:
+                        break;
+                    case OptionalInts_ID:
+                        break;
+                }
+            }
+        }
+
     }
+
 }

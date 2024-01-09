@@ -45,7 +45,7 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
         builder.AppendLine("public void Unpack(byte[] buffer)");
         builder.AppendLine("{");
         builder.AppendLine($"{Nsd1Compiler.Indent}int offset = 0;");
-        builder.AppendLine($"{Nsd1Compiler.Indent}while (offset < buffer.Length)");
+        builder.AppendLine($"{Nsd1Compiler.Indent}while (buffer.Length - offset < 2)");
         builder.AppendLine($"{Nsd1Compiler.Indent}{{");
         builder.AppendLine($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}ushort id = NeedlefishFormatter.ReadUShort(buffer, ref offset);");
         builder.AppendLine($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}switch (id)");

@@ -31,12 +31,26 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
 
         foreach (FieldDefinition field in typeDefinition.FieldDefinitions)
         {
+            if (field.IsOptional)
+            {
+                builder.AppendLine($"{Nsd1Compiler.Indent}if ({field.Name} != null)");
+                builder.AppendLine($"{Nsd1Compiler.Indent}{{");
+            }
+
             StringBuilder fieldBuilder = CompileFieldSerialization(field);
 
-            fieldBuilder.Insert(0, Nsd1Compiler.Indent);
-            fieldBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent);
+            string indent = field.IsOptional ? Nsd1Compiler.Indent + Nsd1Compiler.Indent : Nsd1Compiler.Indent;
+            fieldBuilder.Insert(0, indent);
+            fieldBuilder.Replace("\n", "\n" + indent);
+
             builder.Append(fieldBuilder);
             builder.AppendLine();
+
+            if (field.IsOptional)
+            {
+                builder.AppendLine($"{Nsd1Compiler.Indent}}}");
+                builder.AppendLine();
+            }
         }
 
         builder.AppendLine("}");
@@ -48,19 +62,14 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
     {
         StringBuilder builder = new();
 
-        string hasValueStr = field.IsOptional ? $"{field.Name} != null" : "true";
-        string arrayLengthStr = field.IsArray ? $"{field.Name}?.Length ?? 0" : "0";
+        string arrayLengthStr = field.IsArray ? $"(ushort)({field.Name}?.Length ?? 0)" : "(ushort)0";
+
         builder.AppendLine($"// {field.Name}");
-        builder.AppendLine($"NeedlefishFormatter.WriteHeader(buffer, ref offset, {field.Name}_ID, isOptional: {field.IsOptional.ToString().ToLower()}, hasValue: {hasValueStr}, isArray: {field.IsArray.ToString().ToLower()}, arrayLength: {arrayLengthStr});");
+        builder.AppendLine($"NeedlefishFormatter.WriteHeader(buffer, ref offset, {field.Name}_ID, isOptional: {field.IsOptional.ToString().ToLower()}, hasValue: true, isArray: {field.IsArray.ToString().ToLower()}, arrayLength: {arrayLengthStr});");
 
         if (field.IsArray)
         {
             builder.AppendLine($"for (int i = 0; i < {field.Name}?.Length; i++)");
-            builder.AppendLine("{");
-        }
-        else if (field.IsOptional)
-        {
-            builder.AppendLine($"if ({field.Name} != null)");
             builder.AppendLine("{");
         }
 
@@ -87,6 +96,10 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
         StringBuilder builder = new();
 
         string fieldAccessor = field.IsArray ? $"{field.Name}[i]" : field.Name;
+        if (field.IsOptional && !field.IsArray && field.TypeName != "string")
+        {
+            fieldAccessor += ".Value";
+        }
 
         switch (field.Type)
         {
