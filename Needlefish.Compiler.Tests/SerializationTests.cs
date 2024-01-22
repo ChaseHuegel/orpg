@@ -201,7 +201,7 @@ internal class SerializationTests
         }
         sw.Stop();
         long memAfter = GC.GetAllocatedBytesForCurrentThread();
-        Assert.Pass(sw.Elapsed.ToString() + " " + (memAfter - memBefore) + " bytes ()");
+        Assert.Pass(sw.Elapsed.ToString() + " " + (memAfter - memBefore) + " bytes");
     }
 
     [Test]
