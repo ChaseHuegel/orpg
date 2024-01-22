@@ -1,6 +1,6 @@
 ﻿namespace Needlefish;
 
-internal static partial class NeedlefishFormatter
+public static class NeedlefishFormatter
 {
     public static void WriteHeader(byte[] buffer, ref int offset, ushort id, bool isOptional = false, bool hasValue = false, bool isArray = false, ushort arrayLength = 0)
     {
