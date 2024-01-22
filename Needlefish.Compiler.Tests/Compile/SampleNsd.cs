@@ -1,5 +1,4 @@
 ﻿// Code generated using nsd version 1
-using System;
 using Needlefish;
 
 namespace Lexer.Tests
