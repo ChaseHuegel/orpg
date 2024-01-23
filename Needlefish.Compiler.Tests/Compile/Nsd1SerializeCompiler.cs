@@ -64,7 +64,7 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
 
         string arrayLengthStr = field.IsArray ? $"(ushort)({field.Name}?.Length ?? 0)" : "(ushort)0";
 
-        builder.AppendLine($"// {field.Name}");
+        builder.AppendLine($"#region {field.Name}");
         builder.AppendLine($"NeedlefishFormatter.WriteHeader(buffer, ref offset, {field.Name}_ID, isOptional: {field.IsOptional.ToString().ToLower()}, hasValue: true, isArray: {field.IsArray.ToString().ToLower()}, arrayLength: {arrayLengthStr});");
 
         if (field.IsArray)
@@ -74,7 +74,7 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
         }
 
         StringBuilder fieldBuilder = CompileFieldWrite(field);
-        if (field.IsArray || field.IsOptional)
+        if (field.IsArray)
         {
             fieldBuilder.Insert(0, Nsd1Compiler.Indent);
             fieldBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent);
@@ -83,10 +83,11 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
         builder.Append(fieldBuilder);
         builder.AppendLine();
 
-        if (field.IsArray || field.IsOptional)
+        if (field.IsArray)
         {
             builder.AppendLine("}");
         }
+        builder.AppendLine("#endregion");
 
         return builder;
     }

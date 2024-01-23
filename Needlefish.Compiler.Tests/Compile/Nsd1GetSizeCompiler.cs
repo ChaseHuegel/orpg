@@ -34,10 +34,14 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
         builder.AppendLine("public int GetSize()");
         builder.AppendLine("{");
 
+        builder.AppendLine(Nsd1Compiler.Indent + "#region Helper consts");
         AppendHelperConsts(builder);
+        builder.AppendLine(Nsd1Compiler.Indent + "#endregion");
         builder.AppendLine();
 
+        builder.AppendLine(Nsd1Compiler.Indent + "#region Static size calculation");
         AppendFieldConsts(typeDefinition, builder);
+        builder.AppendLine(Nsd1Compiler.Indent + "#endregion");
         builder.AppendLine();
 
         AppendMinLength(typeDefinition, builder);
@@ -47,7 +51,10 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
         builder.AppendLine("int length = minLength;");
         builder.AppendLine();
 
+        builder.AppendLine(Nsd1Compiler.Indent + "#region Dynamic size calculation");
         AppendLengthCalculation(typeDefinition, builder);
+        builder.AppendLine(Nsd1Compiler.Indent + "#endregion");
+        builder.AppendLine();
 
         builder.Append(Nsd1Compiler.Indent);
         builder.AppendLine("return length;");
@@ -76,7 +83,7 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
     private static void AppendMinLength(TypeDefinition typeDefinition, StringBuilder builder)
     {
         builder.Append(Nsd1Compiler.Indent);
-        builder.Append($"const int minLength = ");
+        builder.Append("const int minLength = ");
 
         IEnumerable<string> minLenConsts = GetMinLenEligableFields(typeDefinition).Select(f => $"{f.Name}_MinLen");
 

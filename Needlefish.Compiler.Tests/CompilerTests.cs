@@ -13,7 +13,7 @@ internal class CompilerTests
 
         var compiler = new Nsd1Compiler();
         
-        string result = compiler.Compile(nsd);
+        string result = compiler.Compile(nsd, "LexerTests.ValidNsd");
 
         Assert.Pass(result);
     }

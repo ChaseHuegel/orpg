@@ -14,6 +14,7 @@ internal class Nsd1FieldIdentifiersCompiler : INsdTypeCompiler
     {
         StringBuilder builder = new();
 
+        builder.AppendLine("#region Field identifiers");
         foreach (FieldDefinition fieldDefinition in typeDefinition.FieldDefinitions)
         {
             string nameStr = fieldDefinition.Name;
@@ -21,6 +22,7 @@ internal class Nsd1FieldIdentifiersCompiler : INsdTypeCompiler
 
             builder.AppendLine($"private const ushort {nameStr}_ID = {idStr};");
         }
+        builder.AppendLine("#endregion");
 
         return builder;
     }
