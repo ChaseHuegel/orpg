@@ -3,6 +3,7 @@ using Google.Protobuf;
 using Newtonsoft.Json;
 using System.Text;
 using NeedlefishTestMessage = Benchmark.Serializers.Needlefish.TestMessage;
+using NeedlefishTestMessageV2 = Benchmark.Serializers.Needlefish.TestMessageV2;
 using ProtobufTestMessage = Benchmark.Serializers.Proto.TestMessage;
 
 namespace Needlefish.Compiler.Tests;
@@ -16,15 +17,15 @@ public class Deserialization
 
     public Deserialization() 
     {
-        var expectedInts = new int[] { 1, 2, 3, 4 };
-        var expectedOptionalInts = new int[] { 5, 6, 7, 8 };
+        var ints = new int[] { 1, 2, 3, 4 };
+        var optionalInts = new int[] { 5, 6, 7, 8 };
 
         var needlefishMessage = new NeedlefishTestMessage
         {
             Int = 325,
             OptionalInt = 68,
-            Ints = expectedInts,
-            OptionalInts = expectedOptionalInts
+            Ints = ints,
+            OptionalInts = optionalInts
         };
 
         NeedlefishData = needlefishMessage.Serialize();
@@ -34,11 +35,11 @@ public class Deserialization
         {
             Int = 325,
             OptionalInt = 68,
-            Ints = { 1, 2, 3, 4 },
-            OptionalInts = { 5, 6, 7, 8 }
         };
+        protobufMessage.Ints.Add(ints);
+        protobufMessage.OptionalInts.Add(optionalInts);
 
-        using MemoryStream stream = new MemoryStream();
+        using MemoryStream stream = new();
         protobufMessage.WriteTo(stream);
         ProtobufData = stream.ToArray();
     }
@@ -47,6 +48,12 @@ public class Deserialization
     public NeedlefishTestMessage Needlefish()
     {
         return NeedlefishTestMessage.Deserialize(NeedlefishData);
+    }
+
+    [Benchmark]
+    public NeedlefishTestMessageV2 NeedlefishV2()
+    {
+        return NeedlefishTestMessageV2.Deserialize(NeedlefishData);
     }
 
     [Benchmark]
