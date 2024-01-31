@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System.Text;
 using NeedlefishTestMessage = Benchmark.Serializers.Needlefish.TestMessage;
 using NeedlefishTestMessageV2 = Benchmark.Serializers.Needlefish.TestMessageV2;
+using NeedlefishTestMessageV3 = Benchmark.Serializers.Needlefish.TestMessageV3;
 using ProtobufTestMessage = Benchmark.Serializers.Proto.TestMessage;
 
 namespace Needlefish.Compiler.Tests;
@@ -13,6 +14,7 @@ public class Serialization
 {
     private readonly NeedlefishTestMessage NeedlefishMessage;
     private readonly NeedlefishTestMessageV2 NeedlefishMessageV2;
+    private readonly NeedlefishTestMessageV3 NeedlefishMessageV3;
     private readonly ProtobufTestMessage ProtobufMessage;
 
     public Serialization() 
@@ -29,6 +31,14 @@ public class Serialization
         };
 
         NeedlefishMessageV2 = new NeedlefishTestMessageV2
+        {
+            Int = 325,
+            OptionalInt = 68,
+            Ints = ints,
+            OptionalInts = optionalInts
+        };
+
+        NeedlefishMessageV3 = new NeedlefishTestMessageV3
         {
             Int = 325,
             OptionalInt = 68,
@@ -55,6 +65,12 @@ public class Serialization
     public byte[] NeedlefishV2()
     {
         return NeedlefishMessageV2.Serialize();
+    }
+
+    [Benchmark]
+    public byte[] NeedlefishV3()
+    {
+        return NeedlefishMessageV3.Serialize();
     }
 
     [Benchmark]
