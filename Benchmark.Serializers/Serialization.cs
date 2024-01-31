@@ -5,6 +5,7 @@ using System.Text;
 using NeedlefishTestMessage = Benchmark.Serializers.Needlefish.TestMessage;
 using NeedlefishTestMessageV2 = Benchmark.Serializers.Needlefish.TestMessageV2;
 using NeedlefishTestMessageV3 = Benchmark.Serializers.Needlefish.TestMessageV3;
+using NeedlefishTestMessageV4 = Benchmark.Serializers.Needlefish.TestMessageV4;
 using ProtobufTestMessage = Benchmark.Serializers.Proto.TestMessage;
 
 namespace Needlefish.Compiler.Tests;
@@ -15,7 +16,9 @@ public class Serialization
     private readonly NeedlefishTestMessage NeedlefishMessage;
     private readonly NeedlefishTestMessageV2 NeedlefishMessageV2;
     private readonly NeedlefishTestMessageV3 NeedlefishMessageV3;
+    private readonly NeedlefishTestMessageV4 NeedlefishMessageV4;
     private readonly ProtobufTestMessage ProtobufMessage;
+    private readonly byte[] NeedlefishMessageV4Buffer;
 
     public Serialization() 
     {
@@ -46,6 +49,16 @@ public class Serialization
             OptionalInts = optionalInts
         };
 
+        NeedlefishMessageV4 = new NeedlefishTestMessageV4
+        {
+            Int = 325,
+            OptionalInt = 68,
+            Ints = ints,
+            OptionalInts = optionalInts
+        };
+
+        NeedlefishMessageV4Buffer = new byte[NeedlefishMessageV4.GetSize()];
+
         ProtobufMessage = new ProtobufTestMessage
         {
             Int = 325,
@@ -71,6 +84,19 @@ public class Serialization
     public byte[] NeedlefishV3()
     {
         return NeedlefishMessageV3.Serialize();
+    }
+
+    [Benchmark]
+    public byte[] NeedlefishV4()
+    {
+        return NeedlefishMessageV4.Serialize();
+    }
+
+    [Benchmark]
+    public byte[] NeedlefishV4PreAllocBuffer()
+    {
+        NeedlefishMessageV4.SerializeInto(NeedlefishMessageV4Buffer);
+        return NeedlefishMessageV4Buffer;
     }
 
     [Benchmark]

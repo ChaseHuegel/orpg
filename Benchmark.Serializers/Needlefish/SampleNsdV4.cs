@@ -1,10 +1,9 @@
 ﻿// Code generated using nsd version 1
 using Needlefish;
-using System.Buffers.Binary;
 
 namespace Benchmark.Serializers.Needlefish
 {
-    public struct TestMessageV3
+    public unsafe struct TestMessageV4
     {
         private const ushort Int_ID = 0;
         private const ushort OptionalInt_ID = 1;
@@ -66,54 +65,92 @@ namespace Benchmark.Serializers.Needlefish
 
         public void SerializeInto(byte[] buffer)
         {
-            int offset = 0;
-
-            // Int
-            BinaryPrimitives.WriteUInt16LittleEndian(new Span<byte>(buffer, offset, buffer.Length - offset), Int_ID);
-            offset += 2;
-            BinaryPrimitives.WriteInt32LittleEndian(new Span<byte>(buffer, offset, buffer.Length - offset), Int);
-            offset += 4;
-
-            // OptionalInt
-            if (OptionalInt != null)
+            unchecked
             {
-                BinaryPrimitives.WriteUInt16LittleEndian(new Span<byte>(buffer, offset, buffer.Length - offset), OptionalInt_ID);
-                offset += 2;
-                buffer[offset] = 1;
-                offset += 1;
+                int offset = 0;
 
-                BinaryPrimitives.WriteInt32LittleEndian(new Span<byte>(buffer, offset, buffer.Length - offset), OptionalInt.Value);
-                offset += 4;
-            }
-
-            // Ints
-            BinaryPrimitives.WriteUInt16LittleEndian(new Span<byte>(buffer, offset, buffer.Length - offset), Ints_ID);
-            offset += 2;
-            BinaryPrimitives.WriteUInt16LittleEndian(new Span<byte>(buffer, offset, buffer.Length - offset), (ushort)(Ints?.Length ?? 0));
-            offset += 2;
-            for (int i = 0; i < Ints?.Length; i++)
-            {
-                BinaryPrimitives.WriteInt32LittleEndian(new Span<byte>(buffer, offset, buffer.Length - offset), Ints[i]);
-                offset += 4;
-            }
-
-            // OptionalInts
-            if (OptionalInts != null)
-            {
-                BinaryPrimitives.WriteUInt16LittleEndian(new Span<byte>(buffer, offset, buffer.Length - offset), OptionalInt_ID);
-                offset += 2;
-                buffer[offset] = 1;
-                offset += 1;
-                BinaryPrimitives.WriteUInt16LittleEndian(new Span<byte>(buffer, offset, buffer.Length - offset), (ushort)OptionalInts.Length);
-                offset += 2;
-
-                for (int i = 0; i < OptionalInts?.Length; i++)
+                // Int
+                fixed (byte* b = &buffer[offset])
                 {
-                    BinaryPrimitives.WriteInt32LittleEndian(new Span<byte>(buffer, offset, buffer.Length - offset), OptionalInts[i]);
+                    *((ushort*)b) = Int_ID;
+                }
+                offset += 2;
+
+                fixed (byte* b = &buffer[offset])
+                {
+                    *((int*)b) = Int;
+                }
+                offset += 4;
+
+                // OptionalInt
+                if (OptionalInt != null)
+                {
+                    fixed (byte* b = &buffer[offset])
+                    {
+                        *((ushort*)b) = OptionalInt_ID;
+                    }
+                    offset += 2;
+
+                    buffer[offset] = 1;
+                    offset += 1;
+
+                    fixed (byte* b = &buffer[offset])
+                    {
+                        *((int*)b) = OptionalInt.Value;
+                    }
                     offset += 4;
                 }
-            }
 
+                // Ints
+                fixed (byte* b = &buffer[offset])
+                {
+                    *((ushort*)b) = Ints_ID;
+                }
+                offset += 2;
+
+                fixed (byte* b = &buffer[offset])
+                {
+                    *((ushort*)b) = (ushort)(Ints?.Length ?? 0);
+                }
+                offset += 2;
+
+                for (int i = 0; i < Ints?.Length; i++)
+                {
+                    fixed (byte* b = &buffer[offset])
+                    {
+                        *((int*)b) = Ints[i];
+                    }
+                    offset += 4;
+                }
+
+                // OptionalInts
+                if (OptionalInts != null)
+                {
+                    fixed (byte* b = &buffer[offset])
+                    {
+                        *((ushort*)b) = OptionalInts_ID;
+                    }
+                    offset += 2;
+
+                    buffer[offset] = 1;
+                    offset += 1;
+
+                    fixed (byte* b = &buffer[offset])
+                    {
+                        *((ushort*)b) = (ushort)OptionalInts.Length;
+                    }
+                    offset += 2;
+
+                    for (int i = 0; i < OptionalInts?.Length; i++)
+                    {
+                        fixed (byte* b = &buffer[offset])
+                        {
+                            *((int*)b) = OptionalInts[i];
+                        }
+                        offset += 4;
+                    }
+                }
+            }
         }
 
         public static TestMessageV2 Deserialize(byte[] buffer)
