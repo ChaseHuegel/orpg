@@ -1,0 +1,15 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Benchmark.Serializers.Proto";
+
+message TestMessageBig {
+    int32 Int = 1;
+    optional int32 OptionalInt = 2;
+    repeated int32 Ints = 3;
+    repeated int32 OptionalInts = 4;
+
+    string String = 5;
+    optional string OptionalString = 6;
+    repeated string Strings = 7;
+    repeated string OptionalStrings = 8;
+}
