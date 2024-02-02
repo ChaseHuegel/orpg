@@ -2,8 +2,10 @@
 using Google.Protobuf;
 using Newtonsoft.Json;
 using System.Text;
+using System.Text.Json;
 using NeedlefishTestMessage = Benchmark.Serializers.Needlefish.TestMessage;
 using NeedlefishTestMessageV2 = Benchmark.Serializers.Needlefish.TestMessageV2;
+using NeedlefishTestMessageV4 = Benchmark.Serializers.Needlefish.TestMessageV4;
 using ProtobufTestMessage = Benchmark.Serializers.Proto.TestMessage;
 
 namespace Needlefish.Compiler.Tests;
@@ -12,6 +14,7 @@ namespace Needlefish.Compiler.Tests;
 public class Deserialization
 {
     private readonly byte[] NeedlefishData;
+    private readonly byte[] NeedlefishV4Data;
     private readonly byte[] JsonData;
     private readonly byte[] ProtobufData;
 
@@ -29,7 +32,18 @@ public class Deserialization
         };
 
         NeedlefishData = needlefishMessage.Serialize();
+
         JsonData = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(needlefishMessage));
+
+        var needlefishMessageV4 = new NeedlefishTestMessageV4
+        {
+            Int = 325,
+            OptionalInt = 68,
+            Ints = ints,
+            OptionalInts = optionalInts
+        };
+
+        NeedlefishV4Data = needlefishMessageV4.Serialize();
 
         var protobufMessage = new ProtobufTestMessage
         {
@@ -57,15 +71,26 @@ public class Deserialization
     }
 
     [Benchmark]
+    public NeedlefishTestMessageV4 NeedlefishV4()
+    {
+        return NeedlefishTestMessageV4.Deserialize(NeedlefishV4Data);
+    }
+
+    [Benchmark]
     public NeedlefishTestMessage Newtonsoft()
     {
         return JsonConvert.DeserializeObject<NeedlefishTestMessage>(Encoding.ASCII.GetString(JsonData));
     }
 
+    private readonly JsonSerializerOptions JsonOptions = new()
+    {
+        IncludeFields = true
+    };
+
     [Benchmark]
     public NeedlefishTestMessage SystemTextJson()
     {
-        return System.Text.Json.JsonSerializer.Deserialize<NeedlefishTestMessage>(Encoding.ASCII.GetString(JsonData));
+        return System.Text.Json.JsonSerializer.Deserialize<NeedlefishTestMessage>(Encoding.ASCII.GetString(JsonData), JsonOptions);
     }
 
     [Benchmark]

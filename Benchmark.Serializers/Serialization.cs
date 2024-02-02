@@ -2,6 +2,7 @@
 using Google.Protobuf;
 using Newtonsoft.Json;
 using System.Text;
+using System.Text.Json;
 using NeedlefishTestMessage = Benchmark.Serializers.Needlefish.TestMessage;
 using NeedlefishTestMessageV2 = Benchmark.Serializers.Needlefish.TestMessageV2;
 using NeedlefishTestMessageV3 = Benchmark.Serializers.Needlefish.TestMessageV3;
@@ -105,10 +106,15 @@ public class Serialization
         return Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(NeedlefishMessage));
     }
 
+    private readonly JsonSerializerOptions JsonOptions = new()
+    {
+        IncludeFields = true
+    };
+
     [Benchmark]
     public byte[] SystemTextJson()
     {
-        return Encoding.ASCII.GetBytes(System.Text.Json.JsonSerializer.Serialize(NeedlefishMessage));
+        return Encoding.ASCII.GetBytes(System.Text.Json.JsonSerializer.Serialize(NeedlefishMessage, JsonOptions));
     }
 
     [Benchmark]

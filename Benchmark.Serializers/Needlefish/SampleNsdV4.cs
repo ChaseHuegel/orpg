@@ -25,6 +25,7 @@ namespace Benchmark.Serializers.Needlefish
             const int longLen = 8;
             const int doubleLen = 8;
 
+            const int messageHeaderLen = byteLen;
             const int fieldHeaderLen = shortLen;
             const int optionalHeaderLen = boolLen;
             const int optionalFieldLen = fieldHeaderLen + optionalHeaderLen;
@@ -36,7 +37,7 @@ namespace Benchmark.Serializers.Needlefish
             const int minLength = Int_MinLen
                 + Ints_MinLen;
 
-            int length = minLength;
+            int length = messageHeaderLen + minLength;
 
             if (OptionalInt != null)
             {
@@ -67,115 +68,166 @@ namespace Benchmark.Serializers.Needlefish
         {
             unchecked
             {
-                int offset = 0;
-
-                // Int
-                fixed (byte* b = &buffer[offset])
+                fixed (byte* b = &buffer[0])
                 {
-                    *((ushort*)b) = Int_ID;
-                }
-                offset += 2;
+                    byte* offset = b;
 
-                fixed (byte* b = &buffer[offset])
-                {
-                    *((int*)b) = Int;
-                }
-                offset += 4;
-
-                // OptionalInt
-                if (OptionalInt != null)
-                {
-                    fixed (byte* b = &buffer[offset])
-                    {
-                        *((ushort*)b) = OptionalInt_ID;
-                    }
-                    offset += 2;
-
-                    buffer[offset] = 1;
+                    //  Header
+                    *((byte*)offset) = BitConverter.IsLittleEndian ? (byte)0 : (byte)1;
                     offset += 1;
 
-                    fixed (byte* b = &buffer[offset])
-                    {
-                        *((int*)b) = OptionalInt.Value;
-                    }
-                    offset += 4;
-                }
-
-                // Ints
-                fixed (byte* b = &buffer[offset])
-                {
-                    *((ushort*)b) = Ints_ID;
-                }
-                offset += 2;
-
-                fixed (byte* b = &buffer[offset])
-                {
-                    *((ushort*)b) = (ushort)(Ints?.Length ?? 0);
-                }
-                offset += 2;
-
-                for (int i = 0; i < Ints?.Length; i++)
-                {
-                    fixed (byte* b = &buffer[offset])
-                    {
-                        *((int*)b) = Ints[i];
-                    }
-                    offset += 4;
-                }
-
-                // OptionalInts
-                if (OptionalInts != null)
-                {
-                    fixed (byte* b = &buffer[offset])
-                    {
-                        *((ushort*)b) = OptionalInts_ID;
-                    }
+                    // Int
+                    *((ushort*)offset) = Int_ID;
                     offset += 2;
 
-                    buffer[offset] = 1;
-                    offset += 1;
+                    *((int*)offset) = Int;
+                    offset += 4;
 
-                    fixed (byte* b = &buffer[offset])
+                    // OptionalInt
+                    if (OptionalInt != null)
                     {
-                        *((ushort*)b) = (ushort)OptionalInts.Length;
-                    }
-                    offset += 2;
+                        *((ushort*)offset) = OptionalInt_ID;
+                        offset += 2;
 
-                    for (int i = 0; i < OptionalInts?.Length; i++)
-                    {
-                        fixed (byte* b = &buffer[offset])
-                        {
-                            *((int*)b) = OptionalInts[i];
-                        }
+                        *((byte*)offset) = 1;
+                        offset += 1;
+
+                        *((int*)offset) = OptionalInt.Value;
                         offset += 4;
+                    }
+
+                    // Ints
+                    *((ushort*)offset) = Ints_ID;
+                    offset += 2;
+
+                    *((ushort*)offset) = (ushort)(Ints?.Length ?? 0);
+                    offset += 2;
+
+                    for (int i = 0; i < Ints?.Length; i++)
+                    {
+                        *((int*)offset) = Ints[i];
+                        offset += 4;
+                    }
+
+                    // OptionalInts
+                    if (OptionalInts != null)
+                    {
+                        *((ushort*)offset) = OptionalInts_ID;
+                        offset += 2;
+
+                        *((byte*)offset) = 1;
+                        offset += 1;
+
+                        *((ushort*)offset) = (ushort)OptionalInts.Length;
+                        offset += 2;
+
+                        for (int i = 0; i < OptionalInts?.Length; i++)
+                        {
+                            *((int*)offset) = OptionalInts[i];
+                            offset += 4;
+                        }
                     }
                 }
             }
         }
 
-        public static TestMessageV2 Deserialize(byte[] buffer)
+        public static TestMessageV4 Deserialize(byte[] buffer)
         {
-            TestMessageV2 value = new TestMessageV2();
+            TestMessageV4 value = new TestMessageV4();
             value.Unpack(buffer);
             return value;
         }
 
         public void Unpack(byte[] buffer)
         {
-            int offset = 0;
-            while (buffer.Length - offset < 2)
+            unchecked
             {
-                ushort id = NeedlefishFormatterV2.ReadUShort(buffer, ref offset);
-                switch (id)
+                fixed (byte* b = &buffer[0])
                 {
-                    case Int_ID:
-                        break;
-                    case OptionalInt_ID:
-                        break;
-                    case Ints_ID:
-                        break;
-                    case OptionalInts_ID:
-                        break;
+                    byte* end = b + buffer.Length;
+                    byte* offset = b;
+
+                    byte endianness = *((byte*)offset);
+                    offset += 1;
+
+                    while (offset + 2 < end)
+                    {
+                        ushort id = *((ushort*)offset);
+                        offset += 2;
+
+                        switch (id)
+                        {
+                            case Int_ID:
+                                Int = *((int*)offset);
+                                offset += 4;
+                                break;
+
+                            case OptionalInt_ID:
+                                bool l__OptionalInt_hasValue = *((byte*)offset) == 0 ? false : true;
+                                offset += 1;
+
+                                if (l__OptionalInt_hasValue)
+                                {
+                                    OptionalInt = *((int*)offset);
+                                    offset += 4;
+                                }
+                                else
+                                {
+                                    OptionalInt = null;
+                                }
+                                break;
+
+                            case Ints_ID:
+                                ushort l__Ints_length = *((ushort*)offset);
+                                offset += 2;
+
+                                if (l__Ints_length == 0)
+                                {
+                                    Ints = Array.Empty<int>();
+                                }
+                                else
+                                {
+                                    Ints = new int[l__Ints_length];
+
+                                    for (int i = 0; i < l__Ints_length; i++)
+                                    {
+                                        Ints[i] = *((int*)offset);
+                                        offset += 4;
+                                    }
+                                }
+                                break;
+
+                            case OptionalInts_ID:
+                                bool l__OptionalInts_hasValue = *((byte*)offset) == 0 ? false : true;
+                                offset += 1;
+
+                                if (l__OptionalInts_hasValue)
+                                {
+                                    ushort l__OptionalInts_length = *((ushort*)offset);
+                                    offset += 2;
+
+                                    if (l__OptionalInts_length == 0)
+                                    {
+                                        OptionalInts = Array.Empty<int>();
+                                    }
+                                    else
+                                    {
+                                        OptionalInts = new int[l__OptionalInts_length];
+
+                                        for (int i = 0; i < l__OptionalInts_length; i++)
+                                        {
+                                            OptionalInts[i] = *((int*)offset);
+                                            offset += 4;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    OptionalInt = null;
+                                }
+                                break;
+                        }
+                    }
                 }
             }
         }
