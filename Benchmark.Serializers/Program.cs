@@ -28,6 +28,10 @@ BenchmarkRunner.Run<Deserialization>();
 //Console.WriteLine(deserializedMessage.String);
 
 //var serialization = new Serialization();
+//var needlefishV4Huge = serialization.NeedlefishV4Huge();
+//var protobufHuge = serialization.ProtobufHuge();
+//Console.WriteLine(needlefishV4Huge.Length);
+//Console.WriteLine(protobufHuge.Length);
 //var needlefishV4Big = serialization.NeedlefishV4Big();
 //var jsonBig = serialization.SystemTextJsonBig();
 //var protobufBig = serialization.ProtobufBig();

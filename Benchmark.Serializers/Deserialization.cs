@@ -23,10 +23,12 @@ public class Deserialization
     private readonly byte[] NeedlefishData;
     private readonly byte[] NeedlefishV4Data;
     private readonly byte[] NeedlefishV4BigData;
+    private readonly byte[] NeedlefishV4HugeData;
     private readonly byte[] JsonData;
     private readonly byte[] JsonBigData;
     private readonly byte[] ProtobufData;
     private readonly byte[] ProtobufBigData;
+    private readonly byte[] ProtobufHugeData;
 
     public Deserialization() 
     {
@@ -100,6 +102,61 @@ public class Deserialization
         ProtobufBigData = streamBig.ToArray();
 
         JsonBigData = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(needlefishMessageV4Big));
+
+        var intsHuge = new int[100_000];
+        var optionalIntsHuge = new int[100_000];
+        var stringsHuge = new string[50_000];
+        var optionalStringsHuge = new string[50_000];
+
+        for (int i = 0; i < intsHuge.Length; i++)
+        {
+            intsHuge[i] = i;
+        }
+
+        for (int i = 0; i < optionalIntsHuge.Length; i++)
+        {
+            optionalIntsHuge[i] = i;
+        }
+
+        for (int i = 0; i < stringsHuge.Length; i++)
+        {
+            stringsHuge[i] = (i * i).ToString();
+        }
+
+        for (int i = 0; i < optionalStringsHuge.Length; i++)
+        {
+            optionalStringsHuge[i] = (i * i).ToString();
+        }
+
+        var needlefishMessageV4Huge = new NeedlefishTestMessageV4Big
+        {
+            Int = 325,
+            OptionalInt = 68,
+            Ints = intsHuge,
+            OptionalInts = optionalIntsHuge,
+            String = "hello",
+            OptionalString = "world",
+            Strings = stringsHuge,
+            OptionalStrings = optionalStringsHuge,
+        };
+
+        NeedlefishV4HugeData = new byte[needlefishMessageV4Huge.GetSize()];
+
+        var protobufMessageHuge = new ProtobufTestMessageBig
+        {
+            Int = 325,
+            OptionalInt = 68,
+            String = "hello",
+            OptionalString = "world",
+        };
+        protobufMessageHuge.Ints.Add(intsHuge);
+        protobufMessageHuge.OptionalInts.Add(optionalIntsHuge);
+        protobufMessageHuge.Strings.Add(stringsHuge);
+        protobufMessageHuge.OptionalStrings.Add(optionalStringsHuge);
+
+        using MemoryStream streamHuge = new();
+        protobufMessageHuge.WriteTo(streamHuge);
+        ProtobufHugeData = streamHuge.ToArray();
     }
 
     [Benchmark]
@@ -160,5 +217,17 @@ public class Deserialization
     public ProtobufTestMessageBig ProtobufBig()
     {
         return ProtobufTestMessageBig.Parser.ParseFrom(ProtobufBigData);
+    }
+
+    [Benchmark]
+    public NeedlefishTestMessageV4Big NeedlefishV4Huge()
+    {
+        return NeedlefishTestMessageV4Big.Deserialize(NeedlefishV4HugeData);
+    }
+
+    [Benchmark]
+    public ProtobufTestMessageBig ProtobufHuge()
+    {
+        return ProtobufTestMessageBig.Parser.ParseFrom(ProtobufHugeData);
     }
 }
