@@ -27,6 +27,40 @@ BenchmarkRunner.Run<Deserialization>();
 
 //Console.WriteLine(deserializedMessage.String);
 
+//for (int i = 0; i < data.Length; i++)
+//{
+//    data[i] = 0;
+//}
+
+//Console.WriteLine(deserializedMessage.String);
+
+//data = needlefishMessageV4.Serialize();
+
+//deserializedMessage = TestMessageV4Big.Deserialize(data);
+
+//Console.WriteLine(deserializedMessage.String);
+
+//var ints = new int[] { 1, 2, 3, 4 };
+//var optionalInts = new int[] { 5, 6, 7, 8 };
+
+//var needlefishMessageV4 = new TestMessageV4Big
+//{
+//    Int = 325,
+//    OptionalInt = 68,
+//    Ints = ints,
+//    OptionalInts = optionalInts,
+//    String = "hello",
+//    OptionalString = "world",
+//    Strings = new string[] { "a", "quick", "brown" },
+//    OptionalStrings = new string[] { "fox", "jumped", "over", "the fence" },
+//};
+
+//var data = needlefishMessageV4.Serialize();
+
+//TestMessageV4Big deserializedMessage = TestMessageV4Big.Deserialize(data);
+
+//Console.WriteLine(deserializedMessage.String);
+
 //var serialization = new Serialization();
 //var needlefishV4Huge = serialization.NeedlefishV4Huge();
 //var protobufHuge = serialization.ProtobufHuge();

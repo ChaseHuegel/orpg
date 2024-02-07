@@ -1,15 +1,56 @@
 ﻿using Lexer.Tests;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System;
-using System.Diagnostics;
-using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Buffers.Binary;
+using System.Net;
+using System.Numerics;
 
 namespace Needlefish.Compiler.Tests;
 
 internal class SerializationTests
 {
+    [Test]
+    public unsafe void A()
+    {
+        byte[] buffer = new byte[4];
+
+        fixed (byte* b = &buffer[0])
+        {
+            byte* offset = b;
+
+            *((int*)offset) = 100;
+            offset += 4;
+        }
+
+        Console.WriteLine(string.Join(' ', buffer));
+
+        fixed (byte* b = &buffer[0])
+        {
+            byte* offset = b;
+
+            if (!BitConverter.IsLittleEndian)
+            {
+                //  Reverse endianness by rotating bits
+                uint value = 100;
+                uint x = value & 0x00FF00FFu;
+                uint y = value & 0xFF00FF00u;
+                uint rotateRight = (x >> 8) | (x << (32 - 8));
+                uint rotateLeft = (y << 8) | (y >> (32 - 8));
+                uint result = rotateRight + rotateLeft;
+                *((int*)offset) = (int)result;
+            }
+            else
+            {
+                *((int*)offset) = 100;
+            }
+
+            offset += 4;
+        }
+
+        Console.WriteLine(string.Join(' ', buffer));
+    }
+
     [Test]
     public void RoundtripInt()
     {
