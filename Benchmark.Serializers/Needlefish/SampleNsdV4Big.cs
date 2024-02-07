@@ -1,5 +1,6 @@
 ﻿// Code generated using nsd version 1
 using Needlefish;
+using System.Buffers.Binary;
 
 namespace Benchmark.Serializers.Needlefish
 {
@@ -52,7 +53,7 @@ namespace Benchmark.Serializers.Needlefish
                 + String_MinLen
                 + Strings_MinLen;
 
-            int length = messageHeaderLen + minLength;
+            int length = minLength;
 
             if (OptionalInt != null)
             {
@@ -107,6 +108,8 @@ namespace Benchmark.Serializers.Needlefish
             return buffer;
         }
 
+
+
         public void SerializeInto(byte[] buffer)
         {
             unchecked
@@ -115,76 +118,72 @@ namespace Benchmark.Serializers.Needlefish
                 {
                     byte* offset = b;
 
-                    //  Header
-                    *((byte*)offset) = BitConverter.IsLittleEndian ? (byte)0 : (byte)1;
-                    offset += 1;
-
                     // Int
-                    *((ushort*)offset) = Int_ID;
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Int_ID : BinaryPrimitives.ReverseEndianness(Int_ID);
                     offset += 2;
 
-                    *((int*)offset) = Int;
+                    *((int*)offset) = BitConverter.IsLittleEndian ? Int : BinaryPrimitives.ReverseEndianness(Int);
                     offset += 4;
 
                     // OptionalInt
                     if (OptionalInt != null)
                     {
-                        *((ushort*)offset) = OptionalInt_ID;
+                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalInt_ID : BinaryPrimitives.ReverseEndianness(OptionalInt_ID);
                         offset += 2;
 
                         *((byte*)offset) = 1;
                         offset += 1;
 
-                        *((int*)offset) = OptionalInt.Value;
+                        *((int*)offset) = BitConverter.IsLittleEndian ? OptionalInt.Value : BinaryPrimitives.ReverseEndianness(OptionalInt.Value);
                         offset += 4;
                     }
 
                     // Ints
-                    *((ushort*)offset) = Ints_ID;
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Ints_ID : BinaryPrimitives.ReverseEndianness(Ints_ID);
                     offset += 2;
 
-                    *((ushort*)offset) = (ushort)(Ints?.Length ?? 0);
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(Ints?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(Ints?.Length ?? 0));
                     offset += 2;
 
                     for (int i = 0; i < Ints?.Length; i++)
                     {
-                        *((int*)offset) = Ints[i];
+                        *((int*)offset) = BitConverter.IsLittleEndian ? Ints[i] : BinaryPrimitives.ReverseEndianness(Ints[i]);
                         offset += 4;
                     }
 
                     // OptionalInts
                     if (OptionalInts != null)
                     {
-                        *((ushort*)offset) = OptionalInts_ID;
+                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalInts_ID : BinaryPrimitives.ReverseEndianness(OptionalInts_ID);
                         offset += 2;
 
                         *((byte*)offset) = 1;
                         offset += 1;
 
-                        *((ushort*)offset) = (ushort)OptionalInts.Length;
+                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)OptionalInts.Length : BinaryPrimitives.ReverseEndianness((ushort)OptionalInts.Length);
                         offset += 2;
 
                         for (int i = 0; i < OptionalInts?.Length; i++)
                         {
-                            *((int*)offset) = OptionalInts[i];
+                            *((int*)offset) = BitConverter.IsLittleEndian ? OptionalInts[i] : BinaryPrimitives.ReverseEndianness(OptionalInts[i]);
                             offset += 4;
                         }
                     }
 
                     // String
-                    *((ushort*)offset) = String_ID;
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? String_ID : BinaryPrimitives.ReverseEndianness(String_ID);
                     offset += 2;
 
                     if (String != null)
                     {
-                        *((ushort*)offset) = (ushort)String.Length;
+                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)String.Length : BinaryPrimitives.ReverseEndianness((ushort)String.Length);
                         offset += 2;
 
                         if (String.Length > 0)
                         {
                             for (int i = 0; i < String.Length; i++)
                             {
-                                *((char*)offset) = String[i];
+                                *((char*)offset) = BitConverter.IsLittleEndian ? String[i] : (char)BinaryPrimitives.ReverseEndianness(String[i]);
                                 offset += 2;
                             }
                         }
@@ -198,44 +197,44 @@ namespace Benchmark.Serializers.Needlefish
                     // OptionalString
                     if (OptionalString != null)
                     {
-                        *((ushort*)offset) = OptionalString_ID;
+                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalString_ID : BinaryPrimitives.ReverseEndianness(OptionalString_ID);
                         offset += 2;
 
                         *((byte*)offset) = 1;
                         offset += 1;
 
-                        *((ushort*)offset) = (ushort)OptionalString.Length;
+                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)OptionalString.Length : BinaryPrimitives.ReverseEndianness((ushort)OptionalString.Length);
                         offset += 2;
 
                         if (OptionalString.Length > 0)
                         {
                             for (int i = 0; i < OptionalString.Length; i++)
                             {
-                                *((char*)offset) = OptionalString[i];
+                                *((char*)offset) = BitConverter.IsLittleEndian ? OptionalString[i] : (char)BinaryPrimitives.ReverseEndianness(OptionalString[i]);
                                 offset += 2;
                             }
                         }
                     }
 
                     //  Strings
-                    *((ushort*)offset) = Strings_ID;
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Strings_ID : BinaryPrimitives.ReverseEndianness(Strings_ID);
                     offset += 2;
 
-                    *((ushort*)offset) = (ushort)(Strings?.Length ?? 0);
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(Strings?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(Strings?.Length ?? 0));
                     offset += 2;
 
                     for (int i = 0; i < Strings?.Length; i++)
                     {
                         string item = Strings[i];
 
-                        *((ushort*)offset) = (ushort)(item?.Length ?? 0);
+                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(item?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(item?.Length ?? 0));
                         offset += 2;
 
                         if (item != null && item.Length > 0)
                         {
                             for (int n = 0; n < item.Length; n++)
                             {
-                                *((char*)offset) = item[n];
+                                *((char*)offset) = BitConverter.IsLittleEndian ? item[n] : (char)BinaryPrimitives.ReverseEndianness(item[n]);
                                 offset += 2;
                             }
                         }
@@ -244,13 +243,13 @@ namespace Benchmark.Serializers.Needlefish
                     // OptionalStrings
                     if (OptionalStrings != null)
                     {
-                        *((ushort*)offset) = OptionalStrings_ID;
+                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalStrings_ID : BinaryPrimitives.ReverseEndianness(OptionalStrings_ID);
                         offset += 2;
 
                         *((byte*)offset) = 1;
                         offset += 1;
 
-                        *((ushort*)offset) = (ushort)OptionalStrings.Length;
+                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)OptionalStrings.Length : BinaryPrimitives.ReverseEndianness((ushort)OptionalStrings.Length);
                         offset += 2;
 
                         if (OptionalStrings.Length > 0)
@@ -259,14 +258,14 @@ namespace Benchmark.Serializers.Needlefish
                             {
                                 string item = OptionalStrings[i];
 
-                                *((ushort*)offset) = (ushort)(item?.Length ?? 0);
+                                *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(item?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(item?.Length ?? 0));
                                 offset += 2;
 
                                 if (item != null && item.Length > 0)
                                 {
                                     for (int n = 0; n < item.Length; n++)
                                     {
-                                        *((char*)offset) = item[n];
+                                        *((char*)offset) = BitConverter.IsLittleEndian ? item[n] : (char)BinaryPrimitives.ReverseEndianness(item[n]);
                                         offset += 2;
                                     }
                                 }
@@ -293,18 +292,15 @@ namespace Benchmark.Serializers.Needlefish
                     byte* end = b + buffer.Length;
                     byte* offset = b;
 
-                    byte endianness = *((byte*)offset);
-                    offset += 1;
-
                     while (offset + 2 < end)
                     {
-                        ushort id = *((ushort*)offset);
+                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                         offset += 2;
 
                         switch (id)
                         {
                             case Int_ID:
-                                Int = *((int*)offset);
+                                Int = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
                                 offset += 4;
                                 break;
 
@@ -314,7 +310,7 @@ namespace Benchmark.Serializers.Needlefish
 
                                 if (l__OptionalInt_hasValue)
                                 {
-                                    OptionalInt = *((int*)offset);
+                                    OptionalInt = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
                                     offset += 4;
                                 }
                                 else
@@ -324,7 +320,7 @@ namespace Benchmark.Serializers.Needlefish
                                 break;
 
                             case Ints_ID:
-                                ushort l__Ints_length = *((ushort*)offset);
+                                ushort l__Ints_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                 offset += 2;
 
                                 if (l__Ints_length == 0)
@@ -337,7 +333,7 @@ namespace Benchmark.Serializers.Needlefish
 
                                     for (int i = 0; i < l__Ints_length; i++)
                                     {
-                                        Ints[i] = *((int*)offset);
+                                        Ints[i] = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
                                         offset += 4;
                                     }
                                 }
@@ -362,7 +358,7 @@ namespace Benchmark.Serializers.Needlefish
 
                                         for (int i = 0; i < l__OptionalInts_length; i++)
                                         {
-                                            OptionalInts[i] = *((int*)offset);
+                                            OptionalInts[i] = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
                                             offset += 4;
                                         }
                                     }
@@ -374,7 +370,7 @@ namespace Benchmark.Serializers.Needlefish
                                 break;
 
                             case String_ID:
-                                ushort l__String_length = *((ushort*)offset);
+                                ushort l__String_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                 offset += 2;
 
                                 if (l__String_length == 0)
@@ -383,13 +379,23 @@ namespace Benchmark.Serializers.Needlefish
                                 }
                                 else
                                 {
-                                    String = new string((char*)offset, 0, l__String_length);
+                                    char* chars = (char*)offset;
+                                    if (!BitConverter.IsLittleEndian)
+                                    {
+                                        for (int n = 0; n < l__String_length; n++)
+                                        {
+                                            *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
+                                            chars += 2;
+                                        }
+                                    }
+
+                                    String = new string(chars, 0, l__String_length);
                                     offset += 2 * l__String_length;
                                 }
                                 break;
 
                             case Strings_ID:
-                                ushort l__Strings_length = *((ushort*)offset);
+                                ushort l__Strings_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                 offset += 2;
 
                                 if (l__Strings_length == 0)
@@ -402,10 +408,20 @@ namespace Benchmark.Serializers.Needlefish
 
                                     for (int i = 0; i < l__Strings_length; i++)
                                     {
-                                        ushort l__Strings_i_length = *((ushort*)offset);
+                                        ushort l__Strings_i_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                         offset += 2;
 
-                                        Strings[i] = new string((char*)offset, 0, l__Strings_i_length);
+                                        char* chars = (char*)offset;
+                                        if (!BitConverter.IsLittleEndian)
+                                        {
+                                            for (int n = 0; n < l__Strings_i_length; n++)
+                                            {
+                                                *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
+                                                chars += 2;
+                                            }
+                                        }
+
+                                        Strings[i] = new string(chars, 0, l__Strings_i_length);
                                         offset += 2 * l__Strings_i_length;
                                     }
                                 }
@@ -417,7 +433,7 @@ namespace Benchmark.Serializers.Needlefish
 
                                 if (l__OptionalString_hasValue)
                                 {
-                                    ushort l__OptionalString_length = *((ushort*)offset);
+                                    ushort l__OptionalString_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                     offset += 2;
 
                                     if (l__OptionalString_length == 0)
@@ -426,7 +442,17 @@ namespace Benchmark.Serializers.Needlefish
                                     }
                                     else
                                     {
-                                        OptionalString = new string((char*)offset, 0, l__OptionalString_length);
+                                        char* chars = (char*)offset;
+                                        if (!BitConverter.IsLittleEndian)
+                                        {
+                                            for (int n = 0; n < l__OptionalString_length; n++)
+                                            {
+                                                *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
+                                                chars += 2;
+                                            }
+                                        }
+
+                                        OptionalString = new string(chars, 0, l__OptionalString_length);
                                         offset += 2 * l__OptionalString_length;
                                     }
                                 }
@@ -442,7 +468,7 @@ namespace Benchmark.Serializers.Needlefish
 
                                 if (l__OptionalStrings_hasValue)
                                 {
-                                    ushort l__OptionalStrings_length = *((ushort*)offset);
+                                    ushort l__OptionalStrings_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                     offset += 2;
 
                                     if (l__OptionalStrings_length == 0)
@@ -455,10 +481,20 @@ namespace Benchmark.Serializers.Needlefish
 
                                         for (int i = 0; i < l__OptionalStrings_length; i++)
                                         {
-                                            ushort l__OptionalStrings_i_length = *((ushort*)offset);
+                                            ushort l__OptionalStrings_i_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                             offset += 2;
 
-                                            OptionalStrings[i] = new string((char*)offset, 0, l__OptionalStrings_i_length);
+                                            char* chars = (char*)offset;
+                                            if (!BitConverter.IsLittleEndian)
+                                            {
+                                                for (int n = 0; n < l__OptionalStrings_i_length; n++)
+                                                {
+                                                    *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
+                                                    chars += 2;
+                                                }
+                                            }
+
+                                            OptionalStrings[i] = new string(chars, 0, l__OptionalStrings_i_length);
                                             offset += 2 * l__OptionalStrings_i_length;
                                         }
                                     }
