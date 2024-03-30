@@ -10,8 +10,7 @@ internal class Nsd1Compiler : INsdCompiler
 
     private static readonly string[] RequiredUsings = new[]
     {
-        "using System;",
-        "using Needlefish;"
+        "using System.Buffers.Binary;",
     };
 
     private readonly INsdTypeCompiler[] TypeCompilers = new INsdTypeCompiler[] {
@@ -37,8 +36,6 @@ internal class Nsd1Compiler : INsdCompiler
 
         builder.AppendLine("/// </auto-generated>");
         builder.AppendLine();
-
-        builder.AppendLine("#region Designer generated code");
 
         foreach (string usingStr in RequiredUsings)
         {
@@ -77,7 +74,6 @@ internal class Nsd1Compiler : INsdCompiler
             builder.AppendLine("}");
         }
 
-        builder.AppendLine("#endregion");
         return builder.ToString();
     }
 }

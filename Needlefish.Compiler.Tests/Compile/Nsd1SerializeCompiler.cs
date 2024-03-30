@@ -1,12 +1,209 @@
 ﻿using Needlefish.Compiler.Tests.Schema;
 using System;
-using System.Reflection.Emit;
 using System.Text;
 
 namespace Needlefish.Compiler.Tests.Compile;
 
 internal class Nsd1SerializeCompiler : INsdTypeCompiler
 {
+    private const string SerializeTemplate = 
+@"public byte[] Serialize()
+{
+    byte[] buffer = new byte[GetSize()];
+    SerializeInto(buffer);
+    return buffer;
+}";
+
+    private const string SerializeIntoTemplate = 
+@"public unsafe void SerializeInto(byte[] buffer)
+{
+    unchecked
+    {
+        fixed (byte* b = &buffer[0])
+        {
+            byte* offset = b;
+
+            $serialize:fields
+        }
+    }
+}";
+
+    private const string FieldTemplate = 
+@"//  $field:name
+$serialize:header:field
+
+$serialize:value";
+
+    private const string OptionalFieldTemplate = 
+@"if ($field:name != null)
+{
+    $serialize:header:field
+
+    *offset = 1;
+    offset += 1;
+
+    $serialize:value
+}";
+
+    private const string ArrayFieldTemplate = 
+@"$serialize:header:field
+
+$serialize:header:length
+
+for (int i = 0; i < $field:name?.Length; i++)
+{
+    $serialize:value
+}";
+
+    private const string OptionalArrayFieldTemplate =
+@"if ($field:name != null)
+{
+    $serialize:header:field
+
+    *offset = 1;
+    offset += 1;
+
+    $serialize:header:length
+
+    for (int i = 0; i < $field:name?.Length; i++)
+    {
+        $serialize:value
+    }
+}";
+
+    private const string StringTemplate =
+@"$serialize:header:field
+
+if ($field:name != null)
+{
+    $serialize:header:length
+
+    for (int i = 0; i < $field:name.Length; i++)
+    {
+        *((char*)offset) = BitConverter.IsLittleEndian ? $field:accessor[i] : (char)BinaryPrimitives.ReverseEndianness($field:accessor[i]);
+        offset += 2;
+    }
+}
+else
+{
+    *((ushort*)offset) = 0;
+    offset += 2;
+}";
+
+    private const string OptionalStringTemplate =
+@"if ($field:name != null)
+{
+    $serialize:header:field
+    
+    *offset = 1;
+    offset += 1;
+
+    $serialize:header:length
+
+    for (int i = 0; i < $field:accessor?.Length; i++)
+    {
+        *((char*)offset) = BitConverter.IsLittleEndian ? $field:accessor[i] : (char)BinaryPrimitives.ReverseEndianness($field:accessor[i]);
+        offset += 2;
+    }
+}
+else
+{
+    *((ushort*)offset) = 0;
+    offset += 2;
+}";
+
+    private const string StringArrayTemplate = 
+@"$serialize:header:field
+
+$serialize:header:length
+
+for (int i = 0; i < $field:name?.Length; i++)
+{
+    string item = $field:name[i];
+
+    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(item?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(item?.Length ?? 0));
+    offset += 2;
+
+    if (item != null)
+    {
+        for (int n = 0; n < item.Length; n++)
+        {
+            *((char*)offset) = BitConverter.IsLittleEndian ? item[n] : (char)BinaryPrimitives.ReverseEndianness(item[n]);
+            offset += 2;
+        }
+    }
+}";
+
+    private const string OptionalStringArrayTemplate = 
+@"if ($field:name != null)
+{
+    $serialize:header:field
+    
+    *offset = 1;
+    offset += 1;
+
+    $serialize:header:length
+
+    for (int i = 0; i < $field:name?.Length; i++)
+    {
+        string item = $field:name[i];
+
+        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(item?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(item?.Length ?? 0));
+        offset += 2;
+
+        if (item != null)
+        {
+            for (int n = 0; n < item.Length; n++)
+            {
+                *((char*)offset) = BitConverter.IsLittleEndian ? item[n] : (char)BinaryPrimitives.ReverseEndianness(item[n]);
+                offset += 2;
+            }
+        }
+    }
+}
+else
+{
+    *((ushort*)offset) = 0;
+    offset += 2;
+}";
+
+    private const string FieldHeaderTemplate = 
+@"*((ushort*)offset) = BitConverter.IsLittleEndian ? $field:name_ID : BinaryPrimitives.ReverseEndianness($field:name_ID);
+offset += 2;";
+
+    private const string LengthHeaderTemplate =
+@"*((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)($field:name?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)($field:name?.Length ?? 0));
+offset += 2;";
+
+    private const string NumberValueTemplate = 
+@"*(($field:type*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness($field:accessor);
+offset += $field:size;";
+    
+    private const string FloatValueTemplate =
+@"float $field:name_Copy = $field:accessor;
+*((float*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness(*(uint*)&$field:name_Copy);
+offset += $field:size;";
+
+    private const string DoubleValueTemplate =
+@"double $field:name_Copy = $field:accessor;
+*((double*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness(*(ulong*)&$field:name_Copy);
+offset += $field:size;";
+
+    private const string BoolValueTemplate = 
+@"*((bool*)offset) = $field:accessor;
+offset += $field:size;";
+
+    private const string CharValueTemplate = 
+@"*((char*)offset) = BitConverter.IsLittleEndian ? $field:accessor : (char)BinaryPrimitives.ReverseEndianness($field:accessor);
+offset += $field:size;";
+
+    private const string ObjectValueTemplate = 
+@"$field:accessor.SerializeInto(buffer);";
+
+    private const string EnumValueTemplate =
+@"*((int*)offset) = BitConverter.IsLittleEndian ? (int)$field:accessor : BinaryPrimitives.ReverseEndianness((int)$field:accessor);
+offset += 4;";
+
     public bool CanCompile(TypeDefinition typeDefinition)
     {
         return typeDefinition.Keyword == Nsd1MessageCompiler.Keyword;
@@ -14,109 +211,136 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
 
     public StringBuilder Compile(TypeDefinition typeDefinition)
     {
-        StringBuilder builder = new();
 
-        builder.AppendLine("public byte[] Serialize()");
-        builder.AppendLine("{");
-        builder.AppendLine($"{Nsd1Compiler.Indent}byte[] buffer = new byte[GetSize()];");
-        builder.AppendLine($"{Nsd1Compiler.Indent}SerializeInto(buffer);");
-        builder.AppendLine($"{Nsd1Compiler.Indent}return buffer;");
-        builder.AppendLine("}");
-        builder.AppendLine();
-
-        builder.AppendLine("public void SerializeInto(byte[] buffer)");
-        builder.AppendLine("{");
-        builder.AppendLine($"{Nsd1Compiler.Indent}int offset = 0;");
-        builder.AppendLine();
-
+        StringBuilder fieldsBuilder = new();
         foreach (FieldDefinition field in typeDefinition.FieldDefinitions)
         {
-            if (field.IsOptional)
-            {
-                builder.AppendLine($"{Nsd1Compiler.Indent}if ({field.Name} != null)");
-                builder.AppendLine($"{Nsd1Compiler.Indent}{{");
-            }
-
-            StringBuilder fieldBuilder = CompileFieldSerialization(field);
-
-            string indent = field.IsOptional ? Nsd1Compiler.Indent + Nsd1Compiler.Indent : Nsd1Compiler.Indent;
-            fieldBuilder.Insert(0, indent);
-            fieldBuilder.Replace("\n", "\n" + indent);
-
-            builder.Append(fieldBuilder);
-            builder.AppendLine();
-
-            if (field.IsOptional)
-            {
-                builder.AppendLine($"{Nsd1Compiler.Indent}}}");
-                builder.AppendLine();
-            }
-        }
-
-        builder.AppendLine("}");
-        builder.AppendLine();
-        return builder;
-    }
-
-    private static StringBuilder CompileFieldSerialization(FieldDefinition field)
-    {
-        StringBuilder builder = new();
-
-        string arrayLengthStr = field.IsArray ? $"(ushort)({field.Name}?.Length ?? 0)" : "(ushort)0";
-
-        builder.AppendLine($"#region {field.Name}");
-        builder.AppendLine($"NeedlefishFormatter.WriteHeader(buffer, ref offset, {field.Name}_ID, isOptional: {field.IsOptional.ToString().ToLower()}, hasValue: true, isArray: {field.IsArray.ToString().ToLower()}, arrayLength: {arrayLengthStr});");
-
-        if (field.IsArray)
-        {
-            builder.AppendLine($"for (int i = 0; i < {field.Name}?.Length; i++)");
-            builder.AppendLine("{");
-        }
-
-        StringBuilder fieldBuilder = CompileFieldWrite(field);
-        if (field.IsArray)
-        {
+            StringBuilder fieldBuilder = CompileFieldSerializeInto(field);
             fieldBuilder.Insert(0, Nsd1Compiler.Indent);
             fieldBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent);
+
+            fieldsBuilder.Append(fieldBuilder);
+            fieldsBuilder.AppendLine();
         }
 
-        builder.Append(fieldBuilder);
+        fieldsBuilder.Insert(0, Nsd1Compiler.Indent);
+        fieldsBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent);
+
+        string serializeInto = SerializeIntoTemplate.Replace("$serialize:fields", fieldsBuilder.ToString());
+
+        StringBuilder builder = new();
+        builder.AppendLine(SerializeTemplate);
         builder.AppendLine();
+        builder.AppendLine(serializeInto);
+        return builder;
+    }
 
-        if (field.IsArray)
+    private StringBuilder CompileFieldSerializeInto(FieldDefinition field)
+    {
+        StringBuilder builder = new();
+
+        builder.AppendLine("#region $field:name");
+
+        if (field.TypeName != "string")
         {
-            builder.AppendLine("}");
+            if (!field.IsOptional && !field.IsArray)
+            {
+                builder.AppendLine(FieldTemplate);
+            }
+            else if (!field.IsOptional && field.IsArray)
+            {
+                builder.AppendLine(ArrayFieldTemplate);
+            }
+            else if (field.IsOptional && !field.IsArray)
+            {
+                builder.AppendLine(OptionalFieldTemplate);
+            }
+            else if (field.IsOptional && field.IsArray)
+            {
+                builder.AppendLine(OptionalArrayFieldTemplate);
+            }
         }
+        else
+        {
+            if (!field.IsOptional && !field.IsArray)
+            {
+                builder.AppendLine(StringTemplate);
+            }
+            else if (!field.IsOptional && field.IsArray)
+            {
+                builder.AppendLine(StringArrayTemplate);
+            }
+            else if (field.IsOptional && !field.IsArray)
+            {
+                builder.AppendLine(OptionalStringTemplate);
+            }
+            else if (field.IsOptional && field.IsArray)
+            {
+                builder.AppendLine(OptionalStringArrayTemplate);
+            }
+        }
+
         builder.AppendLine("#endregion");
+
+        builder.Replace("$serialize:header:field", FieldHeaderTemplate);
+        builder.Replace("$serialize:header:length", LengthHeaderTemplate);
+        builder.Replace("$serialize:value", GetFieldSerializeValueTemplate(field));
+
+        builder.Replace("$field:name", field.Name);
+        builder.Replace("$field:accessor", GetFieldAccessor(field));
+        builder.Replace("$field:type", field.TypeName);
+        builder.Replace("$field:size", SizeOfPrimitive(field).ToString());
 
         return builder;
     }
 
-    private static StringBuilder CompileFieldWrite(FieldDefinition field)
+    private string GetFieldAccessor(FieldDefinition field)
     {
-        StringBuilder builder = new();
-
-        string fieldAccessor = field.IsArray ? $"{field.Name}[i]" : field.Name;
+        string accessor = field.IsArray ? $"{field.Name}[i]" : field.Name;
         if (field.IsOptional && !field.IsArray && field.TypeName != "string")
         {
-            fieldAccessor += ".Value";
+            accessor += ".Value";
         }
 
+        return accessor;
+    }
+
+    private string GetFieldSerializeValueTemplate(FieldDefinition field)
+    {
         switch (field.Type)
         {
             case FieldType.Object:
-                builder.Append($"{fieldAccessor}.SerializeInto(buffer);");
-                break;
-
+                return ObjectValueTemplate;
             case FieldType.Enum:
-                builder.Append($"NeedlefishFormatter.Write(buffer, ref offset, (int){fieldAccessor});");
-                break;
-
+                return EnumValueTemplate;
             case FieldType.Primitive:
-                builder.Append($"NeedlefishFormatter.Write(buffer, ref offset, {fieldAccessor});");
-                break;
+                switch (field.TypeName)
+                {
+                    case "bool":
+                        return BoolValueTemplate;
+                    case "char":
+                        return CharValueTemplate;
+                    case "float":
+                        return FloatValueTemplate;
+                    case "double":
+                        return DoubleValueTemplate;
+                    default:
+                        return NumberValueTemplate;
+                }
+            default:
+                throw new NotSupportedException($"{field.TypeName} serialization is not supported.");
         }
+    }
 
-        return builder;
+    private int SizeOfPrimitive(FieldDefinition field)
+    {
+        return field.TypeName switch
+        {
+            "bool" or "byte" or "sbyte" => 1,
+            "short" or "ushort" or "char" => 2,
+            "int" or "uint" => 4,
+            "long" or "ulong" => 8,
+            _ => -1
+        };
     }
 }

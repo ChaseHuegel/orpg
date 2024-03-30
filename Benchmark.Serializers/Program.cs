@@ -2,30 +2,37 @@
 using BenchmarkDotNet.Running;
 using Needlefish.Compiler.Tests;
 
-BenchmarkRunner.Run<Serialization>();
+//BenchmarkRunner.Run<Serialization>();
 
-BenchmarkRunner.Run<Deserialization>();
+//BenchmarkRunner.Run<Deserialization>();
 
-//var ints = new int[] { 1, 2, 3, 4 };
-//var optionalInts = new int[] { 5, 6, 7, 8 };
+var ints = new int[] { 1, 2, 3, 4 };
+var optionalInts = new int[] { 5, 6, 7, 8 };
 
-//var needlefishMessageV4 = new TestMessageV4Big
-//{
-//    Int = 325,
-//    OptionalInt = 68,
-//    Ints = ints,
-//    OptionalInts = optionalInts,
-//    String = "hello",
-//    OptionalString = "world",
-//    Strings = new string[] { "a", "quick", "brown" },
-//    OptionalStrings = new string[] { "fox", "jumped", "over", "the fence" },
-//};
+var needlefishMessageV4 = new TestMessageV4Big
+{
+    Int = 325,
+    OptionalInt = 68,
+    Ints = ints,
+    OptionalInts = optionalInts,
+    String = "hello",
+    OptionalString = "world",
+    Strings = new string[] { "a", "quick", "brown" },
+    OptionalStrings = new string[] { "fox", "jumped", "over", "the fence" },
+};
 
-//var data = needlefishMessageV4.Serialize();
+var data = needlefishMessageV4.Serialize();
 
-//TestMessageV4Big deserializedMessage = TestMessageV4Big.Deserialize(data);
+TestMessageV4Big deserializedMessage = TestMessageV4Big.Deserialize(data);
 
-//Console.WriteLine(deserializedMessage.String);
+Console.WriteLine(deserializedMessage.Int);
+Console.WriteLine(deserializedMessage.OptionalInt);
+Console.WriteLine(string.Join(',', deserializedMessage.Ints));
+Console.WriteLine(string.Join(',', deserializedMessage.OptionalInts!));
+Console.WriteLine(deserializedMessage.String);
+Console.WriteLine(deserializedMessage.OptionalString);
+Console.WriteLine(string.Join(',', deserializedMessage.Strings));
+Console.WriteLine(string.Join(',', deserializedMessage.OptionalStrings!));
 
 //for (int i = 0; i < data.Length; i++)
 //{

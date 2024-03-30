@@ -108,8 +108,6 @@ namespace Benchmark.Serializers.Needlefish
             return buffer;
         }
 
-
-
         public void SerializeInto(byte[] buffer)
         {
             unchecked
@@ -179,13 +177,10 @@ namespace Benchmark.Serializers.Needlefish
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)String.Length : BinaryPrimitives.ReverseEndianness((ushort)String.Length);
                         offset += 2;
 
-                        if (String.Length > 0)
+                        for (int i = 0; i < String.Length; i++)
                         {
-                            for (int i = 0; i < String.Length; i++)
-                            {
-                                *((char*)offset) = BitConverter.IsLittleEndian ? String[i] : (char)BinaryPrimitives.ReverseEndianness(String[i]);
-                                offset += 2;
-                            }
+                            *((char*)offset) = BitConverter.IsLittleEndian ? String[i] : (char)BinaryPrimitives.ReverseEndianness(String[i]);
+                            offset += 2;
                         }
                     }
                     else
@@ -252,22 +247,19 @@ namespace Benchmark.Serializers.Needlefish
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)OptionalStrings.Length : BinaryPrimitives.ReverseEndianness((ushort)OptionalStrings.Length);
                         offset += 2;
 
-                        if (OptionalStrings.Length > 0)
+                        for (int i = 0; i < OptionalStrings.Length; i++)
                         {
-                            for (int i = 0; i < OptionalStrings.Length; i++)
+                            string item = OptionalStrings[i];
+
+                            *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(item?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(item?.Length ?? 0));
+                            offset += 2;
+
+                            if (item != null && item.Length > 0)
                             {
-                                string item = OptionalStrings[i];
-
-                                *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(item?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(item?.Length ?? 0));
-                                offset += 2;
-
-                                if (item != null && item.Length > 0)
+                                for (int n = 0; n < item.Length; n++)
                                 {
-                                    for (int n = 0; n < item.Length; n++)
-                                    {
-                                        *((char*)offset) = BitConverter.IsLittleEndian ? item[n] : (char)BinaryPrimitives.ReverseEndianness(item[n]);
-                                        offset += 2;
-                                    }
+                                    *((char*)offset) = BitConverter.IsLittleEndian ? item[n] : (char)BinaryPrimitives.ReverseEndianness(item[n]);
+                                    offset += 2;
                                 }
                             }
                         }
