@@ -28,7 +28,7 @@ internal class ByteConversionTests
                 dest = BinaryPrimitives.ReverseEndianness(converted);
                 dest = BinaryPrimitives.ReverseEndianness(dest);
 
-                result = *(float*)(&dest);
+                result = *(float*)&dest;
             }
         }
         sw.Stop();
@@ -73,6 +73,23 @@ internal class ByteConversionTests
         double result = *(double*)(&dest);
 
         Assert.That(result, Is.EqualTo(a));
+    }
+
+    [Test]
+    public unsafe void PointerTraversaleLength()
+    {
+        int length = 0;
+        byte[] buffer = new byte[100];
+        fixed (byte* b = &buffer[0])
+        {
+            byte* end = b + 100;
+            byte* offset = b;
+            offset += 23;
+
+            length = (int)(offset - b);
+        }
+
+        Assert.That(length, Is.EqualTo(23));
     }
 
     [TestCase((ushort)100)]

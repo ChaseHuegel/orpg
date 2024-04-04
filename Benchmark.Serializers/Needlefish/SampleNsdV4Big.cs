@@ -271,20 +271,24 @@ namespace Benchmark.Serializers.Needlefish
         public static TestMessageV4Big Deserialize(byte[] buffer)
         {
             TestMessageV4Big value = new TestMessageV4Big();
-            value.Unpack(buffer);
+            value.Unpack(buffer, 0, buffer.Length);
             return value;
         }
 
-        public void Unpack(byte[] buffer)
+        public int Unpack(byte[] buffer, int start, int length)
         {
             unchecked
             {
-                fixed (byte* b = &buffer[0])
+                fixed (byte* b = &buffer[start])
                 {
-                    byte* end = b + buffer.Length;
+                    byte* end = b + length;
                     byte* offset = b;
 
-                    while (offset + 2 < end)
+                    int readsCompleted = 0;
+                    bool g__Int_ID_Read = false;
+                    bool g__OptionalInt_ID_Read = false;
+
+                    while (readsCompleted < 8 && offset + 2 < end)
                     {
                         ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                         offset += 2;
@@ -292,11 +296,24 @@ namespace Benchmark.Serializers.Needlefish
                         switch (id)
                         {
                             case Int_ID:
+                                if (g__Int_ID_Read)
+                                {
+                                    break;
+                                }
+
                                 Int = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
                                 offset += 4;
+
+                                g__Int_ID_Read = true;
+                                readsCompleted++;
                                 break;
 
                             case OptionalInt_ID:
+                                if (g__OptionalInt_ID_Read)
+                                {
+                                    break;
+                                }
+
                                 bool l__OptionalInt_hasValue = *((byte*)offset) == 0 ? false : true;
                                 offset += 1;
 
@@ -309,6 +326,9 @@ namespace Benchmark.Serializers.Needlefish
                                 {
                                     OptionalInt = null;
                                 }
+
+                                g__OptionalInt_ID_Read = true;
+                                readsCompleted++;
                                 break;
 
                             case Ints_ID:
@@ -498,6 +518,8 @@ namespace Benchmark.Serializers.Needlefish
                                 break;
                         }
                     }
+
+                    return (int)(offset - b);
                 }
             }
         }

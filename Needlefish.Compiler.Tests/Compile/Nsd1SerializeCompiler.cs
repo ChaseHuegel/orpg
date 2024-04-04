@@ -29,8 +29,7 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
 }";
 
     private const string FieldTemplate = 
-@"//  $field:name
-$serialize:header:field
+@"$serialize:header:field
 
 $serialize:value";
 
@@ -175,30 +174,28 @@ offset += 2;";
 @"*((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)($field:name?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)($field:name?.Length ?? 0));
 offset += 2;";
 
-    private const string NumberValueTemplate = 
+    private const string DefaultValueTemplate = 
 @"*(($field:type*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness($field:accessor);
 offset += $field:size;";
     
     private const string FloatValueTemplate =
-@"float $field:name_Copy = $field:accessor;
-*((float*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness(*(uint*)&$field:name_Copy);
-offset += $field:size;";
+@"float g__$field:name_Copy = $field:accessor;
+*((float*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness(*(uint*)&g__$field:name_Copy);
+offset += 4;";
 
     private const string DoubleValueTemplate =
-@"double $field:name_Copy = $field:accessor;
-*((double*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness(*(ulong*)&$field:name_Copy);
-offset += $field:size;";
+@"double g__$field:name_Copy = $field:accessor;
+*((double*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness(*(ulong*)&g__$field:name_Copy);
+offset += 4;";
 
     private const string BoolValueTemplate = 
 @"*((bool*)offset) = $field:accessor;
 offset += $field:size;";
 
-    private const string CharValueTemplate = 
-@"*((char*)offset) = BitConverter.IsLittleEndian ? $field:accessor : (char)BinaryPrimitives.ReverseEndianness($field:accessor);
-offset += $field:size;";
-
-    private const string ObjectValueTemplate = 
-@"$field:accessor.SerializeInto(buffer);";
+    private const string ObjectValueTemplate =
+@"*((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)$field:accessor.GetSize() : BinaryPrimitives.ReverseEndianness((ushort)$field:accessor.GetSize());
+offset += 2;
+$field:accessor.SerializeInto(buffer);";
 
     private const string EnumValueTemplate =
 @"*((int*)offset) = BitConverter.IsLittleEndian ? (int)$field:accessor : BinaryPrimitives.ReverseEndianness((int)$field:accessor);
@@ -211,7 +208,6 @@ offset += 4;";
 
     public StringBuilder Compile(TypeDefinition typeDefinition)
     {
-
         StringBuilder fieldsBuilder = new();
         foreach (FieldDefinition field in typeDefinition.FieldDefinitions)
         {
@@ -318,14 +314,12 @@ offset += 4;";
                 {
                     case "bool":
                         return BoolValueTemplate;
-                    case "char":
-                        return CharValueTemplate;
                     case "float":
                         return FloatValueTemplate;
                     case "double":
                         return DoubleValueTemplate;
                     default:
-                        return NumberValueTemplate;
+                        return DefaultValueTemplate;
                 }
             default:
                 throw new NotSupportedException($"{field.TypeName} serialization is not supported.");

@@ -1,10 +1,297 @@
 ﻿using Needlefish.Compiler.Tests.Schema;
+using System;
 using System.Text;
 
 namespace Needlefish.Compiler.Tests.Compile;
 
 internal class Nsd1DeserializeCompiler : INsdTypeCompiler
 {
+    private const string DeserializeTemplate =
+@"public static $type Deserialize(byte[] buffer, int start, int length)
+{
+    $type value = new $type();
+    value.Unpack(buffer, start, length);
+    return value;
+}";
+
+    private const string UnpackTemplate =
+@"public unsafe int Unpack(byte[] buffer, int start, int length)
+{
+    unchecked
+    {
+        fixed (byte* b = &buffer[start])
+        {
+            byte* end = b + length;
+            byte* offset = b;
+
+            int readsCompleted = 0;
+            $deserialize:reads
+
+            while (readsCompleted < $fields:count && offset + 2 < end)
+            {
+                ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                offset += 2;
+
+                switch (id)
+                {
+                    $deserialize:cases
+                }
+            }
+
+            return (int)(offset - b);
+        }
+    }
+}";
+
+    private const string FieldReadTemplate =
+@"bool g__$field:name_Read = false;";
+
+    private const string CaseTemplate =
+@"case $field:name_ID:
+    if (g__$field:name_Read)
+    {
+        break;
+    }
+
+    $deserialize:field
+
+    g__$field:name_Read = true;
+    readsCompleted++;
+    break;";
+
+    private const string FieldTemplate =
+@"$deserialize:value";
+
+    private const string OptionalFieldTemplate =
+@"bool g__$field:name_HasValue = *((byte*)offset) == 0 ? false : true;
+offset += 1;
+
+if (g__$field:name_HasValue)
+{
+    $deserialize:value
+}
+else
+{
+    $field:name = null;
+}";
+
+    private const string ArrayFieldTemplate =
+@"$deserialize:header:length
+
+if (g__$field:name_Length == 0)
+{
+    $field:name = Array.Empty<$field:type>();
+}
+else
+{
+    $field:name = new $field:type[g__$field:name_Length];
+
+    for (int i = 0; i < g__$field:name_Length; i++)
+    {
+        $deserialize:value
+    }
+}";
+
+    private const string OptionalArrayFieldTemplate =
+@"bool g__$field:name_HasValue = *((byte*)offset) == 0 ? false : true;
+offset += 1;
+
+if (g__$field:name_HasValue)
+{
+    $deserialize:header:length
+
+    if (g__$field:name_Length == 0)
+    {
+        $field:name = Array.Empty<$field:type>();
+    }
+    else
+    {
+        $field:name = new $field:type[g__$field:name_Length];
+
+        for (int i = 0; i < g__$field:name_Length; i++)
+        {
+            $deserialize:value
+        }
+    }
+}
+else
+{
+    $field:name = null;
+}";
+
+    private const string StringTemplate =
+@"$deserialize:header:length
+
+if (g__$field:name_Length == 0)
+{
+    $field:accessor = string.Empty;
+}
+else
+{
+    char* chars = (char*)offset;
+    if (!BitConverter.IsLittleEndian)
+    {
+        for (int n = 0; n < g__$field:name_Length; n++)
+        {
+            *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
+            chars += 2;
+        }
+    }
+
+    $field:accessor = new string(chars, 0, g__$field:name_Length);
+    offset += 2 * g__$field:name_Length;
+}";
+
+    private const string OptionalStringTemplate =
+@"bool g__$field:name_HasValue = *((byte*)offset) == 0 ? false : true;
+offset += 1;
+
+if (g__$field:name_HasValue)
+{
+    $deserialize:header:length
+
+    if (g__$field:name_Length == 0)
+    {
+        $field:accessor = string.Empty;
+    }
+    else
+    {
+        char* chars = (char*)offset;
+        if (!BitConverter.IsLittleEndian)
+        {
+            for (int n = 0; n < g__$field:name_Length; n++)
+            {
+                *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
+                chars += 2;
+            }
+        }
+
+        $field:accessor = new string(chars, 0, g__$field:name_Length);
+        offset += 2 * g__$field:name_Length;
+    }
+}
+else
+{
+    $field:name = null;
+}";
+
+    private const string StringArrayTemplate =
+@"$deserialize:header:length
+
+if (g__$field:name_Length == 0)
+{
+    $field:name = Array.Empty<$field:type>();
+}
+else
+{
+    $field:name = new $field:type[g__$field:name_Length];
+
+    for (int i = 0; i < g__$field:name_Length; i++)
+    {
+        ushort g__$field:name_i_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+        offset += 2;
+
+        char* chars = (char*)offset;
+        if (!BitConverter.IsLittleEndian)
+        {
+            for (int n = 0; n < g__$field:name_i_length; n++)
+            {
+                *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
+                chars += 2;
+            }
+        }
+
+        $field:name[i] = new string(chars, 0, g__$field:name_i_length);
+        offset += 2 * g__$field:name_i_length;
+    }
+}";
+
+    private const string OptionalStringArrayTemplate =
+@"bool g__$field:name_HasValue = *((byte*)offset) == 0 ? false : true;
+offset += 1;
+
+if (g__$field:name_HasValue)
+{
+    $deserialize:header:length
+
+    if (g__$field:name_Length == 0)
+    {
+        $field:name = Array.Empty<$field:type>();
+    }
+    else
+    {
+        $field:name = new $field:type[g__$field:name_Length];
+
+        for (int i = 0; i < g__$field:name_Length; i++)
+        {
+            ushort g__$field:name_i_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+            offset += 2;
+
+            char* chars = (char*)offset;
+            if (!BitConverter.IsLittleEndian)
+            {
+                for (int n = 0; n < g__$field:name_i_length; n++)
+                {
+                    *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
+                    chars += 2;
+                }
+            }
+
+            $field:name[i] = new string(chars, 0, g__$field:name_i_length);
+            offset += 2 * g__$field:name_i_length;
+        }
+    }
+}";
+
+    private const string LengthHeaderTemplate =
+@"ushort g__$field:name_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+offset += 2;";
+
+    private const string DefaultValueTemplate =
+@"$field:accessor = BitConverter.IsLittleEndian ? *(($field:type*)offset) : BinaryPrimitives.ReverseEndianness(*(($field:type*)offset));
+offset += $field:size;";
+
+    private const string FloatValueTemplate =
+@"float g__$field:name_Raw = $field:accessor;
+g__$field:name_Raw = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
+$field:accessor = *(float*)&g__$field:name_Raw;
+offset += 4;";
+
+    private const string DoubleValueTemplate =
+@"double g__$field:name_Raw = $field:accessor;
+g__$field:name_Raw = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
+$field:accessor = *(double*)&g__$field:name_Raw;
+offset += 4;";
+
+    private const string BoolValueTemplate =
+@"$field:accessor = *((byte*)offset) == 0 ? false : true;
+offset += $field:size;";
+
+    private const string ObjectValueTemplate =
+@"ushort g__$field:name_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+offset += 2;
+int g__$field:name_Start = (int)(offset - b);
+$field:accessor.Unpack(buffer, g__$field:name_Start, g__$field:name_ObjectLength);
+offset += g__$field:name_ObjectLength;";
+
+    private const string OptionalObjectValueTemplate =
+@"ushort g__$field:name_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+offset += 2;
+int g__$field:name_Start = (int)(offset - b);
+if ($field:accessor == null)
+{
+    $field:accessor = Submessage.Deserialize(buffer, g__$field:name_Start, g__$field:name_ObjectLength);
+}
+else
+{
+    $field:accessor.Value.Unpack(buffer, g__$field:name_Start, g__$field:name_ObjectLength);
+}
+offset += g__$field:name_ObjectLength;";
+
+    private const string EnumValueTemplate =
+@"$field:accessor = ($field:type)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
+offset += 4;";
+
     public bool CanCompile(TypeDefinition typeDefinition)
     {
         return typeDefinition.Keyword == Nsd1MessageCompiler.Keyword;
@@ -12,77 +299,141 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
 
     public StringBuilder Compile(TypeDefinition typeDefinition)
     {
-        StringBuilder builder = new();
-        
-        var deserializeHelperBuilder = BuildDeserialize(typeDefinition);
-        var deserializeBuilder = BuildUnpack(typeDefinition);
-
-        builder.Append(deserializeHelperBuilder);
-        builder.AppendLine();
-        builder.Append(deserializeBuilder);
-
-        return builder;
-    }
-
-    private static StringBuilder BuildDeserialize(TypeDefinition typeDefinition)
-    {
-        StringBuilder builder = new();
-
-        builder.AppendLine($"public static {typeDefinition.Name} Deserialize(byte[] buffer)");
-        builder.AppendLine("{");
-        builder.AppendLine($"{Nsd1Compiler.Indent}{typeDefinition.Name} value = new {typeDefinition.Name}();");
-        builder.AppendLine($"{Nsd1Compiler.Indent}value.Unpack(buffer);");
-        builder.AppendLine($"{Nsd1Compiler.Indent}return value;");
-        builder.AppendLine("}");
-
-        return builder;
-    }
-
-    private static StringBuilder BuildUnpack(TypeDefinition typeDefinition)
-    {
-        StringBuilder builder = new();
-
-        builder.AppendLine("public void Unpack(byte[] buffer)");
-        builder.AppendLine("{");
-        builder.AppendLine($"{Nsd1Compiler.Indent}int offset = 0;");
-        builder.AppendLine($"{Nsd1Compiler.Indent}while (buffer.Length - offset < 2)");
-        builder.AppendLine($"{Nsd1Compiler.Indent}{{");
-        builder.AppendLine($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}ushort id = NeedlefishFormatter.ReadUShort(buffer, ref offset);");
-        builder.AppendLine($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}switch (id)");
-        builder.AppendLine($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}{{");
-
+        StringBuilder readBuilder = new();
+        StringBuilder casesBuilder = new();
         foreach (FieldDefinition field in typeDefinition.FieldDefinitions)
         {
-            builder.AppendLine($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}case {field.Name}_ID:");
-            builder.Append($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}");
-            AppendField(builder, field);
-            builder.AppendLine($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}break;");
+            readBuilder.AppendLine(FieldReadTemplate.Replace("$field:name", field.Name));
+
+            StringBuilder fieldBuilder = CompileFieldCase(field);
+            fieldBuilder.Insert(0, Nsd1Compiler.Indent);
+            fieldBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent);
+
+            casesBuilder.Append(fieldBuilder);
+            casesBuilder.AppendLine();
         }
 
-        builder.AppendLine($"{Nsd1Compiler.Indent}{Nsd1Compiler.Indent}}}");
-        builder.AppendLine($"{Nsd1Compiler.Indent}}}");
-        builder.AppendLine("}");
+        readBuilder.Insert(0, Nsd1Compiler.Indent);
+        readBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent);
+
+        casesBuilder.Insert(0, Nsd1Compiler.Indent);
+        casesBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent);
+
+        string unpack = UnpackTemplate
+            .Replace("$deserialize:cases", casesBuilder.ToString())
+            .Replace("$deserialize:reads", readBuilder.ToString());
+
+        StringBuilder builder = new();
+        builder.AppendLine(DeserializeTemplate);
+        builder.AppendLine();
+        builder.AppendLine(unpack);
+        builder.Replace("$type", typeDefinition.Name);
+        builder.Replace("$fields:count", typeDefinition.FieldDefinitions.Length.ToString());
+        return builder;
+    }
+
+    private StringBuilder CompileFieldCase(FieldDefinition field)
+    {
+        StringBuilder builder = new();
+
+        builder.AppendLine(CaseTemplate.Replace("$deserialize:field", CompileFieldDeserialize(field).ToString()));
+
+        builder.Replace("$deserialize:header:length", LengthHeaderTemplate);
+        builder.Replace("$deserialize:value", GetFieldDeserializeValueTemplate(field));
+
+        builder.Replace("$field:name", field.Name);
+        builder.Replace("$field:accessor", GetFieldAccessor(field));
+        builder.Replace("$field:type", field.TypeName);
+        builder.Replace("$field:size", SizeOfPrimitive(field).ToString());
 
         return builder;
     }
 
-    private static void AppendField(StringBuilder builder, FieldDefinition field)
+    private StringBuilder CompileFieldDeserialize(FieldDefinition field)
     {
-        if (!field.IsArray && !field.IsOptional)
+        StringBuilder builder = new();
+
+        if (field.TypeName != "string")
         {
-            builder.AppendLine($"decode_{field.TypeName}(buffer, ref offset, ref {field.Name});");
+            if (!field.IsOptional && !field.IsArray)
+            {
+                builder.AppendLine(FieldTemplate);
+            }
+            else if (!field.IsOptional && field.IsArray)
+            {
+                builder.AppendLine(ArrayFieldTemplate);
+            }
+            else if (field.IsOptional && !field.IsArray)
+            {
+                builder.AppendLine(OptionalFieldTemplate);
+            }
+            else if (field.IsOptional && field.IsArray)
+            {
+                builder.AppendLine(OptionalArrayFieldTemplate);
+            }
         }
-        else if (!field.IsArray && field.IsOptional)
+        else
         {
-            builder.AppendLine($"decode_optional_{field.TypeName}(buffer, ref offset, ref {field.Name});");
+            if (!field.IsOptional && !field.IsArray)
+            {
+                builder.AppendLine(StringTemplate);
+            }
+            else if (!field.IsOptional && field.IsArray)
+            {
+                builder.AppendLine(StringArrayTemplate);
+            }
+            else if (field.IsOptional && !field.IsArray)
+            {
+                builder.AppendLine(OptionalStringTemplate);
+            }
+            else if (field.IsOptional && field.IsArray)
+            {
+                builder.AppendLine(OptionalStringArrayTemplate);
+            }
         }
-        if (field.IsArray && !field.IsOptional)
+
+        return builder;
+    }
+
+    private string GetFieldAccessor(FieldDefinition field)
+    {
+        return field.IsArray ? $"{field.Name}[i]" : field.Name;
+    }
+
+    private string GetFieldDeserializeValueTemplate(FieldDefinition field)
+    {
+        switch (field.Type)
         {
-            builder.AppendLine($"decode_{field.TypeName}_array(buffer, ref offset, ref {field.Name});");
+            case FieldType.Object:
+                return field.IsOptional && !field.IsArray ? OptionalObjectValueTemplate : ObjectValueTemplate;
+            case FieldType.Enum:
+                return EnumValueTemplate;
+            case FieldType.Primitive:
+                switch (field.TypeName)
+                {
+                    case "bool":
+                        return BoolValueTemplate;
+                    case "float":
+                        return FloatValueTemplate;
+                    case "double":
+                        return DoubleValueTemplate;
+                    default:
+                        return DefaultValueTemplate;
+                }
+            default:
+                throw new NotSupportedException($"{field.TypeName} deserialization is not supported.");
         }
-        else if (field.IsArray && field.IsOptional)
+    }
+
+    private int SizeOfPrimitive(FieldDefinition field)
+    {
+        return field.TypeName switch
         {
-            builder.AppendLine($"decode_optional_{field.TypeName}_array(buffer, ref offset, ref {field.Name});");
-        }
+            "bool" or "byte" or "sbyte" => 1,
+            "short" or "ushort" or "char" => 2,
+            "int" or "uint" => 4,
+            "long" or "ulong" => 8,
+            _ => -1
+        };
     }
 }
