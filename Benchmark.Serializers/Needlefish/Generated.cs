@@ -261,7 +261,7 @@ namespace Lexer.Tests
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? Content_ID : BinaryPrimitives.ReverseEndianness(Content_ID);
                         offset += 2;
 
-                        *offset = 1;
+                        *((byte*)offset) = (byte)1;
                         offset += 1;
 
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(Content?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(Content?.Length ?? 0));
@@ -272,11 +272,6 @@ namespace Lexer.Tests
                             *((char*)offset) = BitConverter.IsLittleEndian ? Content[i] : (char)BinaryPrimitives.ReverseEndianness(Content[i]);
                             offset += 2;
                         }
-                    }
-                    else
-                    {
-                        *((ushort*)offset) = 0;
-                        offset += 2;
                     }
                     #endregion
 
@@ -297,7 +292,7 @@ namespace Lexer.Tests
                     }
                     else
                     {
-                        *((ushort*)offset) = 0;
+                        *((ushort*)offset) = (ushort)0;
                         offset += 2;
                     }
                     #endregion
@@ -396,7 +391,7 @@ namespace Lexer.Tests
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalStrings_ID : BinaryPrimitives.ReverseEndianness(OptionalStrings_ID);
                         offset += 2;
 
-                        *offset = 1;
+                        *((byte*)offset) = (byte)1;
                         offset += 1;
 
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(OptionalStrings?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(OptionalStrings?.Length ?? 0));
@@ -419,11 +414,6 @@ namespace Lexer.Tests
                             }
                         }
                     }
-                    else
-                    {
-                        *((ushort*)offset) = 0;
-                        offset += 2;
-                    }
                     #endregion
 
                     #region Int
@@ -440,7 +430,7 @@ namespace Lexer.Tests
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalInt_ID : BinaryPrimitives.ReverseEndianness(OptionalInt_ID);
                         offset += 2;
 
-                        *offset = 1;
+                        *((byte*)offset) = (byte)1;
                         offset += 1;
 
                         *((int*)offset) = BitConverter.IsLittleEndian ? OptionalInt.Value : BinaryPrimitives.ReverseEndianness(OptionalInt.Value);
@@ -468,7 +458,7 @@ namespace Lexer.Tests
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalInts_ID : BinaryPrimitives.ReverseEndianness(OptionalInts_ID);
                         offset += 2;
 
-                        *offset = 1;
+                        *((byte*)offset) = (byte)1;
                         offset += 1;
 
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(OptionalInts?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(OptionalInts?.Length ?? 0));
@@ -496,7 +486,7 @@ namespace Lexer.Tests
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalUInt_ID : BinaryPrimitives.ReverseEndianness(OptionalUInt_ID);
                         offset += 2;
 
-                        *offset = 1;
+                        *((byte*)offset) = (byte)1;
                         offset += 1;
 
                         *((uint*)offset) = BitConverter.IsLittleEndian ? OptionalUInt.Value : BinaryPrimitives.ReverseEndianness(OptionalUInt.Value);
@@ -524,7 +514,7 @@ namespace Lexer.Tests
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalUInts_ID : BinaryPrimitives.ReverseEndianness(OptionalUInts_ID);
                         offset += 2;
 
-                        *offset = 1;
+                        *((byte*)offset) = (byte)1;
                         offset += 1;
 
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(OptionalUInts?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(OptionalUInts?.Length ?? 0));
@@ -552,7 +542,7 @@ namespace Lexer.Tests
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalEnum_ID : BinaryPrimitives.ReverseEndianness(OptionalEnum_ID);
                         offset += 2;
 
-                        *offset = 1;
+                        *((byte*)offset) = (byte)1;
                         offset += 1;
 
                         *((int*)offset) = BitConverter.IsLittleEndian ? (int)OptionalEnum.Value : BinaryPrimitives.ReverseEndianness((int)OptionalEnum.Value);
@@ -580,7 +570,7 @@ namespace Lexer.Tests
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalEnums_ID : BinaryPrimitives.ReverseEndianness(OptionalEnums_ID);
                         offset += 2;
 
-                        *offset = 1;
+                        *((byte*)offset) = (byte)1;
                         offset += 1;
 
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(OptionalEnums?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(OptionalEnums?.Length ?? 0));
@@ -609,7 +599,7 @@ namespace Lexer.Tests
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalSubmessage_ID : BinaryPrimitives.ReverseEndianness(OptionalSubmessage_ID);
                         offset += 2;
 
-                        *offset = 1;
+                        *((byte*)offset) = (byte)1;
                         offset += 1;
 
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)OptionalSubmessage.Value.GetSize() : BinaryPrimitives.ReverseEndianness((ushort)OptionalSubmessage.Value.GetSize());
@@ -639,7 +629,7 @@ namespace Lexer.Tests
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalSubmessages_ID : BinaryPrimitives.ReverseEndianness(OptionalSubmessages_ID);
                         offset += 2;
 
-                        *offset = 1;
+                        *((byte*)offset) = (byte)1;
                         offset += 1;
 
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(OptionalSubmessages?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(OptionalSubmessages?.Length ?? 0));
@@ -1517,7 +1507,7 @@ namespace Lexer.Tests
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalInt_ID : BinaryPrimitives.ReverseEndianness(OptionalInt_ID);
                         offset += 2;
 
-                        *offset = 1;
+                        *((byte*)offset) = (byte)1;
                         offset += 1;
 
                         *((int*)offset) = BitConverter.IsLittleEndian ? OptionalInt.Value : BinaryPrimitives.ReverseEndianness(OptionalInt.Value);

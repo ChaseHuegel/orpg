@@ -33,12 +33,12 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
 
 $serialize:value";
 
-    private const string OptionalFieldTemplate = 
+    private const string OptionalFieldTemplate =
 @"if ($field:name != null)
 {
     $serialize:header:field
 
-    *offset = 1;
+    *((byte*)offset) = (byte)1;
     offset += 1;
 
     $serialize:value
@@ -59,7 +59,7 @@ for (int i = 0; i < $field:name?.Length; i++)
 {
     $serialize:header:field
 
-    *offset = 1;
+    *((byte*)offset) = (byte)1;
     offset += 1;
 
     $serialize:header:length
@@ -85,7 +85,7 @@ if ($field:name != null)
 }
 else
 {
-    *((ushort*)offset) = 0;
+    *((ushort*)offset) = (ushort)0;
     offset += 2;
 }";
 
@@ -94,7 +94,7 @@ else
 {
     $serialize:header:field
     
-    *offset = 1;
+    *((byte*)offset) = (byte)1;
     offset += 1;
 
     $serialize:header:length
@@ -104,11 +104,6 @@ else
         *((char*)offset) = BitConverter.IsLittleEndian ? $field:accessor[i] : (char)BinaryPrimitives.ReverseEndianness($field:accessor[i]);
         offset += 2;
     }
-}
-else
-{
-    *((ushort*)offset) = 0;
-    offset += 2;
 }";
 
     private const string StringArrayTemplate = 
@@ -133,12 +128,12 @@ for (int i = 0; i < $field:name?.Length; i++)
     }
 }";
 
-    private const string OptionalStringArrayTemplate = 
+    private const string OptionalStringArrayTemplate =
 @"if ($field:name != null)
 {
     $serialize:header:field
     
-    *offset = 1;
+    *((byte*)offset) = (byte)1;
     offset += 1;
 
     $serialize:header:length
@@ -159,11 +154,6 @@ for (int i = 0; i < $field:name?.Length; i++)
             }
         }
     }
-}
-else
-{
-    *((ushort*)offset) = 0;
-    offset += 2;
 }";
 
     private const string FieldHeaderTemplate = 
