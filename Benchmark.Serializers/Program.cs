@@ -71,7 +71,7 @@ var data = message.Serialize();
 
 Lexer.Tests.TestMessage deserializedMessage = Lexer.Tests.TestMessage.Deserialize(data, 0, data.Length);
 
-Console.WriteLine(deserializedMessage.Equals(data));
+Console.WriteLine(deserializedMessage.Equals(message));
 
 //for (int i = 0; i < data.Length; i++)
 //{

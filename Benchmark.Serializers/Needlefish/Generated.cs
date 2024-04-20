@@ -242,16 +242,16 @@ namespace Lexer.Tests
 
         public byte[] Serialize()
         {
-            byte[] buffer = new byte[GetSize()];
-            SerializeInto(buffer);
+            byte[] buffer = new byte[GetSize() * 2];
+            SerializeInto(buffer, 0);
             return buffer;
         }
 
-        public unsafe void SerializeInto(byte[] buffer)
+        public unsafe void SerializeInto(byte[] buffer, int start)
         {
             unchecked
             {
-                fixed (byte* b = &buffer[0])
+                fixed (byte* b = &buffer[start])
                 {
                     byte* offset = b;
 
@@ -312,7 +312,7 @@ namespace Lexer.Tests
 
                     double g__Double_Copy = Double;
                     *((double*)offset) = BitConverter.IsLittleEndian ? Double : BinaryPrimitives.ReverseEndianness(*(ulong*)&g__Double_Copy);
-                    offset += 4;
+                    offset += 8;
                     #endregion
 
                     #region Long
@@ -590,7 +590,8 @@ namespace Lexer.Tests
 
                     *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)Submessage.GetSize() : BinaryPrimitives.ReverseEndianness((ushort)Submessage.GetSize());
                     offset += 2;
-                    Submessage.SerializeInto(buffer);
+                    Submessage.SerializeInto(buffer, (int)(offset - b));
+                    offset += Submessage.GetSize();
                     #endregion
 
                     #region OptionalSubmessage
@@ -604,7 +605,8 @@ namespace Lexer.Tests
 
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)OptionalSubmessage.Value.GetSize() : BinaryPrimitives.ReverseEndianness((ushort)OptionalSubmessage.Value.GetSize());
                         offset += 2;
-                        OptionalSubmessage.Value.SerializeInto(buffer);
+                        OptionalSubmessage.Value.SerializeInto(buffer, (int)(offset - b));
+                        offset += OptionalSubmessage.Value.GetSize();
                     }
                     #endregion
 
@@ -619,7 +621,8 @@ namespace Lexer.Tests
                     {
                         *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)Submessages[i].GetSize() : BinaryPrimitives.ReverseEndianness((ushort)Submessages[i].GetSize());
                         offset += 2;
-                        Submessages[i].SerializeInto(buffer);
+                        Submessages[i].SerializeInto(buffer, (int)(offset - b));
+                        offset += Submessages[i].GetSize();
                     }
                     #endregion
 
@@ -639,7 +642,8 @@ namespace Lexer.Tests
                         {
                             *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)OptionalSubmessages[i].GetSize() : BinaryPrimitives.ReverseEndianness((ushort)OptionalSubmessages[i].GetSize());
                             offset += 2;
-                            OptionalSubmessages[i].SerializeInto(buffer);
+                            OptionalSubmessages[i].SerializeInto(buffer, (int)(offset - b));
+                            offset += OptionalSubmessages[i].GetSize();
                         }
                     }
                     #endregion
@@ -788,8 +792,7 @@ namespace Lexer.Tests
                                     break;
                                 }
 
-                                float g__FloAT_Raw = FloAT;
-                                g__FloAT_Raw = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
+                                uint g__FloAT_Raw = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
                                 FloAT = *(float*)&g__FloAT_Raw;
                                 offset += 4;
 
@@ -804,10 +807,9 @@ namespace Lexer.Tests
                                     break;
                                 }
 
-                                double g__Double_Raw = Double;
-                                g__Double_Raw = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
+                                ulong g__Double_Raw = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
                                 Double = *(double*)&g__Double_Raw;
-                                offset += 4;
+                                offset += 8;
 
 
                                 g__Double_Read = true;
@@ -1489,15 +1491,15 @@ namespace Lexer.Tests
         public byte[] Serialize()
         {
             byte[] buffer = new byte[GetSize()];
-            SerializeInto(buffer);
+            SerializeInto(buffer, 0);
             return buffer;
         }
 
-        public unsafe void SerializeInto(byte[] buffer)
+        public unsafe void SerializeInto(byte[] buffer, int start)
         {
             unchecked
             {
-                fixed (byte* b = &buffer[0])
+                fixed (byte* b = &buffer[start])
                 {
                     byte* offset = b;
 

@@ -10,16 +10,16 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
 @"public byte[] Serialize()
 {
     byte[] buffer = new byte[GetSize()];
-    SerializeInto(buffer);
+    SerializeInto(buffer, 0);
     return buffer;
 }";
 
-    private const string SerializeIntoTemplate = 
-@"public unsafe void SerializeInto(byte[] buffer)
+    private const string SerializeIntoTemplate =
+@"public unsafe void SerializeInto(byte[] buffer, int start)
 {
     unchecked
     {
-        fixed (byte* b = &buffer[0])
+        fixed (byte* b = &buffer[start])
         {
             byte* offset = b;
 
@@ -176,7 +176,7 @@ offset += 4;";
     private const string DoubleValueTemplate =
 @"double g__$field:name_Copy = $field:accessor;
 *((double*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness(*(ulong*)&g__$field:name_Copy);
-offset += 4;";
+offset += 8;";
 
     private const string BoolValueTemplate = 
 @"*((bool*)offset) = $field:accessor;
@@ -185,7 +185,8 @@ offset += $field:size;";
     private const string ObjectValueTemplate =
 @"*((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)$field:accessor.GetSize() : BinaryPrimitives.ReverseEndianness((ushort)$field:accessor.GetSize());
 offset += 2;
-$field:accessor.SerializeInto(buffer);";
+$field:accessor.SerializeInto(buffer, (int)(offset - b));
+offset += OptionalSubmessage.Value.GetSize();";
 
     private const string EnumValueTemplate =
 @"*((int*)offset) = BitConverter.IsLittleEndian ? (int)$field:accessor : BinaryPrimitives.ReverseEndianness((int)$field:accessor);

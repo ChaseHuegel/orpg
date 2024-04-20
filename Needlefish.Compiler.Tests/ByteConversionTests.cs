@@ -4,7 +4,9 @@ using System;
 using System.Buffers.Binary;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Needlefish.Compiler.Tests;
 
@@ -90,6 +92,35 @@ internal class ByteConversionTests
         }
 
         Assert.That(length, Is.EqualTo(23));
+    }
+
+    [TestCase(5.1234f)]
+    public unsafe void FloatDirect(float value)
+    {
+        ushort Content_ID = 0;
+
+        byte[] buffer = new byte[10];
+
+        fixed (byte* b = &buffer[0])
+        {
+            byte* offset = b;
+
+            float g__FloAT_Copy = value;
+
+            *((uint*)offset) = BitConverter.IsLittleEndian ? *(uint*)&g__FloAT_Copy : BinaryPrimitives.ReverseEndianness(*(uint*)&g__FloAT_Copy);
+            offset += 4;
+        }
+
+        fixed (byte* b = &buffer[0])
+        {
+            byte* offset = b;
+
+            uint dest = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
+            offset += 4;
+            float decodedValue = *(float*)&dest;
+
+            Assert.That(decodedValue, Is.EqualTo(value));
+        }
     }
 
     [TestCase((ushort)100)]

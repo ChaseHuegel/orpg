@@ -252,16 +252,14 @@ offset += 2;";
 offset += $field:size;";
 
     private const string FloatValueTemplate =
-@"float g__$field:name_Raw = $field:accessor;
-g__$field:name_Raw = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
+@"uint g__$field:name_Raw = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
 $field:accessor = *(float*)&g__$field:name_Raw;
 offset += 4;";
 
     private const string DoubleValueTemplate =
-@"double g__$field:name_Raw = $field:accessor;
-g__$field:name_Raw = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
+@"ulong g__$field:name_Raw = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
 $field:accessor = *(double*)&g__$field:name_Raw;
-offset += 4;";
+offset += 8;";
 
     private const string BoolValueTemplate =
 @"$field:accessor = *((byte*)offset) == 0 ? false : true;
