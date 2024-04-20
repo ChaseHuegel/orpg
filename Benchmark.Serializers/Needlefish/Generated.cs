@@ -215,6 +215,7 @@ namespace Lexer.Tests
 
             if (OptionalSubmessage != null)
             {
+                length += optionalFieldLen;
                 length += OptionalSubmessage.Value.GetSize();
             }
 
@@ -648,7 +649,7 @@ namespace Lexer.Tests
                     }
                     #endregion
 
-
+                    int len = (int)(offset - b);
                 }
             }
         }

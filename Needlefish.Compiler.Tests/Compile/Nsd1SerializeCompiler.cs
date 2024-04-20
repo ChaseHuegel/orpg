@@ -186,7 +186,7 @@ offset += $field:size;";
 @"*((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)$field:accessor.GetSize() : BinaryPrimitives.ReverseEndianness((ushort)$field:accessor.GetSize());
 offset += 2;
 $field:accessor.SerializeInto(buffer, (int)(offset - b));
-offset += OptionalSubmessage.Value.GetSize();";
+offset += $field:accessor.GetSize();";
 
     private const string EnumValueTemplate =
 @"*((int*)offset) = BitConverter.IsLittleEndian ? (int)$field:accessor : BinaryPrimitives.ReverseEndianness((int)$field:accessor);
