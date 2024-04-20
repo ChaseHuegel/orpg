@@ -54,6 +54,6 @@ internal class CompilerTests
             OptionalSubmessages = new Lexer.Tests.Submessage[] { new Lexer.Tests.Submessage { OptionalInt = 5 }, new Lexer.Tests.Submessage { OptionalInt = 6 } },
         };
 
-        Assert.That(message.GetSize(), Is.EqualTo(348));
+        Assert.That(message.GetSize(), Is.EqualTo(336));
     }
 }

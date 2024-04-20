@@ -87,7 +87,9 @@ namespace Lexer.Tests
             const int byteLen = 1;
             const int boolLen = 1;
             const int shortLen = 2;
+            const int charLen = 2;
             const int intLen = 4;
+            const int enumLen = 4;
             const int floatLen = 4;
             const int longLen = 8;
             const int doubleLen = 8;
@@ -114,7 +116,7 @@ namespace Lexer.Tests
             const int Ints_MinLen = fieldHeaderLen + arrayHeaderLen;
             const int UInt_MinLen = fieldHeaderLen + intLen;
             const int UInts_MinLen = fieldHeaderLen + arrayHeaderLen;
-            const int Enum_MinLen = fieldHeaderLen + shortLen;
+            const int Enum_MinLen = fieldHeaderLen + enumLen;
             const int Enums_MinLen = fieldHeaderLen + arrayHeaderLen;
             const int Submessage_MinLen = fieldHeaderLen + 0;
             const int Submessages_MinLen = fieldHeaderLen + arrayHeaderLen;
@@ -145,12 +147,12 @@ namespace Lexer.Tests
             #region Dynamic size calculation
             if (Content != null)
             {
-                length += optionalFieldLen + arrayHeaderLen + Content.Length;
+                length += optionalFieldLen + arrayHeaderLen + Content.Length * charLen;
             }
 
             if (Body != null)
             {
-                length += Body.Length;
+                length += Body.Length * charLen;
             }
 
             if (Bytes != null)
@@ -163,7 +165,7 @@ namespace Lexer.Tests
                 length += optionalFieldLen + arrayHeaderLen + 0;
                 for (int i = 0; i < OptionalStrings.Length; i++)
                 {
-                    length += arrayHeaderLen + OptionalStrings[i].Length;
+                    length += arrayHeaderLen + OptionalStrings[i].Length * charLen;
                 }
             }
 
@@ -199,17 +201,17 @@ namespace Lexer.Tests
 
             if (OptionalEnum != null)
             {
-                length += optionalFieldLen + shortLen;
+                length += optionalFieldLen + enumLen;
             }
 
             if (Enums != null)
             {
-                length += (Enums.Length * shortLen);
+                length += (Enums.Length * enumLen);
             }
 
             if (OptionalEnums != null)
             {
-                length += optionalFieldLen + arrayHeaderLen + (OptionalEnums.Length * shortLen);
+                length += optionalFieldLen + arrayHeaderLen + (OptionalEnums.Length * enumLen);
             }
 
             length += Submessage.GetSize();
@@ -244,7 +246,7 @@ namespace Lexer.Tests
 
         public byte[] Serialize()
         {
-            byte[] buffer = new byte[GetSize() * 2];
+            byte[] buffer = new byte[GetSize()];
             SerializeInto(buffer, 0);
             return buffer;
         }
@@ -590,8 +592,6 @@ namespace Lexer.Tests
                     *((ushort*)offset) = BitConverter.IsLittleEndian ? Submessage_ID : BinaryPrimitives.ReverseEndianness(Submessage_ID);
                     offset += 2;
 
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)Submessage.GetSize() : BinaryPrimitives.ReverseEndianness((ushort)Submessage.GetSize());
-                    offset += 2;
                     Submessage.SerializeInto(buffer, (int)(offset - b));
                     offset += Submessage.GetSize();
                     #endregion
@@ -605,8 +605,6 @@ namespace Lexer.Tests
                         *((byte*)offset) = (byte)1;
                         offset += 1;
 
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)OptionalSubmessage.Value.GetSize() : BinaryPrimitives.ReverseEndianness((ushort)OptionalSubmessage.Value.GetSize());
-                        offset += 2;
                         OptionalSubmessage.Value.SerializeInto(buffer, (int)(offset - b));
                         offset += OptionalSubmessage.Value.GetSize();
                     }
@@ -621,8 +619,6 @@ namespace Lexer.Tests
 
                     for (int i = 0; i < Submessages?.Length; i++)
                     {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)Submessages[i].GetSize() : BinaryPrimitives.ReverseEndianness((ushort)Submessages[i].GetSize());
-                        offset += 2;
                         Submessages[i].SerializeInto(buffer, (int)(offset - b));
                         offset += Submessages[i].GetSize();
                     }
@@ -642,8 +638,6 @@ namespace Lexer.Tests
 
                         for (int i = 0; i < OptionalSubmessages?.Length; i++)
                         {
-                            *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)OptionalSubmessages[i].GetSize() : BinaryPrimitives.ReverseEndianness((ushort)OptionalSubmessages[i].GetSize());
-                            offset += 2;
                             OptionalSubmessages[i].SerializeInto(buffer, (int)(offset - b));
                             offset += OptionalSubmessages[i].GetSize();
                         }
