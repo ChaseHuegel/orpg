@@ -11,7 +11,9 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
         const int byteLen = 1;
         const int boolLen = 1;
         const int shortLen = 2;
+        const int charLen = 2;
         const int intLen = 4;
+        const int enumLen = 4;
         const int floatLen = 4;
         const int longLen = 8;
         const int doubleLen = 8;
@@ -142,7 +144,14 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
             {
                 builder.Append(Nsd1Compiler.Indent);
                 builder.Append(Nsd1Compiler.Indent);
-                builder.AppendLine($"length += {fieldDefinition.Name}.Value.GetSize();");
+                builder.Append("length += ");
+
+                if (fieldDefinition.IsOptional)
+                {
+                    builder.Append("optionalFieldLen + ");
+                }
+
+                builder.AppendLine($"{fieldDefinition.Name}.Value.GetSize();");
 
                 builder.Append(Nsd1Compiler.Indent);
                 builder.AppendLine("}");
@@ -172,7 +181,7 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
                 }
                 else
                 {
-                    builder.Append($"{fieldDefinition.Name}.Length");
+                    builder.Append($"{fieldDefinition.Name}.Length * charLen");
                 }
             }
             else if (fieldDefinition.IsArray)
@@ -219,7 +228,7 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
                 builder.Append(Nsd1Compiler.Indent);
                 builder.Append(Nsd1Compiler.Indent);
                 builder.Append(Nsd1Compiler.Indent);
-                builder.AppendLine($"length += {GetFieldTypeMinLenValue(fieldDefinition)} + {fieldDefinition.Name}[i].Length;");
+                builder.AppendLine($"length += {GetFieldTypeMinLenValue(fieldDefinition)} + {fieldDefinition.Name}[i].Length * charLen;");
 
                 builder.Append(Nsd1Compiler.Indent);
                 builder.Append(Nsd1Compiler.Indent);
@@ -258,7 +267,7 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
     {
         if (fieldDefinition.Type == FieldType.Enum)
         {
-            return "shortLen";
+            return "enumLen";
         }
 
         switch (fieldDefinition.TypeName)
@@ -272,6 +281,9 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
             case "short":
             case "ushort":
                 return "shortLen";
+
+            case "char":
+                return "charLen";
 
             case "int":
             case "uint":
