@@ -15,7 +15,7 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
 }";
 
     private const string SerializeIntoTemplate =
-@"public unsafe void SerializeInto(byte[] buffer, int start)
+@"public unsafe int SerializeInto(byte[] buffer, int start)
 {
     unchecked
     {
@@ -24,6 +24,8 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
             byte* offset = b;
 
             $serialize:fields
+
+            return (int)(offset - b);
         }
     }
 }";
