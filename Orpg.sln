@@ -29,7 +29,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orpg.Networking", "Orpg.Net
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Needlefish.Compiler.Tests", "Needlefish.Compiler.Tests\Needlefish.Compiler.Tests.csproj", "{42559A66-59B8-4163-A7B4-4E70ACD7021A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark.Serializers", "Benchmark.Serializers\Benchmark.Serializers.csproj", "{03198ECD-712C-4B6D-9993-B86AEDCB3915}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmark.Serializers", "Benchmark.Serializers\Benchmark.Serializers.csproj", "{03198ECD-712C-4B6D-9993-B86AEDCB3915}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Needlefish.Compiler", "Needlefish.Compiler\Needlefish.Compiler.csproj", "{D4995516-E6B9-4BCB-B93C-2C2E495845DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,10 @@ Global
 		{03198ECD-712C-4B6D-9993-B86AEDCB3915}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03198ECD-712C-4B6D-9993-B86AEDCB3915}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03198ECD-712C-4B6D-9993-B86AEDCB3915}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4995516-E6B9-4BCB-B93C-2C2E495845DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4995516-E6B9-4BCB-B93C-2C2E495845DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4995516-E6B9-4BCB-B93C-2C2E495845DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4995516-E6B9-4BCB-B93C-2C2E495845DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
