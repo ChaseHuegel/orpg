@@ -399,7 +399,7 @@ internal partial class NsdParser
                 {
                     type = FieldType.Enum;
                 }
-                else// if (!string.IsNullOrEmpty(fieldTypeDefinition.Keyword)) TODO re-introduce when supporting includes
+                else if (type == FieldType.Unknown)// if (!string.IsNullOrEmpty(fieldTypeDefinition.Keyword)) TODO re-introduce when supporting includes
                 {
                     type = FieldType.Object;
                 }

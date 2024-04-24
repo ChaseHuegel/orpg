@@ -59,7 +59,7 @@ public class LexerTests
             Val4;
         }
 
-        message Submessage2 {
+        message Submessage {
             int? OptionalInt;
         }
         """;
