@@ -33,7 +33,6 @@ internal class NsdLinter
 
         if (duplicates.Length > 0)
         {
-            var exceptions = new List<Exception>();
             for (int duplicateIndex = 0; duplicateIndex < duplicates.Length; duplicateIndex++)
             {
                 FieldDefinition duplicate = duplicates[duplicateIndex];
@@ -48,7 +47,6 @@ internal class NsdLinter
 
         if (duplicates.Length > 0)
         {
-            var exceptions = new List<Exception>();
             for (int i = 0; i < duplicates.Length; i++)
             {
                 FieldDefinition fieldDuplicate = duplicates[i];
@@ -100,11 +98,15 @@ internal class NsdLinter
 
     private static void ValidateNoTypeDuplicates(List<Issue> issues, IEnumerable<TypeDefinition> typeDefinitions)
     {
-        var duplicateGroups = typeDefinitions.GroupBy(typeDefinition => typeDefinition.Name).Where(group => group.Count() > 1);
+        TypeDefinition[] duplicates = typeDefinitions.GroupBy(typeDefinition => typeDefinition.Name).Where(g => g.Count() > 1).SelectMany(g => g).ToArray();
 
-        foreach (var group in duplicateGroups)
+        if (duplicates.Length > 0)
         {
-            issues.Add(new Issue(string.Format("Found {0} conflicting type names. TypeName: ({1}).", group.Count(), group.Key)));
+            for (int i = 0; i < duplicates.Length; i++)
+            {
+                TypeDefinition typeDuplicate = duplicates[i];
+                issues.Add(new Issue(string.Format("Duplicate type. TypeName: ({0}).", typeDuplicate.Name)));
+            }
         }
     }
 
