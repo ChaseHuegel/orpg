@@ -1,65 +1,24 @@
-﻿using Newtonsoft.Json.Linq;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Buffers.Binary;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace Needlefish.Compiler.Tests;
 
 internal class ByteConversionTests
 {
-    private float _a = 32.1234f;
-
     [Test]
     public unsafe void ReverseFloatEndianness()
     {
-        float result = 0f;
+        float a = 32.1234f;
+        uint converted = *(uint*)&a;
+        uint dest = 0;
 
-        Stopwatch sw = Stopwatch.StartNew();
-        for (int i = 0; i < 10000; i++)
-        {
-            fixed (float* ptr = &_a)
-            {
-                uint converted = *(uint*)ptr;
-                uint dest = 0;
+        dest = BinaryPrimitives.ReverseEndianness(converted);
+        dest = BinaryPrimitives.ReverseEndianness(dest);
 
-                dest = BinaryPrimitives.ReverseEndianness(converted);
-                dest = BinaryPrimitives.ReverseEndianness(dest);
+        float result = *(float*)(&dest);
 
-                result = *(float*)&dest;
-            }
-        }
-        sw.Stop();
-
-        Assert.That(result, Is.EqualTo(_a));
-        Assert.That(sw.Elapsed, Is.EqualTo(TimeSpan.MinValue));
-    }
-
-    [Test]
-    public unsafe void ReverseFloatEndianness2()
-    {
-        float result = 0f;
-
-        Stopwatch sw = Stopwatch.StartNew();
-        for (int i = 0; i < 10000; i++)
-        {
-            float a = _a;
-            uint converted = *(uint*)&a;
-            uint dest = 0;
-
-            dest = BinaryPrimitives.ReverseEndianness(converted);
-            dest = BinaryPrimitives.ReverseEndianness(dest);
-
-            result = *(float*)(&dest);
-        }
-        sw.Stop();
-
-        Assert.That(result, Is.EqualTo(_a));
-        Assert.That(sw.Elapsed, Is.EqualTo(TimeSpan.MinValue));
+        Assert.That(result, Is.EqualTo(a));
     }
 
     [Test]
@@ -95,7 +54,7 @@ internal class ByteConversionTests
     }
 
     [TestCase(5.1234f)]
-    public unsafe void FloatDirect(float value)
+    public unsafe void FloatEncoding(float value)
     {
         ushort Content_ID = 0;
 
