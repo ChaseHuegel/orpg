@@ -10,6 +10,7 @@ internal class Nsd1Compiler : INsdCompiler
 
     private static readonly string[] RequiredUsings = new[]
     {
+        "using System;",
         "using System.Buffers.Binary;",
     };
 
