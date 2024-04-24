@@ -58,6 +58,7 @@ public class ParserTests
     [TestCase("OpenBrace", "#version 1; message test }")]
     [TestCase("CloseBrace", "#version 1; message test {")]
     [TestCase("NoNamespace", "#version 1; message name.space.test {")]
+    [TestCase("NoDuplicateTypes", "#version 1; message test {} message test {}")]
     public void TypeSyntaxRequirements(string name, string content)
     {
         Assert.Throws<NsdException>(() => ParseNsdContent(content));

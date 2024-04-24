@@ -52,7 +52,7 @@ internal class NsdLinter
             for (int i = 0; i < duplicates.Length; i++)
             {
                 FieldDefinition fieldDuplicate = duplicates[i];
-                issues.Add(new Issue(string.Format("Duplicate field field. TypeName: ({0}), Field: ({1}).", type.Name, fieldDuplicate.Name)));
+                issues.Add(new Issue(string.Format("Duplicate field. TypeName: ({0}), Field: ({1}).", type.Name, fieldDuplicate.Name)));
             }
         }
     }
@@ -98,11 +98,22 @@ internal class NsdLinter
         }
     }
 
+    private static void ValidateNoTypeDuplicates(List<Issue> issues, IEnumerable<TypeDefinition> typeDefinitions)
+    {
+        var duplicateGroups = typeDefinitions.GroupBy(typeDefinition => typeDefinition.Name).Where(group => group.Count() > 1);
+
+        foreach (var group in duplicateGroups)
+        {
+            issues.Add(new Issue(string.Format("Found {0} conflicting type names. TypeName: ({1}).", group.Count(), group.Key)));
+        }
+    }
+
     public static Issue[] Lint(List<Define> _defines, List<TypeDefinition> _typeDefinitions)
     {
         var issues = new List<Issue>();
 
         ValidateVersion(issues, _defines);
+        ValidateNoTypeDuplicates(issues, _typeDefinitions);
         ValidateFieldDefinitions(issues, _typeDefinitions);
         ValidateMessageDefinitions(issues, _typeDefinitions);
         ValidateEnumDefinitions(issues, _typeDefinitions);
