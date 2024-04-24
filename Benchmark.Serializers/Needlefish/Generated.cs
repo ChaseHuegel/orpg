@@ -218,8 +218,7 @@ namespace Lexer.Tests
 
             if (OptionalSubmessage != null)
             {
-                length += optionalFieldLen;
-                length += OptionalSubmessage.Value.GetSize();
+                length += optionalFieldLen + OptionalSubmessage.Value.GetSize();
             }
 
             if (Submessages != null)
@@ -644,7 +643,7 @@ namespace Lexer.Tests
                     }
                     #endregion
 
-                    int len = (int)(offset - b);
+
                 }
             }
         }
@@ -1455,7 +1454,9 @@ namespace Lexer.Tests
             const int byteLen = 1;
             const int boolLen = 1;
             const int shortLen = 2;
+            const int charLen = 2;
             const int intLen = 4;
+            const int enumLen = 4;
             const int floatLen = 4;
             const int longLen = 8;
             const int doubleLen = 8;
