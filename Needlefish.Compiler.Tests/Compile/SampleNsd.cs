@@ -81,6 +81,40 @@ namespace Lexer.Tests
         public Submessage[] Submessages;
         public Submessage[]? OptionalSubmessages;
 
+        public TestMessage(string? _Content, string _Body, float _FloAT, double _Double, long _Long, ulong _uLong, ulong _Ulong, short _Short, ushort _UShort, bool _Bool, byte _Byte, byte[] _Bytes, string[]? _OptionalStrings, int _Int, int? _OptionalInt, int[] _Ints, int[]? _OptionalInts, uint _UInt, uint? _OptionalUInt, uint[] _UInts, uint[]? _OptionalUInts, TestEnum _Enum, TestEnum? _OptionalEnum, TestEnum[] _Enums, TestEnum[]? _OptionalEnums, Submessage _Submessage, Submessage? _OptionalSubmessage, Submessage[] _Submessages, Submessage[]? _OptionalSubmessages)
+        {
+            Content = _Content;
+            Body = _Body;
+            FloAT = _FloAT;
+            Double = _Double;
+            Long = _Long;
+            uLong = _uLong;
+            Ulong = _Ulong;
+            Short = _Short;
+            UShort = _UShort;
+            Bool = _Bool;
+            Byte = _Byte;
+            Bytes = _Bytes;
+            OptionalStrings = _OptionalStrings;
+            Int = _Int;
+            OptionalInt = _OptionalInt;
+            Ints = _Ints;
+            OptionalInts = _OptionalInts;
+            UInt = _UInt;
+            OptionalUInt = _OptionalUInt;
+            UInts = _UInts;
+            OptionalUInts = _OptionalUInts;
+            Enum = _Enum;
+            OptionalEnum = _OptionalEnum;
+            Enums = _Enums;
+            OptionalEnums = _OptionalEnums;
+            Submessage = _Submessage;
+            OptionalSubmessage = _OptionalSubmessage;
+            Submessages = _Submessages;
+            OptionalSubmessages = _OptionalSubmessages;
+
+        }
+
         public int GetSize()
         {
             #region Helper consts
@@ -250,7 +284,7 @@ namespace Lexer.Tests
             return buffer;
         }
 
-        public unsafe void SerializeInto(byte[] buffer, int start)
+        public unsafe int SerializeInto(byte[] buffer, int start)
         {
             unchecked
             {
@@ -644,6 +678,8 @@ namespace Lexer.Tests
                     #endregion
 
 
+
+                    return (int)(offset - b);
                 }
             }
         }
@@ -703,6 +739,7 @@ namespace Lexer.Tests
 
                         switch (id)
                         {
+                            #region Content
                             case Content_ID:
                                 if (g__Content_Read)
                                 {
@@ -746,7 +783,9 @@ namespace Lexer.Tests
                                 g__Content_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region Body
                             case Body_ID:
                                 if (g__Body_Read)
                                 {
@@ -780,7 +819,9 @@ namespace Lexer.Tests
                                 g__Body_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region FloAT
                             case FloAT_ID:
                                 if (g__FloAT_Read)
                                 {
@@ -795,7 +836,9 @@ namespace Lexer.Tests
                                 g__FloAT_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region Double
                             case Double_ID:
                                 if (g__Double_Read)
                                 {
@@ -810,7 +853,9 @@ namespace Lexer.Tests
                                 g__Double_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region Long
                             case Long_ID:
                                 if (g__Long_Read)
                                 {
@@ -824,7 +869,9 @@ namespace Lexer.Tests
                                 g__Long_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region uLong
                             case uLong_ID:
                                 if (g__uLong_Read)
                                 {
@@ -838,7 +885,9 @@ namespace Lexer.Tests
                                 g__uLong_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region Ulong
                             case Ulong_ID:
                                 if (g__Ulong_Read)
                                 {
@@ -852,7 +901,9 @@ namespace Lexer.Tests
                                 g__Ulong_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region Short
                             case Short_ID:
                                 if (g__Short_Read)
                                 {
@@ -866,7 +917,9 @@ namespace Lexer.Tests
                                 g__Short_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region UShort
                             case UShort_ID:
                                 if (g__UShort_Read)
                                 {
@@ -880,7 +933,9 @@ namespace Lexer.Tests
                                 g__UShort_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region Bool
                             case Bool_ID:
                                 if (g__Bool_Read)
                                 {
@@ -894,7 +949,9 @@ namespace Lexer.Tests
                                 g__Bool_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region Byte
                             case Byte_ID:
                                 if (g__Byte_Read)
                                 {
@@ -908,7 +965,9 @@ namespace Lexer.Tests
                                 g__Byte_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region Bytes
                             case Bytes_ID:
                                 if (g__Bytes_Read)
                                 {
@@ -937,7 +996,9 @@ namespace Lexer.Tests
                                 g__Bytes_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region OptionalStrings
                             case OptionalStrings_ID:
                                 if (g__OptionalStrings_Read)
                                 {
@@ -985,7 +1046,9 @@ namespace Lexer.Tests
                                 g__OptionalStrings_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region Int
                             case Int_ID:
                                 if (g__Int_Read)
                                 {
@@ -999,7 +1062,9 @@ namespace Lexer.Tests
                                 g__Int_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region OptionalInt
                             case OptionalInt_ID:
                                 if (g__OptionalInt_Read)
                                 {
@@ -1023,7 +1088,9 @@ namespace Lexer.Tests
                                 g__OptionalInt_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region Ints
                             case Ints_ID:
                                 if (g__Ints_Read)
                                 {
@@ -1052,7 +1119,9 @@ namespace Lexer.Tests
                                 g__Ints_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region OptionalInts
                             case OptionalInts_ID:
                                 if (g__OptionalInts_Read)
                                 {
@@ -1091,7 +1160,9 @@ namespace Lexer.Tests
                                 g__OptionalInts_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region UInt
                             case UInt_ID:
                                 if (g__UInt_Read)
                                 {
@@ -1105,7 +1176,9 @@ namespace Lexer.Tests
                                 g__UInt_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region OptionalUInt
                             case OptionalUInt_ID:
                                 if (g__OptionalUInt_Read)
                                 {
@@ -1129,7 +1202,9 @@ namespace Lexer.Tests
                                 g__OptionalUInt_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region UInts
                             case UInts_ID:
                                 if (g__UInts_Read)
                                 {
@@ -1158,7 +1233,9 @@ namespace Lexer.Tests
                                 g__UInts_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region OptionalUInts
                             case OptionalUInts_ID:
                                 if (g__OptionalUInts_Read)
                                 {
@@ -1197,7 +1274,9 @@ namespace Lexer.Tests
                                 g__OptionalUInts_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region Enum
                             case Enum_ID:
                                 if (g__Enum_Read)
                                 {
@@ -1211,7 +1290,9 @@ namespace Lexer.Tests
                                 g__Enum_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region OptionalEnum
                             case OptionalEnum_ID:
                                 if (g__OptionalEnum_Read)
                                 {
@@ -1235,7 +1316,9 @@ namespace Lexer.Tests
                                 g__OptionalEnum_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region Enums
                             case Enums_ID:
                                 if (g__Enums_Read)
                                 {
@@ -1264,7 +1347,9 @@ namespace Lexer.Tests
                                 g__Enums_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region OptionalEnums
                             case OptionalEnums_ID:
                                 if (g__OptionalEnums_Read)
                                 {
@@ -1303,7 +1388,9 @@ namespace Lexer.Tests
                                 g__OptionalEnums_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region Submessage
                             case Submessage_ID:
                                 if (g__Submessage_Read)
                                 {
@@ -1320,7 +1407,9 @@ namespace Lexer.Tests
                                 g__Submessage_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region OptionalSubmessage
                             case OptionalSubmessage_ID:
                                 if (g__OptionalSubmessage_Read)
                                 {
@@ -1354,7 +1443,9 @@ namespace Lexer.Tests
                                 g__OptionalSubmessage_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region Submessages
                             case Submessages_ID:
                                 if (g__Submessages_Read)
                                 {
@@ -1386,7 +1477,9 @@ namespace Lexer.Tests
                                 g__Submessages_Read = true;
                                 readsCompleted++;
                                 break;
+                            #endregion
 
+                            #region OptionalSubmessages
                             case OptionalSubmessages_ID:
                                 if (g__OptionalSubmessages_Read)
                                 {
@@ -1428,6 +1521,7 @@ namespace Lexer.Tests
                                 g__OptionalSubmessages_Read = true;
                                 readsCompleted++;
                                 break;
+                                #endregion
 
 
                         }
@@ -1447,6 +1541,12 @@ namespace Lexer.Tests
         #endregion
 
         public int? OptionalInt;
+
+        public Submessage(int? _OptionalInt)
+        {
+            OptionalInt = _OptionalInt;
+
+        }
 
         public int GetSize()
         {
@@ -1492,7 +1592,7 @@ namespace Lexer.Tests
             return buffer;
         }
 
-        public unsafe void SerializeInto(byte[] buffer, int start)
+        public unsafe int SerializeInto(byte[] buffer, int start)
         {
             unchecked
             {
@@ -1515,6 +1615,8 @@ namespace Lexer.Tests
                     #endregion
 
 
+
+                    return (int)(offset - b);
                 }
             }
         }
@@ -1546,6 +1648,7 @@ namespace Lexer.Tests
 
                         switch (id)
                         {
+                            #region OptionalInt
                             case OptionalInt_ID:
                                 if (g__OptionalInt_Read)
                                 {
@@ -1569,6 +1672,7 @@ namespace Lexer.Tests
                                 g__OptionalInt_Read = true;
                                 readsCompleted++;
                                 break;
+                                #endregion
 
 
                         }
