@@ -1,8 +1,7 @@
 using DryIoc;
 using Moq;
 using Orpg.Client.Services;
-using Orpg.Shared.Models;
-using Orpg.Shared.Responses;
+using Orpg.Shared.Data;
 
 namespace Orpg.Client.Tests;
 
@@ -11,26 +10,26 @@ public class AccountDataTests : TestBase
     private const string Token = "1234";
 
     private static readonly Character[] CharacterList = new Character[] {
-        new(
-            uid: 1,
-            name: "Adventurer",
-            level: 1,
-            archetypeId: 0,
-            raceId: 0,
-            location: "{locTestland}",
-            activity: "{actCamping}"
-        )
+        new() {
+            Uid = 1,
+            Name = "Adventurer",
+            Level = 1,
+            ArchetypeId = 0,
+            RaceId = 0,
+            Location = "{locTestland}",
+            Activity = "{actCamping}"
+        }
     };
 
-    private static readonly Character CreatedCharacter = new(
-        uid: 2,
-        name: "New Character",
-        level: 1,
-        archetypeId: 1,
-        raceId: 1,
-        location: "{locTestland}",
-        activity: "{actCamping}"
-    );
+    private static readonly Character CreatedCharacter = new() {
+        Uid = 2,
+        Name = "New Character",
+        Level = 1,
+        ArchetypeId = 1,
+        RaceId = 1,
+        Location = "{locTestland}",
+        Activity = "{actCamping}"
+    };
 
     protected override void Setup(Container container)
     {

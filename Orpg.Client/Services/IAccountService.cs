@@ -1,3 +1,4 @@
+using Orpg.Shared.Data;
 using Orpg.Shared.Models;
 using Orpg.Shared.Responses;
 
@@ -7,9 +8,9 @@ public interface IAccountService
 {
     Task<RegistrationResponse> RequestRegistrationAsync(BasicAuthentication credentials, string email);
 
-    Task<CharacterListResponse> RequestCharacterListAsync(string authenticationToken);
+    Task<Shared.Data.CharacterListResponse> RequestCharacterListAsync(string authenticationToken);
 
-    Task<CharacterDeletionResponse> RequestCharacterDeletion(string authenticationToken, int uid);
+    Task<Shared.Data.CharacterDeletionResponse> RequestCharacterDeletion(string authenticationToken, int uid);
 
-    Task<CharacterCreationResponse> RequestCharacterCreation(string authenticationToken, string name, byte archetypeId, byte raceId);
+    Task<Shared.Data.CharacterCreationResponse> RequestCharacterCreation(string authenticationToken, string name, byte archetypeId, byte raceId);
 }
