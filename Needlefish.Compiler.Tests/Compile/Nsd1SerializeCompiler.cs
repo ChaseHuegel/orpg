@@ -1,5 +1,6 @@
 ﻿using Needlefish.Compiler.Tests.Schema;
 using System;
+using System.Reflection.Emit;
 using System.Text;
 
 namespace Needlefish.Compiler.Tests.Compile;
@@ -160,37 +161,37 @@ for (int i = 0; i < $field:name?.Length; i++)
 
     private const string FieldHeaderTemplate = 
 @"*((ushort*)offset) = BitConverter.IsLittleEndian ? $field:name_ID : BinaryPrimitives.ReverseEndianness($field:name_ID);
-offset += 2;";
+    offset += 2;";
 
     private const string LengthHeaderTemplate =
 @"*((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)($field:name?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)($field:name?.Length ?? 0));
-offset += 2;";
+    offset += 2;";
 
     private const string DefaultValueTemplate = 
 @"*(($field:type*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness($field:accessor);
-offset += $field:size;";
+    offset += $field:size;";
     
     private const string FloatValueTemplate =
 @"float g__$field:name_Copy = $field:accessor;
 *((float*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness(*(uint*)&g__$field:name_Copy);
-offset += 4;";
+    offset += 4;";
 
     private const string DoubleValueTemplate =
 @"double g__$field:name_Copy = $field:accessor;
 *((double*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness(*(ulong*)&g__$field:name_Copy);
-offset += 8;";
+    offset += 8;";
 
     private const string BoolValueTemplate = 
 @"*((bool*)offset) = $field:accessor;
-offset += $field:size;";
+    offset += $field:size;";
 
     private const string ObjectValueTemplate =
 @"$field:accessor.SerializeInto(buffer, (int)(offset - b));
-offset += $field:accessor.GetSize();";
+    offset += $field:accessor.GetSize();";
 
     private const string EnumValueTemplate =
 @"*((int*)offset) = BitConverter.IsLittleEndian ? (int)$field:accessor : BinaryPrimitives.ReverseEndianness((int)$field:accessor);
-offset += 4;";
+    offset += 4;";
 
     public bool CanCompile(TypeDefinition typeDefinition)
     {
@@ -203,15 +204,11 @@ offset += 4;";
         foreach (FieldDefinition field in typeDefinition.FieldDefinitions)
         {
             StringBuilder fieldBuilder = CompileFieldSerializeInto(field);
-            fieldBuilder.Insert(0, Nsd1Compiler.Indent);
-            fieldBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent);
-
             fieldsBuilder.Append(fieldBuilder);
             fieldsBuilder.AppendLine();
         }
 
-        fieldsBuilder.Insert(0, Nsd1Compiler.Indent);
-        fieldsBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent);
+        fieldsBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent + Nsd1Compiler.Indent + Nsd1Compiler.Indent);
 
         string serializeInto = SerializeIntoTemplate.Replace("$serialize:fields", fieldsBuilder.ToString());
 
@@ -224,49 +221,50 @@ offset += 4;";
 
     private StringBuilder CompileFieldSerializeInto(FieldDefinition field)
     {
-        StringBuilder builder = new();
-
-        builder.AppendLine("#region Serialize $field:name");
-
+        string template = string.Empty;
         if (field.TypeName != "string")
         {
             if (!field.IsOptional && !field.IsArray)
             {
-                builder.AppendLine(FieldTemplate);
+                template = FieldTemplate;
             }
             else if (!field.IsOptional && field.IsArray)
             {
-                builder.AppendLine(ArrayFieldTemplate);
+                template = ArrayFieldTemplate;
             }
             else if (field.IsOptional && !field.IsArray)
             {
-                builder.AppendLine(OptionalFieldTemplate);
+                template = OptionalFieldTemplate;
             }
             else if (field.IsOptional && field.IsArray)
             {
-                builder.AppendLine(OptionalArrayFieldTemplate);
+                template = OptionalArrayFieldTemplate;
             }
         }
         else
         {
             if (!field.IsOptional && !field.IsArray)
             {
-                builder.AppendLine(StringTemplate);
+                template = StringTemplate;
             }
             else if (!field.IsOptional && field.IsArray)
             {
-                builder.AppendLine(StringArrayTemplate);
+                template = StringArrayTemplate;
             }
             else if (field.IsOptional && !field.IsArray)
             {
-                builder.AppendLine(OptionalStringTemplate);
+                template = OptionalStringTemplate;
             }
             else if (field.IsOptional && field.IsArray)
             {
-                builder.AppendLine(OptionalStringArrayTemplate);
+                template = OptionalStringArrayTemplate;
             }
         }
 
+        StringBuilder builder = new();
+
+        builder.AppendLine("#region Serialize $field:name");
+        builder.AppendLine(template);
         builder.AppendLine("#endregion");
 
         builder.Replace("$serialize:header:field", FieldHeaderTemplate);

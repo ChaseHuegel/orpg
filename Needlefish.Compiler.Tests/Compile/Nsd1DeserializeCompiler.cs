@@ -306,18 +306,13 @@ offset += 4;";
             readBuilder.AppendLine(FieldReadTemplate.Replace("$field:name", field.Name));
 
             StringBuilder fieldBuilder = CompileFieldCase(field);
-            fieldBuilder.Insert(0, Nsd1Compiler.Indent);
-            fieldBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent);
-
             casesBuilder.Append(fieldBuilder);
             casesBuilder.AppendLine();
         }
 
-        readBuilder.Insert(0, Nsd1Compiler.Indent);
-        readBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent);
+        readBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent + Nsd1Compiler.Indent + Nsd1Compiler.Indent);
 
-        casesBuilder.Insert(0, Nsd1Compiler.Indent);
-        casesBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent);
+        casesBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent + Nsd1Compiler.Indent + Nsd1Compiler.Indent + Nsd1Compiler.Indent + Nsd1Compiler.Indent);
 
         string unpack = UnpackTemplate
             .Replace("$deserialize:cases", casesBuilder.ToString())
@@ -392,6 +387,7 @@ offset += 4;";
             }
         }
 
+        builder.Replace("\n", "\n" + Nsd1Compiler.Indent);
         return builder;
     }
 
