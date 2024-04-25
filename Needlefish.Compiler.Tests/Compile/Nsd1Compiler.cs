@@ -8,8 +8,10 @@ internal class Nsd1Compiler : INsdCompiler
 {
     internal const string Indent = "    ";
 
-    private static readonly string[] RequiredUsings = new[]
+    private static readonly string[] Prepends = new[]
     {
+        "#pragma warning disable CS0219 // Variable is assigned but its value is never used",
+        "#pragma warning disable CS8602 // Dereference of a possibly null reference.",
         "using System;",
         "using System.Buffers.Binary;",
     };
@@ -38,7 +40,7 @@ internal class Nsd1Compiler : INsdCompiler
         builder.AppendLine("/// </auto-generated>");
         builder.AppendLine();
 
-        foreach (string usingStr in RequiredUsings)
+        foreach (string usingStr in Prepends)
         {
             builder.AppendLine(usingStr);
         }
