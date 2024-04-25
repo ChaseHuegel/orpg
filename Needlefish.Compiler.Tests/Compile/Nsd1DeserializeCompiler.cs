@@ -47,7 +47,7 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
 @"bool g__$field:name_Read = false;";
 
     private const string CaseTemplate =
-@"#region $field:name
+@"#region Deserialize $field:name
 case $field:name_ID:
     if (g__$field:name_Read)
     {

@@ -226,7 +226,7 @@ offset += 4;";
     {
         StringBuilder builder = new();
 
-        builder.AppendLine("#region $field:name");
+        builder.AppendLine("#region Serialize $field:name");
 
         if (field.TypeName != "string")
         {
