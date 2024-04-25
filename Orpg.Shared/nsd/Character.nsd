@@ -1,0 +1,13 @@
+#version 1.0;
+#namespace Orpg.Shared.Data;
+
+message Character
+{
+    int Uid;
+    string Name;
+    byte Level;
+    byte ArchetypeId;
+    byte RaceId;
+    string Location;
+    string Activity;
+}

@@ -1,0 +1,9 @@
+#version 1.0;
+#namespace Orpg.Shared.Data;
+
+message CharacterCreationResponse
+{
+    bool Success;
+    string Message;
+    Character Character;
+}

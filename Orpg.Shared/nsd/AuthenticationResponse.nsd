@@ -1,0 +1,9 @@
+#version 1.0;
+#namespace Orpg.Shared.Data;
+
+message AuthenticationResponse
+{
+    bool Success;
+    string Message;
+    string AuthenticationToken;
+}

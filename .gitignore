@@ -5,6 +5,8 @@
 **/config/
 **/nuget/
 
+gen
+
 *.log
 NuGet.config
 imgui.ini

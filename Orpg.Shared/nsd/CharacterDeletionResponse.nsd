@@ -1,0 +1,8 @@
+#version 1.0;
+#namespace Orpg.Shared.Data;
+
+message CharacterDeletionResponse
+{
+    bool Success;
+    string Message;
+}
