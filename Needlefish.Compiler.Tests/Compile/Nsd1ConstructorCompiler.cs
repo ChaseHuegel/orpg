@@ -44,18 +44,6 @@ internal class Nsd1ConstructorCompiler : INsdTypeCompiler
 
     private static string CompileFieldParameter(FieldDefinition fieldDefinition)
     {
-        string fullyQualifiedTypeStr = $"{fieldDefinition.TypeName}";
-
-        if (fieldDefinition.IsArray)
-        {
-            fullyQualifiedTypeStr += "[]";
-        }
-
-        if (fieldDefinition.IsOptional)
-        {
-            fullyQualifiedTypeStr += "?";
-        }
-
-        return $"{fullyQualifiedTypeStr} _{fieldDefinition.Name}";
+        return $"{fieldDefinition.GetFullyQualifiedType()} _{fieldDefinition.Name}";
     }
 }

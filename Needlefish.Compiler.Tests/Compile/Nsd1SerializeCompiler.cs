@@ -37,7 +37,7 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
 $serialize:value";
 
     private const string OptionalFieldTemplate =
-@"if ($field:name != null)
+@"if ($field:accessor:base != null)
 {
     $serialize:header:field
 
@@ -52,13 +52,13 @@ $serialize:value";
 
 $serialize:header:length
 
-for (int i = 0; i < $field:name?.Length; i++)
+for (int i = 0; i < $field:accessor:base?.Length; i++)
 {
     $serialize:value
 }";
 
     private const string OptionalArrayFieldTemplate =
-@"if ($field:name != null)
+@"if ($field:accessor:base != null)
 {
     $serialize:header:field
 
@@ -67,7 +67,7 @@ for (int i = 0; i < $field:name?.Length; i++)
 
     $serialize:header:length
 
-    for (int i = 0; i < $field:name?.Length; i++)
+    for (int i = 0; i < $field:accessor:base?.Length; i++)
     {
         $serialize:value
     }
@@ -76,13 +76,13 @@ for (int i = 0; i < $field:name?.Length; i++)
     private const string StringTemplate =
 @"$serialize:header:field
 
-if ($field:name != null)
+if ($field:accessor:base != null)
 {
     $serialize:header:length
 
-    for (int i = 0; i < $field:name.Length; i++)
+    for (int i = 0; i < $field:accessor:base.Length; i++)
     {
-        *((char*)offset) = BitConverter.IsLittleEndian ? $field:accessor[i] : (char)BinaryPrimitives.ReverseEndianness($field:accessor[i]);
+        *((char*)offset) = BitConverter.IsLittleEndian ? $field:accessor:context[i] : (char)BinaryPrimitives.ReverseEndianness($field:accessor:context[i]);
         offset += 2;
     }
 }
@@ -93,7 +93,7 @@ else
 }";
 
     private const string OptionalStringTemplate =
-@"if ($field:name != null)
+@"if ($field:accessor:base != null)
 {
     $serialize:header:field
     
@@ -102,9 +102,9 @@ else
 
     $serialize:header:length
 
-    for (int i = 0; i < $field:accessor?.Length; i++)
+    for (int i = 0; i < $field:accessor:context?.Length; i++)
     {
-        *((char*)offset) = BitConverter.IsLittleEndian ? $field:accessor[i] : (char)BinaryPrimitives.ReverseEndianness($field:accessor[i]);
+        *((char*)offset) = BitConverter.IsLittleEndian ? $field:accessor:context[i] : (char)BinaryPrimitives.ReverseEndianness($field:accessor:context[i]);
         offset += 2;
     }
 }";
@@ -114,9 +114,9 @@ else
 
 $serialize:header:length
 
-for (int i = 0; i < $field:name?.Length; i++)
+for (int i = 0; i < $field:accessor:base?.Length; i++)
 {
-    string item = $field:name[i];
+    string item = $field:accessor:base[i];
 
     *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(item?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(item?.Length ?? 0));
     offset += 2;
@@ -132,7 +132,7 @@ for (int i = 0; i < $field:name?.Length; i++)
 }";
 
     private const string OptionalStringArrayTemplate =
-@"if ($field:name != null)
+@"if ($field:accessor:base != null)
 {
     $serialize:header:field
     
@@ -141,9 +141,9 @@ for (int i = 0; i < $field:name?.Length; i++)
 
     $serialize:header:length
 
-    for (int i = 0; i < $field:name?.Length; i++)
+    for (int i = 0; i < $field:accessor:base?.Length; i++)
     {
-        string item = $field:name[i];
+        string item = $field:accessor:base[i];
 
         *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(item?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(item?.Length ?? 0));
         offset += 2;
@@ -164,33 +164,33 @@ for (int i = 0; i < $field:name?.Length; i++)
     offset += 2;";
 
     private const string LengthHeaderTemplate =
-@"*((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)($field:name?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)($field:name?.Length ?? 0));
+@"*((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)($field:accessor:base?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)($field:accessor:base?.Length ?? 0));
     offset += 2;";
 
     private const string DefaultValueTemplate = 
-@"*(($field:type*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness($field:accessor);
+@"*(($field:type*)offset) = BitConverter.IsLittleEndian ? $field:accessor:context : BinaryPrimitives.ReverseEndianness($field:accessor:context);
     offset += $field:size;";
     
     private const string FloatValueTemplate =
-@"float g__$field:name_Copy = $field:accessor;
-*((float*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness(*(uint*)&g__$field:name_Copy);
+@"float g__$field:name_Copy = $field:accessor:context;
+*((float*)offset) = BitConverter.IsLittleEndian ? $field:accessor:context : BinaryPrimitives.ReverseEndianness(*(uint*)&g__$field:name_Copy);
     offset += 4;";
 
     private const string DoubleValueTemplate =
-@"double g__$field:name_Copy = $field:accessor;
-*((double*)offset) = BitConverter.IsLittleEndian ? $field:accessor : BinaryPrimitives.ReverseEndianness(*(ulong*)&g__$field:name_Copy);
+@"double g__$field:name_Copy = $field:accessor:context;
+*((double*)offset) = BitConverter.IsLittleEndian ? $field:accessor:context : BinaryPrimitives.ReverseEndianness(*(ulong*)&g__$field:name_Copy);
     offset += 8;";
 
     private const string BoolValueTemplate = 
-@"*((bool*)offset) = $field:accessor;
+@"*((bool*)offset) = $field:accessor:context;
     offset += $field:size;";
 
     private const string ObjectValueTemplate =
-@"$field:accessor.SerializeInto(buffer, (int)(offset - b));
-    offset += $field:accessor.GetSize();";
+@"$field:accessor:context.SerializeInto(buffer, (int)(offset - b));
+    offset += $field:accessor:context.GetSize();";
 
     private const string EnumValueTemplate =
-@"*((int*)offset) = BitConverter.IsLittleEndian ? (int)$field:accessor : BinaryPrimitives.ReverseEndianness((int)$field:accessor);
+@"*((int*)offset) = BitConverter.IsLittleEndian ? (int)$field:accessor:context : BinaryPrimitives.ReverseEndianness((int)$field:accessor:context);
     offset += 4;";
 
     public bool CanCompile(TypeDefinition typeDefinition)
@@ -264,6 +264,7 @@ for (int i = 0; i < $field:name?.Length; i++)
         StringBuilder builder = new();
 
         builder.AppendLine("#region Serialize $field:name");
+        builder.AppendLine("$field:qualified_type $field:accessor:base = $field:name;");
         builder.AppendLine(template);
         builder.AppendLine("#endregion");
 
@@ -272,16 +273,24 @@ for (int i = 0; i < $field:name?.Length; i++)
         builder.Replace("$serialize:value", GetFieldSerializeValueTemplate(field));
 
         builder.Replace("$field:name", field.Name);
-        builder.Replace("$field:accessor", GetFieldAccessor(field));
+        builder.Replace("$field:qualified_type", field.GetFullyQualifiedType());
+        builder.Replace("$field:accessor:base", GetBaseAccessor(field));
+        builder.Replace("$field:accessor:context", GetContextAccessor(field));
         builder.Replace("$field:type", field.TypeName);
         builder.Replace("$field:size", SizeOfPrimitive(field).ToString());
 
         return builder;
     }
 
-    private string GetFieldAccessor(FieldDefinition field)
+    private string GetBaseAccessor(FieldDefinition field)
     {
-        string accessor = field.IsArray ? $"{field.Name}[i]" : field.Name;
+        return $"g__{field.Name}";
+    }
+
+    private string GetContextAccessor(FieldDefinition field)
+    {
+        var baseAccessor = GetBaseAccessor(field);
+        string accessor = field.IsArray ? $"{baseAccessor}[i]" : baseAccessor;
         if (field.IsOptional && !field.IsArray && field.TypeName != "string")
         {
             accessor += ".Value";

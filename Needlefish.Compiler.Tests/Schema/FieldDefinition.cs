@@ -1,4 +1,6 @@
-﻿namespace Needlefish.Compiler.Tests.Schema;
+﻿using System.Text;
+
+namespace Needlefish.Compiler.Tests.Schema;
 
 public readonly struct FieldDefinition
 {
@@ -17,5 +19,22 @@ public readonly struct FieldDefinition
         Value = value;
         IsOptional = isOptional;
         IsArray = isArray;
+    }
+
+    public string GetFullyQualifiedType()
+    {
+        StringBuilder builder = new(TypeName);
+
+        if (IsArray)
+        {
+            builder.Append("[]");
+        }
+
+        if (IsOptional)
+        {
+            builder.Append("?");
+        }
+
+        return builder.ToString();
     }
 }
