@@ -186,8 +186,12 @@ for (int i = 0; i < $field:accessor:base?.Length; i++)
     offset += $field:size;";
 
     private const string ObjectValueTemplate =
-@"$field:accessor:context.SerializeInto(buffer, (int)(offset - b));
-    offset += $field:accessor:context.GetSize();";
+@"ushort g__$field:name_ObjectLength = (ushort)$field:accessor:context.GetSize();
+    * ((ushort*)offset) = BitConverter.IsLittleEndian ? g__$field:name_ObjectLength : BinaryPrimitives.ReverseEndianness(g__$field:name_ObjectLength);
+    offset += 2;
+
+    $field:accessor:context.SerializeInto(buffer, (int)(offset - b));
+    offset += g__$field:name_ObjectLength;";
 
     private const string EnumValueTemplate =
 @"*((int*)offset) = BitConverter.IsLittleEndian ? (int)$field:accessor:context : BinaryPrimitives.ReverseEndianness((int)$field:accessor:context);

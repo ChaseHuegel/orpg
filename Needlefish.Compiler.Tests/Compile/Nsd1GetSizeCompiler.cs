@@ -103,7 +103,7 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
             if (fieldDefinition.Type == FieldType.Object && !fieldDefinition.IsOptional && !fieldDefinition.IsArray)
             {
                 builder.Append(Nsd1Compiler.Indent);
-                builder.AppendLine($"length += {fieldDefinition.Name}.GetSize();");
+                builder.AppendLine($"length += arrayHeaderLen + {fieldDefinition.Name}.GetSize();");
 
                 builder.AppendLine();
                 continue;
@@ -128,7 +128,7 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
                 builder.Append(Nsd1Compiler.Indent);
                 builder.Append(Nsd1Compiler.Indent);
                 builder.Append(Nsd1Compiler.Indent);
-                builder.AppendLine($"length += {fieldDefinition.Name}[i].GetSize();");
+                builder.AppendLine($"length += arrayHeaderLen + {fieldDefinition.Name}[i].GetSize();");
 
                 builder.Append(Nsd1Compiler.Indent);
                 builder.Append(Nsd1Compiler.Indent);
@@ -151,7 +151,7 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
                     builder.Append("optionalFieldLen + ");
                 }
 
-                builder.AppendLine($"{fieldDefinition.Name}.Value.GetSize();");
+                builder.AppendLine($"arrayHeaderLen + {fieldDefinition.Name}.Value.GetSize();");
 
                 builder.Append(Nsd1Compiler.Indent);
                 builder.AppendLine("}");
@@ -208,7 +208,7 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
                 builder.Append(Nsd1Compiler.Indent);
                 builder.Append(Nsd1Compiler.Indent);
                 builder.Append(Nsd1Compiler.Indent);
-                builder.AppendLine($"length += {fieldDefinition.Name}[i].GetSize();");
+                builder.AppendLine($"length += arrayHeaderLen + {fieldDefinition.Name}[i].GetSize();");
 
                 builder.Append(Nsd1Compiler.Indent);
                 builder.Append(Nsd1Compiler.Indent);

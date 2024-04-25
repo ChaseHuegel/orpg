@@ -250,18 +250,18 @@ namespace Lexer.Tests
                 length += optionalFieldLen + arrayHeaderLen + (OptionalEnums.Length * enumLen);
             }
 
-            length += Submessage.GetSize();
+            length += arrayHeaderLen + Submessage.GetSize();
 
             if (OptionalSubmessage != null)
             {
-                length += optionalFieldLen + OptionalSubmessage.Value.GetSize();
+                length += optionalFieldLen + arrayHeaderLen + OptionalSubmessage.Value.GetSize();
             }
 
             if (Submessages != null)
             {
                 for (int i = 0; i < Submessages.Length; i++)
                 {
-                    length += Submessages[i].GetSize();
+                    length += arrayHeaderLen + Submessages[i].GetSize();
                 }
             }
 
@@ -270,7 +270,7 @@ namespace Lexer.Tests
                 length += optionalFieldLen + arrayHeaderLen + (OptionalSubmessages.Length * 0);
                 for (int i = 0; i < OptionalSubmessages.Length; i++)
                 {
-                    length += OptionalSubmessages[i].GetSize();
+                    length += arrayHeaderLen + OptionalSubmessages[i].GetSize();
                 }
             }
 
@@ -653,8 +653,12 @@ namespace Lexer.Tests
                     *((ushort*)offset) = BitConverter.IsLittleEndian ? Submessage_ID : BinaryPrimitives.ReverseEndianness(Submessage_ID);
                     offset += 2;
 
+                    ushort g__Submessage_ObjectLength = (ushort)g__Submessage.GetSize();
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? g__Submessage_ObjectLength : BinaryPrimitives.ReverseEndianness(g__Submessage_ObjectLength);
+                    offset += 2;
+
                     g__Submessage.SerializeInto(buffer, (int)(offset - b));
-                    offset += g__Submessage.GetSize();
+                    offset += g__Submessage_ObjectLength;
                     #endregion
 
                     #region Serialize OptionalSubmessage
@@ -667,8 +671,12 @@ namespace Lexer.Tests
                         *((byte*)offset) = (byte)1;
                         offset += 1;
 
+                        ushort g__OptionalSubmessage_ObjectLength = (ushort)g__OptionalSubmessage.Value.GetSize();
+                        *((ushort*)offset) = BitConverter.IsLittleEndian ? g__OptionalSubmessage_ObjectLength : BinaryPrimitives.ReverseEndianness(g__OptionalSubmessage_ObjectLength);
+                        offset += 2;
+
                         g__OptionalSubmessage.Value.SerializeInto(buffer, (int)(offset - b));
-                        offset += g__OptionalSubmessage.Value.GetSize();
+                        offset += g__OptionalSubmessage_ObjectLength;
                     }
                     #endregion
 
@@ -682,8 +690,12 @@ namespace Lexer.Tests
 
                     for (int i = 0; i < g__Submessages?.Length; i++)
                     {
+                        ushort g__Submessages_ObjectLength = (ushort)g__Submessages[i].GetSize();
+                        *((ushort*)offset) = BitConverter.IsLittleEndian ? g__Submessages_ObjectLength : BinaryPrimitives.ReverseEndianness(g__Submessages_ObjectLength);
+                        offset += 2;
+
                         g__Submessages[i].SerializeInto(buffer, (int)(offset - b));
-                        offset += g__Submessages[i].GetSize();
+                        offset += g__Submessages_ObjectLength;
                     }
                     #endregion
 
@@ -702,8 +714,12 @@ namespace Lexer.Tests
 
                         for (int i = 0; i < g__OptionalSubmessages?.Length; i++)
                         {
+                            ushort g__OptionalSubmessages_ObjectLength = (ushort)g__OptionalSubmessages[i].GetSize();
+                            *((ushort*)offset) = BitConverter.IsLittleEndian ? g__OptionalSubmessages_ObjectLength : BinaryPrimitives.ReverseEndianness(g__OptionalSubmessages_ObjectLength);
+                            offset += 2;
+
                             g__OptionalSubmessages[i].SerializeInto(buffer, (int)(offset - b));
-                            offset += g__OptionalSubmessages[i].GetSize();
+                            offset += g__OptionalSubmessages_ObjectLength;
                         }
                     }
                     #endregion
