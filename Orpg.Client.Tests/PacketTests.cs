@@ -56,31 +56,27 @@ internal partial class PacketTests: TestBase
     private static CharacterCreationResponse CharacterCreationResponseSource = new CharacterCreationResponse(true, "Character created successfully.", new Character());
     private static CharacterDeletionResponse CharacterDeletionResponseSource = new CharacterDeletionResponse(true, "Character deleted successfully.");
 
-    private byte[] CreateCombinedPacket()
+    private byte[] CreateMockPacketStreamData()
     {
-        byte[] packet1 = CharacterDeletionResponseSource.Serialize();
-        byte[] packet2 = CharacterCreationResponseSource.Serialize();
+        byte[] packet1 = new Packet(0, CharacterCreationResponseSource.Serialize()).Serialize();
+        byte[] packet2 = new Packet(1, CharacterDeletionResponseSource.Serialize()).Serialize();
 
-        byte[] packet1Length = BitConverter.GetBytes(packet1.Length + 2);
-        byte[] packet2Length = BitConverter.GetBytes(packet2.Length + 2);
+        byte[] packet1Length = BitConverter.GetBytes(packet1.Length);
+        byte[] packet2Length = BitConverter.GetBytes(packet2.Length);
 
-        byte[] packet1Id = BitConverter.GetBytes((ushort)1);
-        byte[] packet2Id = BitConverter.GetBytes((ushort)0);
+        byte[] buffer = new byte[8 + packet1.Length + packet2.Length];
 
-        byte[] joinedPacket = new byte[12 + packet1.Length + packet2.Length];
-        packet1Length.CopyTo(joinedPacket, 0);
-        packet1Id.CopyTo(joinedPacket, 4);
-        packet1.CopyTo(joinedPacket, 6);
+        packet1Length.CopyTo(buffer, 0);
+        packet1.CopyTo(buffer, 4);
 
-        packet2Length.CopyTo(joinedPacket, packet1.Length + 6 + 0);
-        packet2Id.CopyTo(joinedPacket, packet1.Length + 6 + 4);
-        packet2.CopyTo(joinedPacket, packet1.Length + 6 + 6);
+        packet2Length.CopyTo(buffer, packet1.Length + 4 + 0);
+        packet2.CopyTo(buffer, packet1.Length + 4 + 4);
 
-        return joinedPacket;
+        return buffer;
     }
 
     [Test]
-    public async Task ReceiveCharacterCreation()
+    public async Task ReceiveCharacterCreationResponse()
     {
         var simpleDataService = Container.Resolve<SimpleDataService>();
         var messageConsumer = Container.Resolve<IMessageConsumer<CharacterCreationResponse>>(serviceKey: "text");
@@ -94,11 +90,34 @@ internal partial class PacketTests: TestBase
             tcs.SetResult(e);
         }
 
-        simpleDataService.Post(CreateCombinedPacket());
+        simpleDataService.Post(CreateMockPacketStreamData());
 
-        CharacterCreationResponse characterCreationResponse = await tcs.Task;
+        CharacterCreationResponse response = await tcs.Task;
         messageConsumer.NewMessage -= onNewMessage;
 
-        Assert.That(characterCreationResponse.Message, Is.EqualTo(CharacterCreationResponseSource.Message));
+        Assert.That(response.Message, Is.EqualTo(CharacterCreationResponseSource.Message));
+    }
+
+    [Test]
+    public async Task ReceiveCharacterDeletionResponse()
+    {
+        var simpleDataService = Container.Resolve<SimpleDataService>();
+        var messageConsumer = Container.Resolve<IMessageConsumer<CharacterDeletionResponse>>(serviceKey: "text");
+
+        var tcs = new TaskCompletionSource<CharacterDeletionResponse>();
+
+        messageConsumer.NewMessage += onNewMessage;
+
+        void onNewMessage(object? sender, CharacterDeletionResponse e)
+        {
+            tcs.SetResult(e);
+        }
+
+        simpleDataService.Post(CreateMockPacketStreamData());
+
+        CharacterDeletionResponse response = await tcs.Task;
+        messageConsumer.NewMessage -= onNewMessage;
+
+        Assert.That(response.Message, Is.EqualTo(CharacterDeletionResponseSource.Message));
     }
 }

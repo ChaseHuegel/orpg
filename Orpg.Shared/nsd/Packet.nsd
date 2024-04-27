@@ -1,0 +1,8 @@
+#version 1.0;
+#namespace Orpg.Shared.Data;
+
+message Packet
+{
+    int Id = 0;
+    byte[] Data = 10;
+}

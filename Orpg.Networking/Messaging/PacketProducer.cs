@@ -1,5 +1,6 @@
 using Orpg.Networking.Events;
 using Orpg.Networking.LowLevel;
+using Orpg.Shared.Data;
 using Orpg.Shared.Serialization;
 
 namespace Orpg.Networking.Messaging;
@@ -11,12 +12,12 @@ public class PacketProducer<T> : MessageProducer<T>, IDisposable
 
     protected override void OnDataReceived(object? sender, DataEventArgs e)
     {
-        ushort packetId = BitConverter.ToUInt16(e.Data, 0);
-        if (packetId != ((IPacketSerializer<T>)_serializer).PacketId)
+        Packet packet = Packet.Deserialize(e.Data, 0, e.Data.Length);
+        if (packet.Id != ((IPacketSerializer<T>)_serializer).PacketId)
         {
             return;
         }
 
-        base.OnDataReceived(sender, e);
+        base.OnDataReceived(sender, new DataEventArgs(packet.Data));
     }
 }
