@@ -1,7 +1,7 @@
 ﻿using DryIoc;
-using Orpg.Networking.Events;
 using Orpg.Networking.LowLevel;
 using Orpg.Networking.Messaging;
+using Orpg.Networking.Services;
 using Orpg.Shared.Serialization;
 using System.Text;
 
@@ -9,16 +9,6 @@ namespace Orpg.Client.Tests;
 
 internal partial class MessageServiceTests: TestBase
 {
-    internal class SimpleDataService : IDataService
-    {
-        public event EventHandler<DataEventArgs>? Received;
-
-        public void Post(byte[] bytes)
-        {
-            Received?.Invoke(this, new DataEventArgs(bytes));
-        }
-    }
-
     protected override void Setup(Container container)
     {
         container.Register<IDataService, SimpleDataService>(Reuse.Singleton, serviceKey: "text");

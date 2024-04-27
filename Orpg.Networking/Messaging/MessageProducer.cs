@@ -6,7 +6,7 @@ namespace Orpg.Networking.Messaging;
 
 public class MessageProducer<T> : IMessageProducer<T>, IDisposable
 {
-    private readonly ISerializer<T> _serializer;
+    protected readonly ISerializer<T> _serializer;
     private IDataProducer[]? _dataProducers;
     private bool _disposed;
 
@@ -26,7 +26,7 @@ public class MessageProducer<T> : IMessageProducer<T>, IDisposable
         _dataProducers = matchingDataProducers.ToArray();
     }
 
-    private void OnDataReceived(object? sender, DataEventArgs e)
+    protected virtual void OnDataReceived(object? sender, DataEventArgs e)
     {
         T value = _serializer.Deserialize(e.Data);
         NewMessage?.Invoke(this, value);
