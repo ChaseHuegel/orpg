@@ -1,0 +1,7 @@
+#version 1.0;
+#namespace Orpg.Shared.Data;
+
+message TextMessage
+{
+    string Message = 10;
+}
