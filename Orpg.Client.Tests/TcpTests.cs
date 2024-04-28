@@ -132,6 +132,7 @@ internal class TcpTests: TestBase
     }
 
     [Test]
+    [Timeout(5000)]
     public async Task ReceiveTextMessage()
     {
         var tcpService = Container.Resolve<LengthDelimitedTcpService>();
@@ -159,5 +160,19 @@ internal class TcpTests: TestBase
         TextMessage response = await tcs.Task;
         messageConsumer.NewMessage -= onNewMessage;
         Assert.That(response.Message, Is.EqualTo("over the fence."));
+    }
+
+    [Test]
+    [Timeout(5000)]
+    public async Task AwaitTextMessage()
+    {
+        var tcpService = Container.Resolve<LengthDelimitedTcpService>();
+        var messageProducer = Container.Resolve<IMessageProducer<TextMessage>>(serviceKey: "text");
+
+        var endPoint = new IPEndPoint(IPAddress.Loopback, 1234);
+        tcpService.Start(endPoint);
+
+        var result = await new PacketAwaiter<TextMessage>(messageProducer);
+        Assert.That(result.Message, Is.EqualTo("The quick"));
     }
 }
