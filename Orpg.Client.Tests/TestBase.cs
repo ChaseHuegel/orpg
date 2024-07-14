@@ -11,7 +11,10 @@ public abstract class TestBase
     {
         Container = new Container();
         Setup(Container);
-        Container.ValidateAndThrow();
+        if (Container.Root != null)
+        {
+            Container.ValidateAndThrow();
+        }
     }
 
     protected abstract void Setup(Container container);

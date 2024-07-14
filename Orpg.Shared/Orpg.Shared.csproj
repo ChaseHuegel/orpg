@@ -7,6 +7,10 @@
   <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 </PropertyGroup>
 
+<ItemGroup>
+  <PackageReference Include="Samboy063.Tomlet" Version="5.3.1" />
+</ItemGroup>
+
 <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
   <Exec Command="nsdc -i nsd -o gen" />
 </Target>
